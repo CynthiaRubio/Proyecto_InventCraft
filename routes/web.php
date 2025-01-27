@@ -1,0 +1,120 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+// use App\Http\Controllers\BuildingController;
+//use App\Http\Controllers\UserController;
+// use App\Http\Controllers\InventionController;
+use App\Http\Controllers\MaterialTypeController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\InventionTypeController;
+use App\Http\Controllers\InventionController;
+use App\Http\Controllers\BuildingController;
+use App\Http\Controllers\ZoneController;
+use App\Http\Controllers\ActionBuildingController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
+
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+//Ruta que carga la página inicial del juego
+Route::get('/', function () {
+    return view('home.index');
+})->name('index');
+
+//Ruta que carga la vista de registro
+Route::get('home/register' , function() {
+    return view('home/register');
+})->name('initial_register');
+
+//Ruta que carga la vista de login
+Route::get('home/login' , function() {
+    return view('home/login');
+}) -> name('initial_login');
+
+//Ruta para logearse
+Route::post('home/login' , [AuthController::class , 'login'])->name('login');
+
+//Ruta para registrarse
+Route::post('home/register' , [AuthController::class , 'register'])->name('register');
+
+//Ruta para cerrar sesión
+Route::get('home/logout' , [AuthController::class , 'logout'])->name('logout');
+
+
+//Ruta que carga la vista de construir edificio pasándole el id del edificio a crear
+Route::get('actionBuildings/create/{building}', [ActionBuildingController::class, 'create'])->name('actionBuildings.create.withBuilding');
+
+//Ruta que carga la vista de crear invento pasándole el tipo de invento
+Route::get('inventions/create/{invention_type}', [InventionController::class, 'create'])->name('inventions.create.withType');
+
+//Ruta que carga el ranking de los usuarios
+Route::get('/users/ranking', [UserController::class, 'ranking'])->name('users.ranking');
+
+//Para todas las funciones de los controladores CRUD
+Route::resources([
+        'zones' => ZoneController::class,
+        'materialTypes' => MaterialTypeController::class,
+        'materials' => MaterialController::class,
+        'inventionTypes' => InventionTypeController::class,
+        'inventions' => InventionController::class,
+        'buildings' => BuildingController::class,
+        'actionBuildings' => ActionBuildingController::class,
+        'users' => UserController::class,
+
+        // 'inventories' => InventoryController::class,
+        // 'stats' => StatController::class,
+        // 'actions' => ActionController::class,
+        // 'actionTypes' => ActionType::class,
+    ]);
+
+//Route::get('/buildings/{name}', [BuildingController::class , 'create']);
+
+// Route::resource('/materialTypes', MaterialTypeController::class); /* De esta forma usa todos los CRUD */
+// Route::get('/materialTypes', [MaterialTypeController::class, 'index']);
+// Route::get('/materialTypes/{id}', [MaterialTypeController::class, 'show']);//->name('materialTypes.show');
+
+
+/*
+Route::get('/', function () {
+    return view('welcome');
+});
+*/
+
+// Route::get('/', [BuildingController::class, 'index']);
+
+// // Rutas adicionales para estadísticas de building
+// Route::get('buildings/{building}/stats/select', [BuildingController::class, 'selectStat'])->name('buildings.selectStat');
+// Route::post('buildings/{building}/stats', [BuildingController::class, 'addStat'])->name('buildings.addStat');
+// Route::get('buildings/{building}/stats/{stat}/edit', [BuildingController::class, 'editStat'])->name('buildings.editStat');
+// Route::put('buildings/{building}/stats/{stat}', [BuildingController::class, 'updateStat'])->name('buildings.updateStat');
+// Route::delete('buildings/{building}/stats/{stat}', [BuildingController::class, 'removeStat'])->name('buildings.removeStat');
+
+// // Rutas adicionales para estadísticas de invention
+// Route::get('inventions/{invention}/stats/select', [InventionController::class, 'selectStat'])->name('inventions.selectStat');
+// Route::post('inventions/{invention}/stats', [InventionController::class, 'addStat'])->name('inventions.addStat');
+// Route::get('inventions/{invention}/stats/{stat}/edit', [InventionController::class, 'editStat'])->name('inventions.editStat');
+// Route::put('inventions/{invention}/stats/{stat}', [InventionController::class, 'updateStat'])->name('inventions.updateStat');
+// Route::delete('inventions/{invention}/stats/{stat}', [InventionController::class, 'removeStat'])->name('inventions.removeStat');
+
+// // Rutas adicionales para estadísticas de user
+// Route::get('users/{user}/stats/select', [UserController::class, 'selectStat'])->name('users.selectStat');
+// Route::post('users/{user}/stats', [UserController::class, 'addStat'])->name('users.addStat');
+// Route::get('users/{user}/stats/{stat}/edit', [UserController::class, 'editStat'])->name('users.editStat');
+// Route::put('users/{user}/stats/{stat}', [UserController::class, 'updateStat'])->name('users.updateStat');
+// Route::delete('users/{user}/stats/{stat}', [UserController::class, 'removeStat'])->name('users.removeStat');
+
+// Route::resources([
+//     'buildings' => BuildingController::class,
+//     'users' => UserController::class,
+//     'inventions' => InventionController::class,
+// ]);

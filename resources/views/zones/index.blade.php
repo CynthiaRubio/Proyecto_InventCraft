@@ -1,0 +1,61 @@
+@extends('layouts.full') <!-- Hereda de la plantilla de layouts app -->
+
+@section('title', 'Zonas') <!-- Le pasamos el titulo a la plantilla -->
+
+@section('content') <!-- Le pasamos el contenido a la plantilla -->
+
+    <h2 class="text-center mb-4">Listado de zonas:</h2>
+
+    <div class="row g-3">
+        @foreach($zones as $zone)
+            <div class="col-12 col-md-4">
+                <a href="{{ url('zones/' . $zone->id) }}" class="d-block">
+
+
+                    <div class="image-container">
+                        <img src="{{ asset('images/zones/' . $zone->name . '.png') }}" class="img-fluid rounded shadow" alt="{{ $zone->name }}">
+                        <div class="text-overlay d-flex align-items-center justify-content-center">
+                            <h5 class="text-dark text-uppercase m-0">{{ $zone->name }}</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        @endforeach
+    </div>
+
+
+<style>
+.image-container {
+    position: relative;
+    overflow: hidden;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.image-container img {
+    width: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-container:hover img {
+    transform: translateY(-10px);
+}
+
+.text-overlay {
+    position: absolute;
+    font-weight:600px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-container:hover .text-overlay {
+    opacity: 1;
+}
+</style>
+
+@endsection
