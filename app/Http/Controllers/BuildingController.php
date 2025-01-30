@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Building;
 use App\Models\InventionType;
 use App\Models\BuildingStat;
-use App\Models\ActionBuilding;
+use App\Models\Action;
 
 class BuildingController extends Controller
 {
@@ -23,7 +23,9 @@ class BuildingController extends Controller
      */
     public function show(string $id)
     {
-        $building = Building::findOrFail($id);
+        $user = auth()->user();
+
+        $building = Building::with(['actions:efficiency','inventionTypes'])->findOrFail($id);
 
         // $buildingName = (Building::where('id', '$building'))->name;
 
@@ -43,7 +45,7 @@ class BuildingController extends Controller
 
         $inventions_need = InventionType::where('building_id', $building->_id)->get();
 
-        $actual_level = ActionBuilding::where('building_id',$building->_id)->count();
+        $actual_level = Action::where('user_id', $user->_id)->where('actionable_id', $building->_id)->count();
 
         return view('buildings.show', compact('building','inventions_need' , 'actual_level')); //,'building_stat','stat'));
     }

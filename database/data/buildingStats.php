@@ -12,10 +12,10 @@ $ceramica = Building::where('name', 'Taller de Cerámica')->first();
 $textil = Building::where('name', 'Fábrica de Textiles')->first();
 $acueducto = Building::where('name', 'Sistemas de Acueductos')->first();
 
-$suerte = Stat::where('stat_type', 'Suerte')->get();
-$vitalidad = Stat::where('stat_type', 'Vitalidad')->get();
-$ingenio = Stat::where('stat_type', 'Ingenio')->get();
-$velocidad = Stat::where('stat_type', 'Velocidad')->get();
+$suerte = Stat::where('name', 'Suerte')->get();
+$vitalidad = Stat::where('name', 'Vitalidad')->get();
+$ingenio = Stat::where('name', 'Ingenio')->get();
+$velocidad = Stat::where('name', 'Velocidad')->get();
 
 
 return [

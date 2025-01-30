@@ -29,7 +29,7 @@ class Invention extends Model
 
     /* InventionType 1:N Inventions */
     public function inventionType(){
-        return $this->belongsTo(InventionType::class);
+        return $this->belongsTo(InventionType::class , 'invention_type_id');
     }
 
     /* Material 1:N Inventions */
@@ -39,23 +39,23 @@ class Invention extends Model
 
     /* Inventory 1:N Inventions */
     public function inventory(){
-        return $this->belongsTo(Inventory::class);
+        return $this->belongsTo(Inventory::class , 'inventory_id');
     }
 
     /* ActionBuilding 1:N Inventions */
     public function actionBuilding(){
-        return $this->belongsTo(ActionBuilding::class);
+        return $this->belongsTo(ActionBuilding::class , 'action_building_id');
     }
 
     /* RELACIONES CON ENTIDADES POLIMORFICAS */
 
     /* Action (Polimórfica) 1:1 Inventions */
-    public function action(){ //REVISAR SI ES ACTIONABLE
+    public function action(){
         return $this->morphOne(Action::class , 'actionable');
     }
 
     /* Resources (Polimórfica) N:1 Invention */
-    public function resources(){   //¿Plural o singular?
+    public function resources(){ 
         return $this->morphMany(Resource::class , 'resourceable');
     }
 
@@ -63,12 +63,12 @@ class Invention extends Model
 
     /* Invention 1:N Inventions */
     public function inventionUsed(){
-        return $this->belongsTo(Invention::class, 'invention_id');
+        return $this->belongsTo(Invention::class, 'invention_created_id');
     }
 
-    /* Inventions N:1 Invention */
+    /* Invention 1:N Inventions */
     public function inventionCreated(){
-        return $this->hasMany(Invention::class , 'invention_created_id');
+        return $this->hasMany(Invention::class , 'invention_id');
     }
 
 }

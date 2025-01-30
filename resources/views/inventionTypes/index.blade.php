@@ -5,26 +5,59 @@
 
 @section('content') <!-- Le pasamos el contenido a la plantilla -->
 
-    <h2 class="text-center">Tipos de Inventos</h2>
-    
-    <div class="table-responsive mb-4">
-        <table class="table table-bordered text-center">
-            <thead class="table-light">
-                <tr>
-                    <th class="text-center">Nombre</th>
-                    <th class="text-center">Ver inventos de este tipo</th>
-                    <th class="text-center">Crear invento</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($inventionTypes as $type)
-                <tr>
-                    <td>{{$type->name}}</td>
-                    <td><a href="{{ route ('inventionTypes.show' , $type->id)}}" class="btn btn-warning">Ver inventos</a></td>
-                    <td><a href="{{route('inventions.create.withType' , $type )}}" class="btn btn-warning">Crear un invento de este tipo</a></td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+<h2 class="text-center mb-5 text-black">Tipos de Inventos</h2>
+
+<div class="container mt-5">
+    <div class="accordion" id="inventionTypesAccordion" style="max-width: 800px; margin: 0 auto;">
+        @foreach($inventionTypes as $index => $type)
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ $index }}">
+                    <button class="accordion-button text-center fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $index }}" aria-expanded="true" aria-controls="collapse{{ $index }}">
+                        {{ $type->name }}
+                    </button>
+                </h2>
+
+                <div id="collapse{{ $index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $index }}" data-bs-parent="#inventionTypesAccordion">
+                    <div class="accordion-body text-center">
+                        <img src="{{ asset('images/inventionTypes/' . $type->name . '.png') }}" alt="{{ $type->name }}" class="img-fluid mb-3" style="width: 250px; height: auto;">
+                    </div>
+
+                    <div class="accordion-body text-center">
+                        <p><strong>Zona en la que puedes encontrarlo:</strong> {{ $type->zone->name }}</p>
+                        @if(count($type->inventionTypes) > 0)
+                            <p><strong>Tipos de inventos que puedes crear a partir de {{$type->name}}:</strong>
+                                <ul class="list-unstyled text-center">
+                                    @foreach($type->inventionTypes as $invention)
+                                        <li>{{ $invention->inventionType->name }}</li>
+                                    @endforeach
+                                </ul>
+                            </p>
+                        @endif
+                        @if(count($type->inventionTypesNeed) > 0)
+                            <p><strong>Inventos necesarios para su creación:</strong>
+                                <ul class="list-unstyled text-center">
+                                    @foreach($type->inventionTypesNeed as $invention)
+                                        <li>{{ $invention->inventionTypeNeed->name }}</li>
+                                    @endforeach
+                                </ul>
+                            </p>
+                        @endif
+                        <p><strong>Edificio que puedes construir:</strong> {{ $type->building->name }}</p>
+                    </div>
+
+                    <div class="accordion-body text-center">
+                        <a href="{{ route('inventories.show', auth()->user()->id) }}" class="btn btn-warning mt-3">Ver inventos de este tipo</a>
+                    </div>
+
+                    <div class="accordion-body text-center">
+                        <a href="{{ route('inventions.create.withType', $type) }}" class="btn btn-warning mt-3">Crear un invento de este tipo</a>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
+</div>
+
+
+
 @endsection

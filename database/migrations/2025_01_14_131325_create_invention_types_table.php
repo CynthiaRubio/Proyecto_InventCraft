@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('invention_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('material_type_id')->constrained()->onDelete('cascade');
-            $table->foreignId('zone_id')->constrained()->onDelete('cascade');
-            $table->foreignId('building_id')->constrained()->onDelete('cascade');
+            $table->foreignId('material_type_id')->constrained('material_types')->onDelete('cascade');
+            $table->foreignId('zone_id')->constrained('zones')->onDelete('cascade');
+            $table->foreignId('building_id')->constrained('buildings')->onDelete('cascade');
             $table->string('name');
             $table->text('description');
             $table->integer('level_required');

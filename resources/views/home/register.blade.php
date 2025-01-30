@@ -1,13 +1,17 @@
-@extends('layouts.full')
+@extends('layouts.basic')
 
 @section('title', 'Registro')
 
 @section('content')
-    <div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
-        <!-- Logo -->
-        <img src="{{ asset('images/logo.png') }}" alt="Logo del Juego" class="img-fluid" style="max-width: 300px;">
+<div class="container mt-5">
     
-        <form action="{{ route('register') }}" method="post">
+    <div class="row align-items-center">
+    <div class="col-md-6 text-center">
+    <!-- <div class="d-flex flex-column align-items-center justify-content-center min-vh-100"> -->
+        <!-- Logo -->
+        <img src="{{ asset('images/home/logo.png') }}" alt="Logo del Juego" class="img-fluid" style="max-width: 300px;">
+    
+        <form action="{{ route('form.register') }}" method="post">
             @csrf
             
             <div class="form-group">
@@ -40,9 +44,15 @@
                 <button type="submit" class="btn btn-success">Regístrate</button>
             </div>
             <br>
-            <div class="form-group text-center">
-                <a href="{{ route('index') }}" class="btn btn-secondary">Cancelar registro</a>
-            </div>
         </form>
+        
     </div>
+    <div class="col-md-6 text-center">
+        <img src= "{{asset('images/home/principal.png')}}" alt="Foto principal del juego" class="img-fluid">
+        <div class="text-center">
+            <p>Si ya estás registrado <a href="{{ route('login') }}" class="btn btn-primary">Inicia Sesión</a></p>
+        </div>
+    </div>
+</div>
+</div>
 @endsection

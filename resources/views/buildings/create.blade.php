@@ -15,7 +15,7 @@
             <select id="{{ $type->id }}" name="inventions[{{ $type->id }}][]" required multiple >
                 @foreach($inventions_inventory as $invention)
                     @if($invention->invention_type_id === $type->_id)
-                        <option value="{{$invention->id}}" name="invention_id">{{$invention->name}}</option>
+                        <option value="{{$invention->id}}" name="invention_id">{{$invention->name}}: Tiene {{$invention->efficiency}} puntos de eficiencia</option>
                     @endif
                 @endforeach
             </select>
@@ -23,10 +23,6 @@
             <br>
         @endforeach
         <br>
-    <!-- <input type="text" name="name" id="name" value="{{ old('name') }}" ><br>
-
-    <label for="description">Description</label><br>
-    <textarea name="description" id="description" >{{ old('description') }}</textarea><br> -->
 
     <a href="{{ route('actionBuildings.store') }}"><button type="submit" class="btn btn-warning">Crear Edificio</button></a>
 </form>

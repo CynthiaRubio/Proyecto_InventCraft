@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inventory_materials', function (Blueprint $table) {
-            $table->foreignId('inventory_id')->constrained()->onDelete('cascade');
-            $table->foreignId('material_id')->constrained()->onDelete('cascade');
+            $table->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
+            $table->foreignId('material_id')->constrained('materials')->onDelete('cascade');
             $table->integer('quantity');
             $table->timestamps();
             $table->softDeletes();
@@ -26,7 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inventories_materials');
         Schema::dropIfExists('inventory_materials');
     }
 };

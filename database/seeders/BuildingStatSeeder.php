@@ -27,10 +27,10 @@ class BuildingStatSeeder extends Seeder
         $acueducto = Building::where('name', 'Sistemas de Acueductos')->first();
         $estacion_espacial = Building::where('name', 'Estación Espacial')->first();
 
-        $suerte = Stat::where('stat_type','Suerte')->first();
-        $vitalidad = Stat::where('stat_type','Vitalidad')->first();
-        $ingenio = Stat::where('stat_type','Ingenio')->first();
-        $velocidad = Stat::where('stat_type','Velocidad')->first();
+        $suerte = Stat::where('name','Suerte')->first();
+        $vitalidad = Stat::where('name','Vitalidad')->first();
+        $ingenio = Stat::where('name','Ingenio')->first();
+        $velocidad = Stat::where('name','Velocidad')->first();
 
         $estadisticas = Stat::all();
         $estadistica_aleatoria = $estadisticas->random();

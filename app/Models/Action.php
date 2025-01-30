@@ -10,6 +10,9 @@ class Action extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
+    protected $collection = 'actions';
+    
     protected $fillable = [
         'user_id',
         'action_type_id',                                   
@@ -29,9 +32,9 @@ class Action extends Model
         return $this->morphTo();
     }
 
-    /* TO DO Revisar si con ActionBuilding se debe hacer a parte */
+    /* Relación N:M con Building a través de la tabla pivote ActionBuilding */
     public function buildings(){
-        return $this->hasMany(ActionBuilding::class , 'building_id'); //¿Seria building_id?
+        return $this->morphOne(ActionBuilding::class , 'actionable');
     }
 
     /* ActionType 1:N Actions */

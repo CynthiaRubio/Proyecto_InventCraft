@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 // use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use MongoDB\Laravel\Eloquent\Model; //Esto no se si hace falta ponerlo: no hace falta usarlo porque no lo necesita ahora mismo
+use MongoDB\Laravel\Eloquent\Model;
 
 use MongoDB\Laravel\Auth\User as Authenticatable;
 
@@ -16,6 +16,9 @@ class User extends Authenticatable
     use HasApiTokens;
     use HasFactory;
     use Notifiable;
+
+    protected $connection = 'mongodb';
+    protected $collection = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +31,8 @@ class User extends Authenticatable
         'password',
         'level',
         'experience',
+        'unasigned_points',
+        'avatar',
     ];
 
     /**
@@ -56,17 +61,17 @@ class User extends Authenticatable
 
     /* Stat N:M User */
     public function stats(){
-        return $this->hasMany(UserStat::class);
+        return $this->hasMany(UserStat::class , 'user_id');
     }
 
     /* Inventory 1:1 User */
     public function inventory(){
-        return $this->hasOne(Inventory::class);
+        return $this->hasOne(Inventory::class , 'user_id');
     }
 
     /* Action N:1 User */
     public function actions(){
-        return $this->hasMany(Action::class , 'user_id'); //¿O morphMany sin actionable?
+        return $this->hasMany(Action::class , 'user_id');
     }
 
 

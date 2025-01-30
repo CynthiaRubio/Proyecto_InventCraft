@@ -11,10 +11,9 @@
 
         <div class="col-md-6">
 
-            <!-- <p class="text-center ">Nombre: {{$zone->name}}</p>
-            <p class="text-center">Coordenadas: [{{$zone->coord_x}} , {{$zone->coord_y}}]</p> -->
-
-            <div class="mt-4">
+            <h3 class="text-center">Coordenadas: [{{$zone->coord_x}} , {{$zone->coord_y}}]</h3>
+    <br>
+            <div class="mt-">
                 <h3 class="text-center">Recursos que puedes encontrar</h3>
 
                 <div class="accordion" id="accordionResources">
@@ -29,7 +28,7 @@
                         <div id="collapseMaterials" class="accordion-collapse collapse" aria-labelledby="headingMaterials" data-bs-parent="#accordionResources">
                             <div class="accordion-body">
                                 <ul class="list-group">
-                                    @foreach($materials as $material)
+                                    @foreach($zone->materials as $material)
                                         <li class="list-group-item">{{ $material->name }}</li>
                                     @endforeach
                                 </ul>
@@ -47,7 +46,7 @@
                         <div id="collapseInventions" class="accordion-collapse collapse" aria-labelledby="headingInventions" data-bs-parent="#accordionResources">
                             <div class="accordion-body">
                                 <ul class="list-group">
-                                    @foreach($invention_types as $invention)
+                                    @foreach($zone->inventionTypes as $invention)
                                         <li class="list-group-item">{{ $invention->name }}</li>
                                     @endforeach
                                 </ul>
@@ -57,20 +56,29 @@
 
                 </div>
             </div>
+            <br><br>
             <div class="text-center">
+            
+                @if($time < 1)
+                <!-- TO DO Revisar el formulario que esta con GET -->
+                    <form action="{{ route('zones.index') }}" method="GET">
+                        @csrf
+                        <button type="submit" class="btn btn-warning">Explorar esta Zona</button>
+                    </form>
+                @else
+                <h3 class="text-center">Tiempo de viaje: {{$time}} minutos</h3>
+                    <form action="{{ route('moveZone', $zone->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-warning">Mover a esta Zona</button>
+                    </form>
+                @endif
+                
+            </div>
 
-            <form action="{{url('zones/' . $zone->id)}}" method="get">
-                <!-- TO DO Falta implementar explorar la zona -->
-                <a href="{{ url('zones/' . $zone->id) }}" class="btn btn-success">Explorar esta zona</a>
-            </form>
-        </div>
+            <br>
 
-        <br>
-
-        <div class="text-center">
-                <form action="{{url('zones')}}" method="get">
-                    <a href="{{ route('zones.index') }}" class="btn btn-secondary">Regresar al mapa</a>
-                </form>
+            <div class="text-center">
+                <a href="{{ route('zones.index') }}" class="btn btn-primary">Regresar al mapa</a>
             </div>
         </div>
 
@@ -79,9 +87,8 @@
         </div>
         
     </div>
-    
-</div>
 
+</div>
 
 <style>
 .floating-image {

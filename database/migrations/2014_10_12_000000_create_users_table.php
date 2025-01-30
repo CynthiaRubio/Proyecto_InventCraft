@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('password');
             $table->integer('level');
             $table->integer('experience');
+            $table->integer('unasigned_points');
+            $table->integer('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

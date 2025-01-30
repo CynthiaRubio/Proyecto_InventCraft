@@ -20,31 +20,11 @@
                         <img src="{{ asset('images/materialTypes/' . $type->name . '.png') }}" alt="{{ $type->name }}" class="img-fluid mb-3" style="width: 250px; height: auto;">
                     </div>
                     <div class="accordion-body text-center">
-                        <a href="{{ url('materialTypes/' . $type->id) }}" class="btn btn-warning mt-3">Ver todos los materiales de {{ $type->name }}</a>
+                        <a href="{{ route('materialTypes.show' , $type->id) }}" class="btn btn-warning mt-3">Ver todos los materiales tipo {{ $type->name }}</a>
                     </div>
                 </div>
             </div>
         @endforeach
     </div>
-
-    <!-- <div class="table-responsive mb-4">
-        <table class="table table-bordered text-center">
-            <thead class="table-light">
-                <tr>
-                    <th class="text-center">Nombre</th>
-                    <th class="text-center">Ver materiales de este tipo</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($materialTypes as $type)
-                <tr>
-                    <td>{{$type->name}}</td>
-                    <td><a href="{{ route ('materialTypes.show' , $type->id)}}" class="btn btn-warning">Ver</a></td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div> -->
-
 
 @endsection

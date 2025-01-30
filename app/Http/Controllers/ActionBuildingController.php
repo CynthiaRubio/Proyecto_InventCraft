@@ -10,6 +10,7 @@ use App\Models\InventionType;
 use App\Models\Inventory;
 use App\Models\Invention;
 use App\Models\User;
+use App\Models\ActionType;
 
 class ActionBuildingController extends Controller
 {
@@ -26,9 +27,8 @@ class ActionBuildingController extends Controller
      */
     public function create(string $id)
     {
-        /* ESTO NO ES CORRECTO DEBERIA SER EL USUARIO LOGEADO  $userId = auth()->id(); */
-        $users = User::all();
-        $user = $users->random();
+        $user = auth()->user();
+
         $inventory = Inventory::where('user_id',$user->id)->first();
 
         $invention_types = InventionType::where('building_id' , $id)->get();
@@ -37,25 +37,56 @@ class ActionBuildingController extends Controller
 
         $building = Building::find($id);
 
-        $actual_level = ActionBuilding::where('building_id' , $id)->count();
+        $actual_level = Action::where('user_id', $user->_id)->where('actionable_id', $building->_id)->count();
 
         $level = $actual_level + 1;
 
+        // Validar si el usuario tiene suficientes inventos
+        foreach ($invention_types as $type) {
+            if (!isset($user_inventions_by_type[$type->id]) || count($user_inventions_by_type[$type->id]) < $level) {
+                return redirect()->route('buildings.index')->with(
+                    'error',
+                    "No tienes suficientes inventos de tipo {$type->name}. Se requieren {$level}."
+                );
+            }
+        }
+
         return view('buildings.create' , compact( 'invention_types', 'inventions_inventory' , 'building' , 'level'));
     }
+
+    // public function create(string $id)
+    // {
+    //     $user = auth()->user();
+    //     $inventory = Inventory::with('inventions')->where('user_id', $user->id)->firstOrFail();
+    //     $building = Building::findOrFail($id);
+    //     $invention_types = InventionType::where('building_id', $id)->get();
+    //     $user_inventions_by_type = $inventory->inventions->groupBy('invention_type_id');
+
+    //     $level = ActionBuilding::where('building_id', $id)->count() + 1;    //nivel al que mejorará
+
+    //     // Validar si el usuario tiene suficientes inventos
+    //     foreach ($invention_types as $type) {
+    //         if (!isset($user_inventions_by_type[$type->id]) || count($user_inventions_by_type[$type->id]) < $level) {
+    //             return redirect()->route('buildings.index')->with(
+    //                 'error',
+    //                 "No tienes suficientes inventos de tipo {$type->name}. Se requieren {$level}."
+    //             );
+    //         }
+    //     }
+    //     return view('buildings.create', compact('invention_types', 'user_inventions_by_type', 'building', 'level'));
+    // }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $users = User::all();
-        $user = $users->random();
+        $user = auth()->user();
 
         $level = $request->level;
         $building_id = $request->building_id;
 
-        $action_type_id = ActionType::where('name' , 'Construir')->value('id')->get();
+        $action_type_id = ActionType::where('name' , 'Construir')->first()->id;
 
         //Tenemos que crear una accion de tipo construir para usar su id
         Action::create([
@@ -68,11 +99,11 @@ class ActionBuildingController extends Controller
             'notificacion' => true,
         ]);
 
-        //Obtenemos el id de la última acción
-        $action_id = Action::latest('id')->value('id');
+        //Obtenemos el id de la última acción de construir
+        $action_id = Action::where('user_id', $user->_id)->where('action_type_id' , $action_type_id)->where('actionable_id', $building_id)->latest()->value('id');
 
-        //Obtenemos los inventos seleccionados en el formulario
-        $inventions = $request->input('inventions'); 
+        //Obtenemos los inventos seleccionados en el formulario, si no existen, se declara un array vacio
+        $inventions = $request->input('inventions' , []); 
 
         //Declaramos las reglas de validación
         $rules = [
@@ -96,17 +127,20 @@ class ActionBuildingController extends Controller
         $num_inventions = 0;
 
         foreach($inventions as $type => $array_invention){
-            foreach($array_invention as $invention_id){
-                $invention_used = Invention::find($invention_id);
-                /* TO DO Manejar si la eficiencia es nula */
-                if($invention_used->efficiency != null){
-                    $efficiency += $invention_used->efficiency;
-                    $num_inventions++;
+            if(!empty($array_invention)){
+                $inventions_used = Invention::whereIn( 'id' , $array_invention)->get();
+                foreach($inventions_used as $invention){
+                    if($invention->efficiency != null){
+                        $efficiency += $invention->efficiency;
+                        $num_inventions++;
+                    }
                 }
             }
         }
 
-        $efficiency = ($efficiency / $num_inventions) / ($level * 2);
+        if($num_inventions !== 0){
+            $efficiency = ($efficiency / $num_inventions) / ($level * 2);
+        }
 
         if($level > 1){
             $actual_efficiency = ActionBuilding::where('building_id' , $building_id)->latest('id')->value('efficiency');
@@ -122,19 +156,18 @@ class ActionBuildingController extends Controller
 
         $action_building_id = ActionBuilding::latest('id')->value('id');
 
-        // Eliminamos los inventos usados tras actualizarlos
-        foreach($inventions as $type => $array_invention){
-            foreach($array_invention as $invention_id){
-                $invention_used = Invention::find($invention_id);
+        // Actualizamos el bloque de inventos usados y los eliminamos
+        foreach($inventions as $type => $array_inventions){
+            if(!empty($array_inventions)){
                 $information = ['action_building_id' => $action_building_id];
-                $invention_used->update($information);
-                $invention_used->delete();
+                Invention::whereIn( 'id' , $array_inventions)->update($information);
+                Invention::whereIn( 'id' , $array_inventions)->delete();
                 //Invention::destroy($invention_used->id);
             }
         }
 
         return redirect()->route('buildings.show' , $building_id)
-                         ->with('success', 'Building created successfully');
+                         ->with('success', "$user->name has creado este edificio satisfactoriamente.");
     }
 
     /**

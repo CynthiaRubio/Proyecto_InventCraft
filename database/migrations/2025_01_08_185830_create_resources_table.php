@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('resources', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('zone_id')->constrained()->onDelete('cascade');
+            $table->foreignId('action_zone_id')->constrained('action_zones')->onDelete('cascade');
             $table->morphs('resourceable');
             $table->timestamps();
         });

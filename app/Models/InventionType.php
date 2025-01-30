@@ -11,6 +11,7 @@ class InventionType extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'invention_types';
 
     protected $fillable = [
@@ -25,34 +26,34 @@ class InventionType extends Model
     /* RELACIONES */
 
     /*  MaterialType 1:N InventionTypes */
-    public function material_type(){
-        return $this->belongsTo(MaterialType::class);
+    public function materialType(){
+        return $this->belongsTo(MaterialType::class, 'material_type_id');
     }
 
     /* Zone 1:N InventionTypes */
     public function zone(){
-        return $this->belongsTo(Zone::class);
+        return $this->belongsTo(Zone::class , 'zone_id');
     }
 
     /* Building 1:N InventionTypes */
     public function building(){
-        return $this->belongsTo(Building::class);
+        return $this->belongsTo(Building::class , 'building_id');
     }
 
     /* Inventions N:1 InventionType */
     public function inventions(){
-        return $this->hasMany(Invention::class);
+        return $this->hasMany(Invention::class , 'invention_type_id');
     }
 
     /* RELACIÓN REFLEXIVA */
 
     /* InventionType N:M InventionTypes */
     public function inventionTypes(){
-        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_id');
+        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_need_id');
     }
 
     public function inventionTypesNeed(){
-        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_need_id');
+        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_id');
     }
 
 }

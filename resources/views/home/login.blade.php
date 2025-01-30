@@ -1,11 +1,11 @@
-@extends('layouts.full')
+@extends('layouts.basic')
 
 @section('title', 'Login')
 
 @section('content')
     <div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
         <!-- Logo -->
-        <img src="{{ asset('images/logo.png') }}" alt="Logo del Juego" class="img-fluid" style="max-width: 300px;">
+        <img src="{{ asset('images/home/logo.png') }}" alt="Logo del Juego" class="img-fluid" style="max-width: 300px;">
     
         <form action="{{ route('login') }}" method="post">
             @csrf
@@ -19,11 +19,11 @@
             </div> 
             <br>
             <div class="form-group text-center">
-                <button type="submit" class="btn btn-success">Iniciar el juego</button>
+                <button type="submit" class="btn btn-success">Inicia el juego</button>
             </div>
             <br>
             <div class="form-group text-center">
-                <a href="{{ route('register') }}" class="btn btn-secondary">Registrarse</a>
+                <a href="{{ route('register') }}" class="btn btn-secondary">Regístrate</a>
             </div>
         </form>
     </div>

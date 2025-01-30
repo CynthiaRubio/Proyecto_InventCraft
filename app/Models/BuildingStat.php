@@ -11,7 +11,9 @@ class BuildingStat extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'building_stats';
+    
     protected $fillable = [
         'building_id',
         'stat_id',
@@ -22,12 +24,12 @@ class BuildingStat extends Model
 
     /* Buildings N:M Stats con la pivote BuildingStat */
     public function building(){
-        return $this->belongsTo(Building::class);
+        return $this->belongsTo(Building::class , 'building_id');
     }
 
-    /* Stats N:1 BuildingStat 1:N Buildings */
+    /* Stat 1:N BuildingStat N:1 Building */
     public function stat(){
-        return $this->belongsTo(Stat::class);
+        return $this->belongsTo(Stat::class , 'stat_id');
     }
 
 }

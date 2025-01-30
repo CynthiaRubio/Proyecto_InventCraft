@@ -13,7 +13,18 @@ class InventionTypeController extends Controller
      */
     public function index()
     {
-        return view('inventionTypes.index', ['inventionTypes' => InventionType::all()]);
+        $inventionTypes = InventionType::all();
+
+        /* Cargamos solo los datos de las columnas que queremos usando las relaciones */
+        $inventionTypes->load([
+            'inventions:id,name',
+            'zone:id,name',
+            'building:id,name',
+            'inventionTypesNeed:id,invention_type_id,invention_type_need_id',
+            'inventionTypes.inventionType:id,name',
+        ]);
+        
+        return view('inventionTypes.index', compact('inventionTypes') );
     }
 
     /**
@@ -21,11 +32,11 @@ class InventionTypeController extends Controller
      */
     public function show($id)
     {
+        $user= auth()->user();
+        /* TO DO Revisar si esto es correcto */
         $invention_type = InventionType::findOrFail($id);
 
-        $inventions = Invention::where('invention_type_id', $invention_type->id)->get();
-
-        return view('inventionTypes.show', compact('inventions', 'invention_type'));
+        return view('inventionTypes.show', compact('invention_type'));
     }
 
     /**

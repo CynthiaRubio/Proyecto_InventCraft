@@ -30,35 +30,35 @@ return [
         "zone_id" => $pradera->_id,
         "name" => "Sílex",
         "description" => "Roca sedimentaria formada por sílice microcristalina",
-        "efficiency" => 30
+        "efficiency" => 12
     ],
     [
         "material_type_id" => $roca->_id,
         "zone_id" => $desierto->_id,
         "name" => "Obsidiana",
         "description" => "Roca volcánica vítrea",
-        "efficiency" => 35
+        "efficiency" => 25
     ],
     [
         "material_type_id" => $roca->_id,
         "zone_id" => $pradera->_id,
         "name" => "Granito",
         "description" => "Roca ígnea plutónica de textura granular",
-        "efficiency" => 25
+        "efficiency" => 36
     ],
     [
         "material_type_id" => $mineral->_id,
         "zone_id" => $montanya->_id,
         "name" => "Caolinita",
         "description" => "Mineral arcilloso de silicato de aluminio hidratado",
-        "efficiency" => 28
+        "efficiency" => 13
     ],
     [
         "material_type_id" => $mineral->_id,
         "zone_id" => $desierto->_id,
         "name" => "Illita",
         "description" => "Mineral arcilloso del grupo de las micas",
-        "efficiency" => 22
+        "efficiency" => 16
     ],
     [
         "material_type_id" => $mineral->_id,
@@ -72,7 +72,7 @@ return [
         "zone_id" => $p_sur->_id,
         "name" => "Cuarzo",
         "description" => "Mineral compuesto de sílice",
-        "efficiency" => 38
+        "efficiency" => 28
     ],
     [
         "material_type_id" => $mineral->_id,
@@ -100,42 +100,42 @@ return [
         "zone_id" => $glaciar->_id,
         "name" => "Materiales magnéticos naturales",
         "description" => "Materiales con propiedades magnéticas",
-        "efficiency" => 33
+        "efficiency" => 39
     ],
     [
         "material_type_id" => $arena->_id,
         "zone_id" => $pradera->_id,
         "name" => "Arena de sílice",
         "description" => "Arena compuesta principalmente por dióxido de silicio",
-        "efficiency" => 25
+        "efficiency" => 14
     ],
     [
         "material_type_id" => $arena->_id,
         "zone_id" => $p_norte->_id,
         "name" => "Arena de cuarzo",
         "description" => "Arena formada por cristales de cuarzo",
-        "efficiency" => 30
+        "efficiency" => 38
     ],
     [
         "material_type_id" => $arena->_id,
         "zone_id" => $lagos->_id,
         "name" => "Arena de playa",
         "description" => "Arena natural encontrada en playas",
-        "efficiency" => 28
+        "efficiency" => 23
     ],
     [
         "material_type_id" => $metal->_id,
         "zone_id" => $p_sur->_id,
         "name" => "Hierro",
         "description" => "Metal extraído de la hematita y magnetita",
-        "efficiency" => 32
+        "efficiency" => 12
     ],
     [
         "material_type_id" => $metal->_id,
         "zone_id" => $montanya->_id,
         "name" => "Cobre",
         "description" => "Metal extraído de la calcopirita y malaquita",
-        "efficiency" => 38
+        "efficiency" => 21
     ],
     [
         "material_type_id" => $metal->_id,
@@ -177,21 +177,21 @@ return [
         "zone_id" => $glaciar->_id,
         "name" => "Pino",
         "description" => "Madera de árbol de pino",
-        "efficiency" => 30
+        "efficiency" => 13
     ],
     [
         "material_type_id" => $madera->_id,
         "zone_id" => $glaciar->_id,
         "name" => "Cedro",
         "description" => "Madera de árbol de cedro",
-        "efficiency" => 35
+        "efficiency" => 25
     ],
     [
         "material_type_id" => $fibra->_id,
         "zone_id" => $lagos->_id,
         "name" => "Cáñamo",
         "description" => "Fibra natural de la planta de cannabis",
-        "efficiency" => 25
+        "efficiency" => 11
     ],
     [
         "material_type_id" => $fibra->_id,
@@ -212,14 +212,14 @@ return [
         "zone_id" => $bosque->_id,
         "name" => "Caña común",
         "description" => "Tallo de la planta de caña común",
-        "efficiency" => 23
+        "efficiency" => 13
     ],
     [
         "material_type_id" => $fibra->_id,
         "zone_id" => $glaciar->_id,
         "name" => "Totora",
         "description" => "Planta acuática utilizada como material",
-        "efficiency" => 24
+        "efficiency" => 34
     ],
     [
         "material_type_id" => $fibra->_id,
@@ -240,14 +240,14 @@ return [
         "zone_id" => $bosque->_id,
         "name" => "Algodón",
         "description" => "Fibra natural de la planta de algodón",
-        "efficiency" => 28
+        "efficiency" => 18
     ],
     [
         "material_type_id" => $fibra->_id,
         "zone_id" => $selva->_id,
         "name" => "Lana",
         "description" => "Fibra natural animal",
-        "efficiency" => 32
+        "efficiency" => 12
     ],
     [
         "material_type_id" => $resina->_id,
@@ -261,7 +261,7 @@ return [
         "zone_id" => $montanya->_id,
         "name" => "Goma arábiga",
         "description" => "Resina natural de árbol de acacia",
-        "efficiency" => 25
+        "efficiency" => 15
     ],
     [
         "material_type_id" => $resina->_id,
@@ -275,7 +275,7 @@ return [
         "zone_id" => $montanya->_id,
         "name" => "Resinas inflamables",
         "description" => "Resinas naturales combustibles",
-        "efficiency" => 24
+        "efficiency" => 34
     ],
     [
         "material_type_id" => $organico->_id,
@@ -296,7 +296,7 @@ return [
         "zone_id" => $lagos->_id,
         "name" => "Tendones",
         "description" => "Tejido conectivo animal",
-        "efficiency" => 22
+        "efficiency" => 42
     ],
     [
         "material_type_id" => $organico->_id,
@@ -310,13 +310,13 @@ return [
         "zone_id" => $bosque->_id,
         "name" => "Plumas",
         "description" => "Material orgánico animal",
-        "efficiency" => 30
+        "efficiency" => 14
     ],
     [
         "material_type_id" => $organico->_id,
         "zone_id" => $p_norte->_id,
         "name" => "Carbón natural",
         "description" => "Material orgánico fosilizado",
-        "efficiency" => 20
+        "efficiency" => 39
     ]
 ];

@@ -10,6 +10,7 @@ class MaterialType extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'material_types';
 
     protected $fillable = [
@@ -21,11 +22,11 @@ class MaterialType extends Model
 
     /* Materials N:1 MaterialType */
     public function materials(){
-        return $this->hasMany(Material::class);
+        return $this->hasMany(Material::class , 'material_type_id');
     }
 
     /* InventionTypes N:1 MaterialType */
-    public function invention_types(){
-        return $this->hasMany(InventionType::class);
+    public function inventionTypes(){
+        return $this->hasMany(InventionType::class , 'material_type_id');
     }
 }

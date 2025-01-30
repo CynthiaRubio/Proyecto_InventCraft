@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('material_type_id')->constrained()->onDelete('cascade');
-            $table->foreignId('zone_id')->constrained()->onDelete('cascade');
+            $table->foreignId('material_type_id')->constrained('material_types')->onDelete('cascade');
+            $table->foreignId('zone_id')->constrained('zones')->onDelete('cascade');
             $table->string('name')->unique();
             $table->text('description');
             $table->float('efficiency');

@@ -25,9 +25,4 @@
         </table>
     </div>
 
-    <!-- <ul class="list-group">
-        @foreach($materials as $material)
-            <li class="list-group-item list-group-item-action"><a href="{{ route('materials.show' , $material->id) }}">{{$material->name}}</a></li>
-        @endforeach
-    </ul> -->
 @endsection

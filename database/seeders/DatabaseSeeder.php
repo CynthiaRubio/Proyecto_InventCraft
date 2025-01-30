@@ -18,10 +18,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             //Aqui hay que poner todos los seeders que queremos que utilice laravel
-            InventorySeeder::class,
             ActionTypeSeeder::class,
             ZoneSeeder::class,
             EventSeeder::class,
+            UserSeeder::class,
+            InventorySeeder::class,
             BuildingSeeder::class,
             StatSeeder::class,
             BuildingStatSeeder::class,
@@ -34,12 +35,12 @@ class DatabaseSeeder extends Seeder
         //Invention::factory(100)->create();
 
         $this->call([
-            InventionSeeder::class, //Esto se usaría si creasemos la llamada a factory en el seeder
+            InventionSeeder::class,
             ResourceSeeder::class,
             ActionSeeder::class,
             ActionZoneSeeder::class,
             ActionBuildingSeeder::class,
-            InventoryMaterialSeeder::class, // Falla porque se escogen de forma aleatoria los materiales para el inventario
+            InventoryMaterialSeeder::class,
             InventionTypeInventionTypeSeeder::class,
         ]);
 

@@ -3,9 +3,40 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\ActionManagementService;
 
 class ActionController extends Controller
 {
+    protected $action_service;
+    //protected $eventService;
+
+    public function __construct(
+        ActionManagementService $actionService,
+        //EventCalculateService $eventService
+    ) {
+        $this->action_service = $actionService;
+        //$this->eventService = $eventService;
+    }
+
+    /**
+     * Función que calcula el tiempo de desplazamiento a otra zona
+    */
+    public function moveZone(string $zone_id)
+    {
+        $user = auth()->user();
+        $time = $this->action_service->calculateMoveTime($user->_id, $zone_id);
+        $action = $this->action_service->createAction('Mover',$zone_id,'Zone',$time);
+        $zone = $this->action_service->getZone($zone_id)->name;
+
+        if($action){
+            return redirect()->route('zones.index')->with('success', "Estas de viaje a la zona $zone. El viaje dura $time minutos.");
+        } else {
+            return redirect()->route('zones.index')->with('error', "Las carreteras están cortadas. No puedes viajar a esta zona.");
+        }
+        
+    }
+
+
     /**
      * Display a listing of the resource.
      */
@@ -62,21 +93,4 @@ class ActionController extends Controller
         //
     }
 
-    public function createAction($action_type, $id , $model){
-
-        $action_type = ActionType::where('name' , $action_type)->get();
-        $actionable_id = $id;
-        $user = Auth()->user;
-        $actionable_type = $model::class;
-
-        Action::create([
-            'user_id' => $user->_id,
-            'action_type_id' => $action_type_id,
-            'actionable_id' => $building_id,
-            'actionable_type' => Building::class,
-            'time' => now()->addMinutes(rand(60, 240)),
-            'finished' => false,
-            'notificacion' => true,
-        ]);
-    }
 }

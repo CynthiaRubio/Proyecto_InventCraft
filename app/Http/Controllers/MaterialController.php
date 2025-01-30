@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Material;
+use App\Models\MaterialType;
+use App\Models\InventionType;
+use App\Models\Building;
+use App\Models\Zone;
 
 class MaterialController extends Controller
 {
@@ -20,11 +24,9 @@ class MaterialController extends Controller
     */
     public function show($id)
     {
-        //Será llamada para mostrar todas las características de un material
-        $material = Material::find($id);
+        $material = Material::with(['materialType.inventionTypes', 'zone'])->find($id);
 
-        return view('materials.show', compact('material'));
-        
+        return view('materials.show', compact('material')); 
     }
 
     /**

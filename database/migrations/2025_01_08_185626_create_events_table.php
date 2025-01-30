@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('zone_id')->constrained()->onDelete('cascade'); // $table->foreign('zone_id')->references('id')->on('zones');
+            $table->foreignId('zone_id')->constrained('zones')->onDelete('cascade'); // $table->foreign('zone_id')->references('id')->on('zones');
             $table->string('name');
             $table->string('description');
             $table->timestamps();

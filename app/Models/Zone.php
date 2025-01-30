@@ -10,6 +10,9 @@ class Zone extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
+    protected $collection = 'zones';
+
     protected $fillable = [
         'name',
         'coord_x',
@@ -20,21 +23,21 @@ class Zone extends Model
 
     /* Events N:1 Zone*/
     public function events(){
-        return $this->hasMany(Event::class);
+        return $this->hasMany(Event::class , 'zone_id');
     }
 
     /* Materials N:1 Zone*/
     public function materials(){
-        return $this->hasMany(Material::class);
+        return $this->hasMany(Material::class , 'zone_id');
     }
 
     /* InventionTypes N:1 Zone*/
-    public function invention_types(){
-        return $this->hasMany(InventionType::class);
+    public function inventionTypes(){
+        return $this->hasMany(InventionType::class , 'zone_id');
     }
 
     /* Actions (polimórfica) N:1 Zone*/
-    public function actions(){ //¿actionable?
+    public function actions(){
         return $this->morphMany(Action::class , 'actionable');
     }
 

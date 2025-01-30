@@ -10,6 +10,9 @@ class Building extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
+    protected $collection = 'buildings';
+
     protected $fillable = [
         'name',
         'description',
@@ -21,16 +24,16 @@ class Building extends Model
 
     /* InventionTypes N:1 Building */
     public function inventionTypes(){
-        return $this->hasMany(InventionType::class);
+        return $this->hasMany(InventionType::class , 'building_id');
     }
 
     /* Stats N:M Buildings con tabla pivote */
     public function stats(){
-        return $this->hasMany(BuildingStat::class);
+        return $this->hasMany(BuildingStat::class , 'building_id');
     }
 
     /* Action (polimórfica) N:M Buildings con tabla pivote */
     public function actions(){
-        return $this->hasMany(ActionBuilding::class);
+        return $this->hasMany(ActionBuilding::class , 'building_id');
     }
 }

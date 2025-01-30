@@ -10,8 +10,11 @@ class Resource extends Model
 {
     use HasFactory;
 
-    protected $filleable = [
-        'zone_id',
+    protected $connection = 'mongodb';
+    protected $collection = 'resources';
+
+    protected $fillable = [
+        'action_zone_id',
         'resourceable_id',
         'resourceable_type',
     ];
@@ -20,7 +23,7 @@ class Resource extends Model
 
     /* ActionZone 1:N Resources */
     public function actionZone (){
-        return $this->belongsTo(ActionZone::class , 'action_zone_id');
+        return $this->belongsTo(ActionZone::class , 'resourceable'); //REVISAR
     }
 
     /* Relación polimórfica con Material e Invention 1:N Resources */

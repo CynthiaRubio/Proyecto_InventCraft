@@ -1,6 +1,6 @@
 @extends('layouts.basic')
 
-@section('title', "Invento tipo $invention_type")
+@section('title', "Invento tipo $invention->inventionType->name")
 
 @section('content')
 <h2 class="text-center mb-4">{{ $invention->name }}</h2>
@@ -14,25 +14,27 @@
                         <dt>Nombre del invento:</dt>
                         <dd>{{$invention->name}}</dd>
                         <dt>Invento tipo:</dt>
-                        <dd>{{$invention_type}}</dd>
+                        <dd>{{$invention->inventionType->name}}</dd>
                         <dt>Material con el que se ha hecho:</dt>
-                        <dd>{{$material}}</dd>
+                        <dd>{{$invention->material->name}}</dd>
                         <dt>Eficiencia del invento:</dt>
                         <dd>{{$invention->efficiency}}</dd>
+                        <dt>Con este invento puedes construir el edificio:<dt>
+                        <dd>{{$invention->inventionType->building->name}}</dd>
                     </dl>
                 </ul>
                     
-                <div class="text-center">
-                    <!-- TO DO revisar los enlaces -->
-                @if(isset($_SERVER['HTTP_REFERER']))
-                    <a href="{{$_SERVER['HTTP_REFERER']}}" class="btn btn-warning">Volver al listado de inventos</a>
-                @else
-                    <a href="{{ route('inventions.index')}}" class="btn btn-warning">Volver al listado de inventos</a>
-                @endif
+                <div class="text-center">     
+                    <a href="{{ route('inventionTypes.index')}}" class="btn btn-warning">Volver al listado de Tipos de Inventos</a>
                 </div>
                 
             </div>
+
+            <div class="col-md-6">
+                <img src="{{ asset('images/inventionTypes/' . $invention->inventionType->name . '.png') }}" alt="{{ $invention->inventionType->name }}"
+                    class="floating-image">
+            </div>
         </div>
-        
+
     </div>
 @endsection

@@ -59,6 +59,9 @@ class ActionSeeder extends Seeder
                     $actionable_id = $invento->_id;
                     $actionable_type = Invention::class;
                     break;
+                default:
+                    /* Hay que implementar el default  */
+                    break;
             }
             
             Action::create([
@@ -66,10 +69,17 @@ class ActionSeeder extends Seeder
                 'action_type_id' => $action_type_id,
                 'actionable_id' => $actionable_id,
                 'actionable_type' => $actionable_type,
-                'time' => now()->addMinutes(rand(60, 240)),
+                'time' => now()->addSeconds(rand(60, 1440)), //Deberian ser minutos addMinutes(rand(60, 240)),
                 'finished' => true,
                 'notificacion' => false,
             ]);
+
+            if($action_type->name === "Recolectar"){
+                ActionZone::create([
+                    'action_id' => Action::latest('id')->first()->id,
+                    'zone_id' => Action::latest('id')->first()->actionable_id,
+                ]);
+            }
         }
     }
 }

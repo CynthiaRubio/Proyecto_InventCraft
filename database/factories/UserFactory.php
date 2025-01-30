@@ -31,7 +31,23 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'level' => rand(0,10),
             'experience' => rand(0,1000),
+            'unasigned_points' => 15,
+            'avatar' => null,
         ];
+
+        // $action_type = ActionType::where('name', 'Mover')->first();
+        // $zones = Zone::all();
+        // $zone = $zones->random();
+
+        // Action::create([
+        //     'user_id' => $user->_id,
+        //     'action_type_id' => $action_type->_id,
+        //     'actionable_id' => $zone->_id,
+        //     'actionable_type' => Zone::class,
+        //     'time' => now(), // now()->addSeconds(rand(60, 14400)), 
+        //     'finished' => true,
+        //     'notificacion' => true,
+        // ]);
     }
 
     /**

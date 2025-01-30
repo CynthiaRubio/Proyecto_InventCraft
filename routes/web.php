@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-// use App\Http\Controllers\BuildingController;
-//use App\Http\Controllers\UserController;
-// use App\Http\Controllers\InventionController;
+
 use App\Http\Controllers\MaterialTypeController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\InventionTypeController;
@@ -13,7 +11,8 @@ use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\ActionBuildingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ActionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,56 +25,73 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-//Ruta que carga la página inicial del juego
-Route::get('/', function () {
-    return view('home.index');
-})->name('index');
+/* Rutas permitidas para usuarios que no han iniciado sesión */
+Route::middleware(['guest'])->group(function () {
+    //Ruta que carga la vista de registro, que es la inicial
+    Route::get('/', function () {
+        return view('home/register');
+    })->name('register');
 
-//Ruta que carga la vista de registro
-Route::get('home/register' , function() {
-    return view('home/register');
-})->name('initial_register');
+    //Ruta que carga la vista de login
+    Route::get('/login', function () {
+        return view('home/login');
+    }) -> name('login');
 
-//Ruta que carga la vista de login
-Route::get('home/login' , function() {
-    return view('home/login');
-}) -> name('initial_login');
+    //Ruta para mandar los datos del formulario de logearse
+    Route::post('/login', [AuthController::class , 'login'])->name('form.login');
 
-//Ruta para logearse
-Route::post('home/login' , [AuthController::class , 'login'])->name('login');
+    //Ruta para mandar los datos del formulario de registro
+    Route::post('/register', [AuthController::class , 'register'])->name('form.register');
+});
 
-//Ruta para registrarse
-Route::post('home/register' , [AuthController::class , 'register'])->name('register');
+/* Rutas permitidas para usuarios que se hayan autenticado */
+Route::middleware(['auth' , 'check.actions'])->group(function () {
+    //Ruta para cerrar sesión
+    Route::get('/logout', [AuthController::class , 'logout'])->name('logout');//->middleware('auth');
 
-//Ruta para cerrar sesión
-Route::get('home/logout' , [AuthController::class , 'logout'])->name('logout');
+    //Ruta para acceder al inventario
+    Route::get('/inventories/show', [InventoryController::class, 'show'])->name('inventories.show');
+
+    //Ruta que carga la vista de construir edificio pasándole el id del edificio a crear
+    Route::get('actionBuildings/create/{building}', [ActionBuildingController::class, 'create'])->name('actionBuildings.create.withBuilding');
+
+    //Ruta que carga la vista de crear invento pasándole el tipo de invento
+    Route::get('inventions/create/{invention_type}', [InventionController::class, 'create'])->name('inventions.create.withType');
+
+    //Ruta que carga el ranking de los usuarios
+    Route::get('/users/ranking', [UserController::class, 'ranking'])->name('users.ranking');
+
+    //Ruta que carga el perfil del usuario autenticado
+    Route::get('/users/show', [UserController::class, 'show'])->name('users.show');
+
+    //Ruta para asignar puntos del usuario
+    Route::get('/users/points/{user}', [UserController::class , 'points'])->name('users.points');
+
+    //Ruta para guardar la asignación de puntos del usuario
+    Route::post('/users/stats/', [UserController::class , 'addStats'])->name('users.addStats');
+
+    //Ruta para calcular el tiempo que tardas en mover de zona
+    Route::post('/move-zone/{id}', [ActionController::class, 'moveZone'])->name('moveZone');
+
+    //Para todas las funciones de los controladores CRUD
+    Route::resources([
+            'zones' => ZoneController::class,
+            'materialTypes' => MaterialTypeController::class,
+            'materials' => MaterialController::class,
+            'inventionTypes' => InventionTypeController::class,
+            'inventions' => InventionController::class,
+            'buildings' => BuildingController::class,
+            'actionBuildings' => ActionBuildingController::class,
+            //'users' => UserController::class,
+
+            // 'inventories' => InventoryController::class,
+            // 'stats' => StatController::class,
+            // 'actions' => ActionController::class,
+            // 'actionTypes' => ActionType::class,
+        ]);
+});
 
 
-//Ruta que carga la vista de construir edificio pasándole el id del edificio a crear
-Route::get('actionBuildings/create/{building}', [ActionBuildingController::class, 'create'])->name('actionBuildings.create.withBuilding');
-
-//Ruta que carga la vista de crear invento pasándole el tipo de invento
-Route::get('inventions/create/{invention_type}', [InventionController::class, 'create'])->name('inventions.create.withType');
-
-//Ruta que carga el ranking de los usuarios
-Route::get('/users/ranking', [UserController::class, 'ranking'])->name('users.ranking');
-
-//Para todas las funciones de los controladores CRUD
-Route::resources([
-        'zones' => ZoneController::class,
-        'materialTypes' => MaterialTypeController::class,
-        'materials' => MaterialController::class,
-        'inventionTypes' => InventionTypeController::class,
-        'inventions' => InventionController::class,
-        'buildings' => BuildingController::class,
-        'actionBuildings' => ActionBuildingController::class,
-        'users' => UserController::class,
-
-        // 'inventories' => InventoryController::class,
-        // 'stats' => StatController::class,
-        // 'actions' => ActionController::class,
-        // 'actionTypes' => ActionType::class,
-    ]);
 
 //Route::get('/buildings/{name}', [BuildingController::class , 'create']);
 

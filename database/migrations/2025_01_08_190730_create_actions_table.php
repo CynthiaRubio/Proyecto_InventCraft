@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('actions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('action_type_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('action_type_id')->constrained('action_types')->onDelete('cascade');
             $table->morphs('actionable');
             $table->integer('time');
             $table->boolean('finished');

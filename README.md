@@ -64,3 +64,14 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+Variaciones de la wiki:
+- La asignación de la zona es aleatoria
+- Experiencia por:
+  - Acción de recolectar + por cada recurso recolectado (más puntos cuanto menos probable sea)
+  - Acción de mover
+  - Acción de crear invento 
+  - Acción de construir edificio
+- Se sube de nivel por cada 10 puntos.

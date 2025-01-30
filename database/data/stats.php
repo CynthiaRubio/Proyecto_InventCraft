@@ -2,16 +2,16 @@
 
 return [
     [
-        'stat_type' => 'Suerte'
+        'name' => 'Suerte'
     ],
     [
-        'stat_type' => 'Vitalidad'
+        'name' => 'Vitalidad'
     ],
     [
-        'stat_type' => 'Ingenio'
+        'name' => 'Ingenio'
     ],
     [
-        'stat_type' => 'Velocidad'
+        'name' => 'Velocidad'
     ],
 ];
 ?>

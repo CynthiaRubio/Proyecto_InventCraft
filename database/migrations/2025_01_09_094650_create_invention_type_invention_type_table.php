@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invention_type_invention_types', function (Blueprint $table) {
-            $table->foreignId('invention_type_id')->constrained()->onDelete('cascade');
-            $table->foreignId('invention_type_need_id')->constrained()->onDelete('cascade');
+            $table->foreignId('invention_type_id')->constrained('invention_types')->onDelete('cascade');
+            $table->foreignId('invention_type_need_id')->constrained('invention_types')->onDelete('cascade');
             $table->integer('quantity');
             $table->timestamps();
             $table->primary(['invention_type_id', 'invention_type_need_id']);
@@ -25,7 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('invention_inventions');
         Schema::dropIfExists('invention_type_invention_types');
     }
 };

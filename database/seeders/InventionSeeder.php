@@ -44,14 +44,5 @@ class InventionSeeder extends Seeder
                 }       
             }
         }
-
-        /*
-        $inventions = include database_path('data/inventions.php');
-
-        foreach($inventions as $invention){
-            Invention::create($invention);
-        }
-        */
-
     }
 }

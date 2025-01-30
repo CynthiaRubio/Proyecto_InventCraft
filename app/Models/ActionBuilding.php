@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 //use Illuminate\Database\Eloquent\Model;
 use MongoDB\Laravel\Eloquent\Model;
 
-
 class ActionBuilding extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'action_buildings';
+
     protected $fillable = [
         'action_id',
         'building_id',
@@ -23,17 +24,19 @@ class ActionBuilding extends Model
     /* Inventions N:1 ActionBuilding */
     public function inventions()
     {
-        return $this->hasMany(Invention::class);
+        return $this->hasMany(Invention::class , 'action_building_id');
     }
 
-    /* Action 1:N ActionBuilding */
-    public function action(){
-        return $this->belongsTo(Action::class, 'actionable'); //morphTo no lleva complementos
+    /* Action (polimórfica) 1:N ActionBuilding */
+    public function action()
+    {
+        return $this->morphTo();
     }
 
     /* Building 1:N ActionBuilding */
-    public function building(){
-        return $this->belongsTo(Building::class);
+    public function building()
+    {
+        return $this->belongsTo(Building::class, 'building_id');
     }
 
 }

@@ -27,18 +27,18 @@ return [
         'name' => 'Montaña',
     ],
     [
-        'coord_x' => 3, 
-        'coord_y'=> 2, 
-        'name' => 'Lagos',
-    ],
-    [
         'coord_x' => 2, 
         'coord_y'=> 3, 
-        'name' => 'Polo Norte',
+        'name' => 'Lagos',
     ],
     [
         'coord_x' => 3, 
         'coord_y'=> 1, 
+        'name' => 'Polo Norte',
+    ],
+    [
+        'coord_x' => 3, 
+        'coord_y'=> 2, 
         'name' => 'Glaciar de Montaña',
     ],
     [

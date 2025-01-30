@@ -11,6 +11,7 @@ class ActionZone extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'action_zones';
 
     protected $fillable = [
@@ -20,17 +21,18 @@ class ActionZone extends Model
 
     /* RELACIONES */
 
-    /* Resources N:1 ActionZone */
-    public function resources (){ //¿Es correcta esta relación?
+    /* Resources (polimórfica) N:1 ActionZone */
+    public function resources (){
         return $this->morphMany(Resource::class , 'resourceable');
     }
 
-    /* ¿ESTAS RELACIONES SON NECESARIAS? */
+    /* Action N: 1 ActionZone */
     public function action()
     {
         return $this->belongsTo(Action::class, 'action_id');
     }
 
+    /* Zone N:1 ActionZone */
     public function zone()
     {
         return $this->belongsTo(Zone::class, 'zone_id');

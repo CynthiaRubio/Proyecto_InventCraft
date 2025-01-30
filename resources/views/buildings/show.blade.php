@@ -40,7 +40,7 @@
             </dl>
 
             <div class="mb-4 mt-4">
-                <h5 class="text-center">Nivel actual: {{$actual_level}} / 10</h5>
+                <h5 class="text-center">Nivel actual: {{$actual_level}} / 10 con una eficiencia de {{$building->efficiency}}</h5>
                 <div class="progress" style="height: 30px;">
                     @php
                         $progress = ($actual_level / 10) * 100;

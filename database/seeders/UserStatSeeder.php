@@ -25,7 +25,7 @@ class UserStatSeeder extends Seeder
                 $userStat = UserStat::create([
                     'stat_id' => $stat->id,
                     'user_id' => $user->id,
-                    'value' => rand(1, 100),
+                    'value' => 0,
                 ]);
             
             }

@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('inventions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('invention_type_id')->constrained()->onDelete('cascade');
-            $table->foreignId('material_id')->constrained()->onDelete('cascade');
-            $table->foreignId('inventory_id')->constrained()->onDelete('cascade');
+            $table->foreignId('invention_type_id')->constrained('invention_types')->onDelete('cascade');
+            $table->foreignId('material_id')->constrained('materials')->onDelete('cascade');
+            $table->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
             $table->foreignId('action_building_id')->constrained('action_buildings')->onDelete('cascade')->nullable();
             $table->foreignId('invention_created_id')->constrained('inventions')->onDelete('cascade')->nullable();
             $table->string('name');
             $table->float('efficiency');
-            // TO DO Añadir el campo tiempo para determinar cuando se termina la acción o ponerlo en Action
             $table->timestamps();
             $table->softDeletes();
         });

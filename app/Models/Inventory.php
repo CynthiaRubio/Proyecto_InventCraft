@@ -10,6 +10,9 @@ class Inventory extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
+    protected $collection = 'inventories';
+
     protected $fillable = [
         'user_id',
     ];
@@ -19,16 +22,16 @@ class Inventory extends Model
 
     /* Inventory 1:1 User */
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class , 'user_id');
     }
 
     /* Inventories N:M Materials */
     public function materials(){
-        return $this->hasMany(InventoryMaterial::class);
+        return $this->hasMany(InventoryMaterial::class , 'inventory_id');
     }
 
     /* Inventory 1:N Inventions */
     public function inventions(){
-        return $this->hasMany(Invention::class);
+        return $this->hasMany(Invention::class , 'inventory_id');
     }
 }

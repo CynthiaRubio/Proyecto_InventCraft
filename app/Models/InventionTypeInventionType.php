@@ -11,6 +11,7 @@ class InventionTypeInventionType extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'invention_type_invention_types';
 
     protected $fillable = [

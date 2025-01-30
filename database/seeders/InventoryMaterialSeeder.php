@@ -15,21 +15,12 @@ class InventoryMaterialSeeder extends Seeder
      */
     public function run(): void
     {
-
-        /* TO DO Revisar el código de Veselin */
-
         $materials = Material::all();
 
-        /* No vale coger todos los inventarios, habría que coger el inventario del usuario */
         $inventories = Inventory::all();
 
         foreach ($inventories as $inventory) {
-            for ($i=0; $i < 5 ; $i++) {
-                $material = $materials->random();
-                $resultado = InventoryMaterial::where('inventory_id' , $inventory->_id)->where('material_id' , $material->_id)->count();
-                if($resultado > 0){
-                    $material = $materials->random();
-                }
+            foreach ($materials as $material){
                 InventoryMaterial::create([
                     'inventory_id' => $inventory->_id,
                     'material_id' => $material->_id,

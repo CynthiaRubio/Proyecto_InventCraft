@@ -11,6 +11,7 @@ class UserStat extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'user_stats';
 
     protected $fillable = [

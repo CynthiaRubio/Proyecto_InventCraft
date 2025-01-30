@@ -9,6 +9,9 @@ use App\Models\User;
 use App\Models\Inventory;
 use App\Models\Action;
 use App\Models\Zone;
+use App\Models\ActionType;
+use App\Models\UserStat;
+use App\Models\Stat;
 
 class AuthController extends Controller
 {
@@ -29,9 +32,11 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
-            'password' => bcrypt($validatedData['password']),
+            'password' => bcrypt($validatedData['password']), // Hash::make($validatedData['password'])
             'level' => 0,
             'experience' => 0,
+            'unasigned_points' => 15,
+            'avatar' => null,
         ]);
 
         /* Crear el inventario del usuario */
@@ -40,21 +45,32 @@ class AuthController extends Controller
         ]);
 
         /* Asignar zona de inicio aleatoria para el jugador creando una acción de mover */
-        $action_type_id = ActionType::where('name' , 'Mover')->get()->value('id');
+        $action_type_id = ActionType::where('name' , 'Mover')->first()->id;
         $zones = Zone::all();
         $zone = $zones->random();
+
         Action::create([
             'user_id' => $user->_id,
             'action_type_id' => $action_type_id,
             'actionable_id' => $zone->_id,
             'actionable_type' => Zone::class,
             'time' => now(),
-            'finished' => false,
-            'notificacion' => true,
+            'finished' => true,
+            'notificacion' => false,
         ]);
+
+        $stats = Stat::all();
+        foreach($stats as $stat){
+            UserStat::create([
+                'user_id' => $user->_id,
+                'stat_id' => $stat->_id,
+                'value' => 0,
+            ]);
+        }
+        
         
         /* Redirige a la página de inicio */
-        return redirect()->route('index')->with('succes' , 'Te has registrado correctamente');
+        return redirect()->route('login')->with('success' ,"$user->name Te has registrado correctamente");
     }
 
 
@@ -80,8 +96,9 @@ class AuthController extends Controller
         //Intento de inicio de sesión
         $credentials = $request->only('email', 'password');
         if(Auth::attempt($credentials)){
-            //Si la autenticación es correcta, se redirige a la página de inicio
-            return redirect()->route('index')->with('success', 'Has iniciado sessión correctamente');
+            //Si la autenticación es correcta, se redirige a la vista de todas las zonas
+            $user = auth()->user();
+            return redirect()->route('users.show')->with('success', "$user->name has iniciado sessión correctamente");
         }
 
         //Sino, se redirige al inicio de sesión con mensaje de error
@@ -93,7 +110,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request){
         Auth::logout();
-        return redirect()->route('index')->with('success', 'Has cerrado sessión correctamente');
+        return redirect()->route('login')->with('success', 'Has cerrado sessión correctamente');
     }
 
 

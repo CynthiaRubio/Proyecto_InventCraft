@@ -10,6 +10,7 @@ class InventoryMaterial extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
     protected $collection = 'inventory_materials';
 
     protected $fillable = [
@@ -22,11 +23,11 @@ class InventoryMaterial extends Model
 
     /* Material N:1 InventoryMaterial */
     public function material(){
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(Material::class ,'material_id');
     }
 
     /* Inventory N:1 InventoryMaterial */
     public function inventory(){
-        return $this->belongsTo(Inventory::class);
+        return $this->belongsTo(Inventory::class , 'inventory_id');
     }
 }

@@ -10,6 +10,9 @@ class Event extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mongodb';
+    protected $collection = 'events';
+
     protected $fillable = [
         'zone_id',
         'name',
@@ -20,7 +23,7 @@ class Event extends Model
 
     /* Zone 1:N Events */
     public function zone(){
-        return $this->belongsTo(Zone::class);
+        return $this->belongsTo(Zone::class , 'zone_id');
     }
 
 }

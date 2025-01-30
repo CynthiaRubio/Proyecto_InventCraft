@@ -9,7 +9,7 @@
     <div class="row g-3">
         @foreach($zones as $zone)
             <div class="col-12 col-md-4">
-                <a href="{{ url('zones/' . $zone->id) }}" class="d-block">
+                <a href="{{ route('zones.show' , $zone->id) }}" class="d-block">
 
 
                     <div class="image-container">

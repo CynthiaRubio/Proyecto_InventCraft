@@ -6,9 +6,25 @@ use Illuminate\Http\Request;
 use App\Models\Zone;
 use App\Models\Material;
 use App\Models\InventionType;
+use App\Services\ActionManagementService;
+use App\Services\UserManagementService;
 
 class ZoneController extends Controller
 {
+    protected $action_service;
+    protected $user_Service;
+    //protected $eventService;
+
+    public function __construct(
+        ActionManagementService $actionService,
+        UserManagementService $userService,
+        //EventCalculateService $eventService,
+    ) {
+        $this->action_service = $actionService;
+        $this->user_service = $userService;
+        //$this->eventService = $eventService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -20,13 +36,15 @@ class ZoneController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(string $id)
     {
-        $zone = Zone::findOrFail($id);
-        $materials =  Material::where('zone_id', $id)->get();
-        $invention_types =  InventionType::where('zone_id', $id)->get();;
+        $zone = Zone::with(['materials' , 'inventionTypes'])->find($id);
 
-        return view('zones.show' , compact('zone', 'materials', 'invention_types') );//['zone' => $zone]);
+        $user = $this->user_service->getUserById(auth()->user()->id);
+
+        $time = $this->action_service->calculateMoveTime($user->_id, $id);
+
+        return view('zones.show', compact('zone' , 'time'));
 
     }
 
@@ -69,5 +87,10 @@ class ZoneController extends Controller
     public function destroy(ZoneController $zoneController)
     {
         //
+    }
+
+    public function mover(){
+        $action_type = 'Mover';
+        
     }
 }
