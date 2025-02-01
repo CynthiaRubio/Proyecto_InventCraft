@@ -17,6 +17,7 @@ class ActionBuilding extends Model
         'action_id',
         'building_id',
         'efficiency',
+        'available',
     ];
 
     /* RELACIONES */

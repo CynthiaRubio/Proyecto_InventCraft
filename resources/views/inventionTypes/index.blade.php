@@ -24,29 +24,31 @@
 
                     <div class="accordion-body text-center">
                         <p><strong>Zona en la que puedes encontrarlo:</strong> {{ $type->zone->name }}</p>
-                        @if(count($type->inventionTypes) > 0)
-                            <p><strong>Tipos de inventos que puedes crear a partir de {{$type->name}}:</strong>
-                                <ul class="list-unstyled text-center">
-                                    @foreach($type->inventionTypes as $invention)
-                                        <li>{{ $invention->inventionType->name }}</li>
-                                    @endforeach
-                                </ul>
-                            </p>
-                        @endif
-                        @if(count($type->inventionTypesNeed) > 0)
-                            <p><strong>Inventos necesarios para su creación:</strong>
-                                <ul class="list-unstyled text-center">
-                                    @foreach($type->inventionTypesNeed as $invention)
-                                        <li>{{ $invention->inventionTypeNeed->name }}</li>
-                                    @endforeach
-                                </ul>
-                            </p>
-                        @endif
+                        <p><strong>Tipos de inventos que puedes crear a partir de {{$type->name}}:</strong>
+                            <ul class="list-unstyled text-center">
+                                @forelse($type->inventionTypes as $invention)
+                                    <li>{{ $invention->inventionType->name }}</li>
+                                @empty
+                                    <li>Ninguno</li>
+                                @endforelse
+                            </ul>
+                        </p>
+                       
+                        <p><strong>Inventos necesarios para su creación:</strong>
+                            <ul class="list-unstyled text-center">
+                                @forelse($type->inventionTypesNeed as $invention)
+                                    <li>{{ $invention->inventionTypeNeed->name }}</li>
+                                @empty
+                                    <li>Ninguno</li>
+                                @endforelse
+                            </ul>
+                        </p>
+        
                         <p><strong>Edificio que puedes construir:</strong> {{ $type->building->name }}</p>
                     </div>
 
                     <div class="accordion-body text-center">
-                        <a href="{{ route('inventories.show', auth()->user()->id) }}" class="btn btn-warning mt-3">Ver inventos de este tipo</a>
+                        <a href="{{ route('inventories.show', $type) }}" class="btn btn-warning mt-3">Ver inventos de este tipo</a>
                     </div>
 
                     <div class="accordion-body text-center">

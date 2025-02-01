@@ -59,16 +59,20 @@
             <br><br>
             <div class="text-center">
             
-                @if($time < 1)
-                <!-- TO DO Revisar el formulario que esta con GET -->
-                    <form action="{{ route('zones.index') }}" method="GET">
+                @if($moveTime < 1)
+                
+                    <form action="{{ route('farmZone') }}" method="POST">
                         @csrf
+                        <input type="hidden" value="{{$zone->_id}}" name="zone_id"> 
+                        <label for="farmTime" class="form-label">Tiempo dedicado a explorar la zona</label>
+                        <input type="number" id="farmTime" name="farmTime" value=30 min=30 max=600 class="form-input">
                         <button type="submit" class="btn btn-warning">Explorar esta Zona</button>
                     </form>
                 @else
-                <h3 class="text-center">Tiempo de viaje: {{$time}} minutos</h3>
-                    <form action="{{ route('moveZone', $zone->id) }}" method="POST">
+                <h3 class="text-center">Tiempo de viaje: {{$moveTime}} minutos</h3>
+                    <form action="{{ route('moveZone') }}" method="POST">
                         @csrf
+                        <input type="hidden" value="{{$zone->_id}}" name="zone_id"> 
                         <button type="submit" class="btn btn-warning">Mover a esta Zona</button>
                     </form>
                 @endif

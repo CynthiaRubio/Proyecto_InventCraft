@@ -10,9 +10,16 @@ use App\Models\Action;
 use App\Models\ActionType;
 use App\Models\Zone;
 
+use App\Services\UserManagementService;
+use App\Services\ActionManagementService;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private UserManagementService $user_service,
+        private ActionManagementService $action_service,
+    ) {}
+
     /**
      * Función para ordenar los puntos de los jugadores y llamar a la vista correspondiente
      */
@@ -38,11 +45,18 @@ class UserController extends Controller
     {
         $user = auth()->user()->load('stats.stat',); 
 
-        $action_type_id = ActionType::where('name' , 'Mover')->first()->id;
+        /* Para conseguir el id de la zona en la que está el usuario
+        * usamos el service de action
+        */
+        $zone_id = $this->action_service->lastActionableByType('Mover');
+        $zone = $this->action_service->getZone($zone_id);
 
-        $zone_id = Action::where('user_id', $user->_id)->where('action_type_id', $action_type_id)->latest()->value('actionable_id');
+        // $action_type_id = ActionType::where('name' , 'Mover')->first()->id;
 
-        $zone = Zone::where('id', $zone_id)->first();
+        // $zone_id = Action::where('user_id', $user->_id)->where('action_type_id', $action_type_id)->latest()->value('actionable_id');
+
+        /* Para obtener */
+        //$zone = Zone::where('id', $zone_id)->first();
 
         
         return view('users.show' , compact(['user' , 'zone' ]));
@@ -68,7 +82,7 @@ class UserController extends Controller
     public function addStats(Request $request)
     {
         $user_id = $request->user_id;
-        $user = User::findOrFail($user_id);
+        $user = $this->user_service->getUser($user_id);
 
         $stats = $request->input('stats');
         $totalAssigned = array_sum($request->input('stats', []));
@@ -90,6 +104,23 @@ class UserController extends Controller
 
         return redirect()->route('users.show')
                          ->with('success', "$user->name has asignado todos los puntos satisfactoriamente.");
+    }
+
+    public function showAvatarSelection(User $user)
+    {
+        return view('users.avatar_selection', compact('user'));
+    }
+
+    public function changeAvatar(Request $request, User $user)
+    {
+        $request->validate([
+            'avatar' => 'required|integer|min:1|max:6', // Validamos que sea un número del 1 al 6
+        ]);
+
+        $user->avatar = $request->avatar;
+        $user->save();
+
+        return redirect()->route('users.show', $user->_id)->with('success', 'Avatar actualizado con éxito.');
     }
 
     /**

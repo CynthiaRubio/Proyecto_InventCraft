@@ -12,6 +12,7 @@ use App\Models\Zone;
 use App\Models\ActionType;
 use App\Models\UserStat;
 use App\Models\Stat;
+use App\Models\ActionZone;
 
 class AuthController extends Controller
 {
@@ -49,15 +50,21 @@ class AuthController extends Controller
         $zones = Zone::all();
         $zone = $zones->random();
 
-        Action::create([
+        $action = Action::create([
             'user_id' => $user->_id,
             'action_type_id' => $action_type_id,
             'actionable_id' => $zone->_id,
             'actionable_type' => Zone::class,
             'time' => now(),
-            'finished' => true,
-            'notificacion' => false,
+            'finished' => false,
+            'notification' => false,
+            'updated' => false,
         ]);
+
+        // ActionZone::create([
+        //     'action_id' => $action->_id,
+        //     'zone_id' => $zone->_id,
+        // ]);
 
         $stats = Stat::all();
         foreach($stats as $stat){

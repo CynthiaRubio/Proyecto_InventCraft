@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('action_id')->constrained('actions')->onDelete('cascade');
             $table->foreignId('building_id')->constrained('buildings')->onDelete('cascade');
             $table->float('efficiency');
+            $table->boolean('available');
             $table->timestamps();
             $table->primary(['action_id', 'building_id']);
         });

@@ -18,7 +18,7 @@
                         <dt>Material con el que se ha hecho:</dt>
                         <dd>{{$invention->material->name}}</dd>
                         <dt>Eficiencia del invento:</dt>
-                        <dd>{{$invention->efficiency}}</dd>
+                        <dd>{{$invention->efficiency}}%</dd>
                         <dt>Con este invento puedes construir el edificio:<dt>
                         <dd>{{$invention->inventionType->building->name}}</dd>
                     </dl>

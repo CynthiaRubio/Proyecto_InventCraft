@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ActionController;
+use App\Http\Controllers\ResourceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +38,7 @@ Route::middleware(['guest'])->group(function () {
         return view('home/login');
     }) -> name('login');
 
-    //Ruta para mandar los datos del formulario de logearse
+    //Ruta para mandar los datos del formulario para iniciar sesión
     Route::post('/login', [AuthController::class , 'login'])->name('form.login');
 
     //Ruta para mandar los datos del formulario de registro
@@ -50,6 +51,9 @@ Route::middleware(['auth' , 'check.actions'])->group(function () {
     Route::get('/logout', [AuthController::class , 'logout'])->name('logout');//->middleware('auth');
 
     //Ruta para acceder al inventario
+    Route::get('/inventories/index', [InventoryController::class, 'show'])->name('inventories.index');
+
+    //Ruta para acceder a los inventos de un tipo del inventario
     Route::get('/inventories/show', [InventoryController::class, 'show'])->name('inventories.show');
 
     //Ruta que carga la vista de construir edificio pasándole el id del edificio a crear
@@ -70,8 +74,17 @@ Route::middleware(['auth' , 'check.actions'])->group(function () {
     //Ruta para guardar la asignación de puntos del usuario
     Route::post('/users/stats/', [UserController::class , 'addStats'])->name('users.addStats');
 
-    //Ruta para calcular el tiempo que tardas en mover de zona
-    Route::post('/move-zone/{id}', [ActionController::class, 'moveZone'])->name('moveZone');
+    //Ruta para calcular el tiempo que tardas en desplazarte de zona
+    Route::post('/moveZone/', [ActionController::class, 'moveZone'])->name('moveZone');
+
+    //Ruta para explorar una zona
+    Route::post('/farm/', [ActionController::class, 'farmZone'])->name('farmZone');
+
+    //Ruta para mostrar los avatares a elegir
+    Route::get('/users/{user}/avatar', [UserController::class, 'showAvatarSelection'])->name('users.avatar');
+
+    //Ruta para guardar el avatar elegido
+    Route::post('/users/{user}/avatar', [UserController::class, 'changeAvatar'])->name('users.avatar.update');
 
     //Para todas las funciones de los controladores CRUD
     Route::resources([
@@ -82,9 +95,8 @@ Route::middleware(['auth' , 'check.actions'])->group(function () {
             'inventions' => InventionController::class,
             'buildings' => BuildingController::class,
             'actionBuildings' => ActionBuildingController::class,
+            'inventories' => InventoryController::class,
             //'users' => UserController::class,
-
-            // 'inventories' => InventoryController::class,
             // 'stats' => StatController::class,
             // 'actions' => ActionController::class,
             // 'actionTypes' => ActionType::class,

@@ -36,11 +36,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             InventionSeeder::class,
-            ResourceSeeder::class,
-            ActionSeeder::class,
-            ActionZoneSeeder::class,
-            ActionBuildingSeeder::class,
-            InventoryMaterialSeeder::class,
+            //ActionSeeder::class,
+            //ActionZoneSeeder::class,
+            //ResourceSeeder::class,
+            //ActionBuildingSeeder::class,
+            //InventoryMaterialSeeder::class,
             InventionTypeInventionTypeSeeder::class,
         ]);
 

@@ -10,73 +10,92 @@
 
     <div class="row align-items-center">
 
-        <div class="col-md-6 text-center">
+        <!-- Imagen del Edificio -->
+        <div class="col-md-6 text-center mb-4 mb-md-0">
             <img src="{{ asset('images/buildings/' . $building->name . '.webp') }}" alt="{{ $building->name }}"
-                class="img-fluid rounded shadow">
+                class="img-fluid rounded shadow-lg">
         </div>
 
-        <div class="col-md-6 text-center">
-            <dl>
-                <dt>Nombre:</dt>
-                <dd>{{$building->name}}</dd>
-            </dl>
-            <dl>
-                <dt>Descripción:</dt>
-                <dd>{{$building->description}}</dd>
-            </dl>
-            <dl>
-                <dt>Coordenadas:</dt>
-                <dd>[{{$building->coord_x}} , {{$building->coord_y}}]</dd>
-            </dl>
-            <dl>
-                <dt>Tipos de inventos necesarios para construir este edificio:</dt>
-                <dd>
-                    <ul>
-                    @foreach($inventions_need as $invention)
-                        <li class="">{{$invention->name}}</li>
-                    @endforeach
-                </ul>
-                </dd>
-            </dl>
+        <!-- Información del Edificio -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Nombre:</dt>
+                        <dd class="col-sm-8">{{$building->name}}</dd>
 
-            <div class="mb-4 mt-4">
-                <h5 class="text-center">Nivel actual: {{$actual_level}} / 10 con una eficiencia de {{$building->efficiency}}</h5>
-                <div class="progress" style="height: 30px;">
-                    @php
-                        $progress = ($actual_level / 10) * 100;
-                        $bgColor = 'bg-danger';
+                        <dt class="col-sm-4">Descripción:</dt>
+                        <dd class="col-sm-8">{{$building->description}}</dd>
 
-                        if ($actual_level >= 8) {
-                            $bgColor = 'bg-success';
-                        } elseif ($actual_level >= 5) {
-                            $bgColor = 'bg-warning';
-                        }
-                    @endphp
-                    <div class="progress-bar {{$bgColor}} progress-bar-striped progress-bar-animated" 
-                        role="progressbar" 
-                        style="width: {{$progress}}%;" 
-                        aria-valuenow="{{$progress}}" 
-                        aria-valuemin="0" 
-                        aria-valuemax="100">
-                        Nivel {{$actual_level}}
+                        <dt class="col-sm-4">Coordenadas:</dt>
+                        <dd class="col-sm-8">[{{$building->coord_x}} , {{$building->coord_y}}]</dd>
+
+                        <dt class="col-sm-4">Tipos de inventos necesarios:</dt>
+                        <dd class="col-sm-8">
+                            <ul>
+                                @foreach($inventions_need as $invention)
+                                    <li>{{$invention->name}}</li>
+                                @endforeach
+                            </ul>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="text-center">Nivel actual: {{$actual_level}} / 10</h5>
+                    <div class="progress" style="height: 30px;">
+                        @php
+                            $progress = ($actual_level / 10) * 100;
+                            $bgColor = 'bg-danger';
+
+                            if ($actual_level >= 8) {
+                                $bgColor = 'bg-success';
+                            } elseif ($actual_level >= 5) {
+                                $bgColor = 'bg-warning';
+                            }
+                        @endphp
+                        <div class="progress-bar {{$bgColor}} progress-bar-striped progress-bar-animated" 
+                            role="progressbar" 
+                            style="width: {{$progress}}%;" 
+                            aria-valuenow="{{$progress}}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="100">
+                            Nivel {{$actual_level}}
+                        </div>
                     </div>
                 </div>
             </div>
-        
+
+            <!-- Botones de acción -->
             <div class="text-center">
                 @if($actual_level > 0)
-                <a href="{{route('actionBuildings.create.withBuilding' , $building) }}" class="btn btn-warning">Mejora este edifcio</a>
+                    <a href="{{route('actionBuildings.create.withBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                        Mejorar este edificio
+                    </a>
                 @else
-                <a href="{{route('actionBuildings.create.withBuilding' , $building) }}" class="btn btn-warning">Construir este edifcio</a>
+                    <a href="{{route('actionBuildings.create.withBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                        Construir este edificio
+                    </a>
                 @endif
             </div>
-            <br>
+
             <div class="text-center">
-                <a href="{{route('buildings.index')}}" class="btn btn-warning">Regresar al Listado de Edificios</a>
+                <a href="{{route('buildings.index')}}" class="btn btn-outline-primary btn-lg w-100">
+                    Regresar al Listado de Edificios
+                </a>
             </div>
-        </div class="col-md-6 text-center">
-            
+
+        </div>
     </div>
 </div>
 
 @endsection
+
+
+
+
+
+

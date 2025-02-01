@@ -8,6 +8,7 @@ use App\Models\UserStat;
 use App\Models\User;
 use App\Models\Zone;
 use App\Models\ActionType;
+use App\Models\Inventory;
 
 class UserManagementService {
 
@@ -44,7 +45,7 @@ class UserManagementService {
     /**
      * Función para encontrar un usuario en la BD por su id
      */
-    public function getUserById($userId)
+    public function getUser($userId)
     {
         return User::findOrFail($userId);
     }
@@ -52,11 +53,11 @@ class UserManagementService {
     /**
      * Obtiene el valor de una estadística de usuario
      */
-    public function getUserStat($user, string $name)
+    public function getUserStat(string $name)
     {
         $stat_id = Stat::where('name', $name)->first()->id;
-
-        $value_stat = UserStat::where('user_id', $user->_id)
+        $user_id = auth()->user()->id;
+        $value_stat = UserStat::where('user_id', $user_id)
                         ->where('stat_id', $stat_id)
                         ->value('value') ?? 0; // Valor por defecto si no tiene la estadística
         
@@ -66,15 +67,35 @@ class UserManagementService {
     /**
      * Obtiene la última zona en la que estuvo el usuario
      */
-    public function getUserActualZone($user)
+    public function getUserActualZone()
     {
         $action_type_id = ActionType::where('name', 'Mover')->first()->id;
-        $user_action_zone_id = Action::where('user_id', $user->_id)
+        $user_id = auth()->user()->id;
+        $user_action_zone_id = Action::where('user_id', $user_id)
                                     ->where('action_type_id', $action_type_id)
                                     ->latest('id')
                                     ->value('actionable_id');
         
         return $user_action_zone_id ? Zone::find($user_action_zone_id) : null;
+    }
+
+    /**
+     * Función para obtener el id del inventario del jugador
+     */
+    public function getUserInventory(){
+        $user = auth()->user();
+        $inventory = Inventory::where('user_id', $user->id)->first();
+        return $inventory;
+    }
+
+    /**
+     * Función para obtener el id del inventario del jugador con sus relaciones
+     */
+    public function getUserInventoryWithRelations(){
+        $user = auth()->user();
+        $inventory_with_relations = Inventory::where('user_id', $user->id)
+                        ->with('inventions' , 'materials');
+        return $inventory_with_relations;
     }
 
 }

@@ -30,6 +30,7 @@ class ActionBuildingSeeder extends Seeder
                     'action_id' => $action->_id,
                     'building_id' => $building->_id,
                     'efficiency' => rand(1, 50),
+                    'available' => true,
                 ]);
             }
         }

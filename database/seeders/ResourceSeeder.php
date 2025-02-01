@@ -29,6 +29,7 @@ class ResourceSeeder extends Seeder
                 'resourceable_id' => $material->_id,
                 'resourceable_type' => Material::class,
                 'quantity' => rand(0, 6),
+                'available' => true,
             ]);
 
             $invention = $inventions->random();
@@ -37,6 +38,7 @@ class ResourceSeeder extends Seeder
                 'resourceable_id' => $invention->_id,
                 'resourceable_type' => Invention::class,
                 'quantity' => rand(0, 2),
+                'available' => true,
             ]);
         }
     }

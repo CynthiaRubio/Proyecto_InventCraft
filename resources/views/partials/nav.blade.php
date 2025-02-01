@@ -11,7 +11,7 @@
                     <a class="nav-link active" href="/zones">Mapa</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::routeIs('inventories.show') ? 'active' : '' }}" href="{{ route('inventories.show') }}">Inventario</a>
+                    <a class="nav-link {{ Request::routeIs('inventories.index') ? 'active' : '' }}" href="{{ route('inventories.index') }}">Inventario</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/buildings">Edificios</a>

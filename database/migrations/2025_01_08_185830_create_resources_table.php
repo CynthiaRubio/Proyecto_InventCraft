@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('action_zone_id')->constrained('action_zones')->onDelete('cascade');
             $table->morphs('resourceable');
+            $table->integer('quantity');
+            $table->boolean('available');
             $table->timestamps();
         });
     }

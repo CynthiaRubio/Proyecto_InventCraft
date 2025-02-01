@@ -7,10 +7,17 @@ use App\Models\ActionZone;
 use App\Models\Resource;
 use App\Models\Material;
 use App\Models\InventionType;
+use App\Models\Zone;
 use Illuminate\Support\Facades\Auth;
+use App\Services\ResourceManagementService;
 
 class ResourceController extends Controller
 {
+    public function __construct(
+        private ResourceManagementService $resource_service,   
+    ) {}
+
+
     /**
      * Display a listing of the resource.
      */
@@ -68,56 +75,58 @@ class ResourceController extends Controller
     }
 
     public function collectResources($id)
-{
-    /* Obtenemos el usuari autenticado */
-    $user = auth()->user();
+    {
+        /* Obtenemos el usuari autenticado */
+        $user = auth()->user();
 
-    /* El usuario tiene que estar en una zona para poder recolectar, comprobar la zona del usuario */
-    $zone_user = ActionZone::where('user_id' , $user->_id)->get();
+        /* El usuario tiene que estar en una zona para poder recolectar, comprobar la zona del usuario */
+        $zone_user = ActionZone::where('user_id', $user->_id)->get();
 
-    /* Y habría que comprobar que es la zona que nos llega y en la que esta el usuario es la misma */
-    $zone = Zone::findOrFail($id);
+        /* Y habría que comprobar que es la zona que nos llega y en la que esta el usuario es la misma */
+        $zone = Zone::findOrFail($id);
 
-    if (!$zone_user || $zone_user->zone_id !== $zone->id) {
-        return redirect()->route('zones.show', $zone->id)->with('error', 'No estás en esta zona. No puedes recolectar recursos aquí.');
+        if (!$zone_user || $zone_user->zone_id !== $zone->id) {
+            return redirect()->route('zones.show', $zone->id)->with('error', 'No estás en esta zona. No puedes recolectar recursos aquí.');
+        }
+
+        /* Obtenemos todos los materiales y tipos de inventos disponibles en la zona */
+        $materials = Material::where('zone_id', $zone->id)->get();
+        $invention_types = InventionType::where('zone_id', $zone->id)->get();
+
+        /* Determinar de forma aleatoria los materiales y los inventos que recoge */
+        $max_materials = (count($materials) / 2) + 1; // Máximo de materiales a recolectar
+        $max_inventions = 2; // Máximo de inventos a recolectar
+
+        // Recolectar materiales de manera aleatoria
+        $random_materials = $materials->random(min($max_materials, $materials->count()));
+
+        // Recolectar inventos de manera aleatoria
+        $random_inventions = $invention_types->random(min($max_inventions, $invention_types->count()));
+
+
+        /* Guardar los recursos en la tabla resources */
+        foreach ($materials_ as $material) {
+            Resource::create([
+                'user_id' => $user->_id,
+                'resourceable_id' => $material->id,
+                'resourceable_type' => Material::class,
+                'zone_id' => $zone->id,
+            ]);
+        }
+
+        // Guardar los recursos de los inventos en la tabla `resources`
+        foreach ($inventions as $invention) {
+            Resource::create([
+                'user_id' => $user->_id,
+                'resourceable_id' => $invention->id,
+                'resourceable_type' => Invention::class,
+                'zone_id' => $zone->id,
+            ]);
+        }
+
+        return redirect()->route('zones.show')->with('success', 'Has recolectado recursos de la zona ' . $zone->name);
     }
 
-    /* Obtenemos todos los materiales y tipos de inventos disponibles en la zona */
-    $materials = Material::where('zone_id', $zone->id)->get();
-    $invention_types = InventionType::where('zone_id', $zone->id)->get();
-
-    /* Determinar de forma aleatoria los materiales y los inventos que recoge */
-    $max_materials = (count($materials) / 2 )+1; // Máximo de materiales a recolectar
-    $max_inventions = 2; // Máximo de inventos a recolectar
-
-    // Recolectar materiales de manera aleatoria
-    $random_materials = $materials->random(min($max_materials, $materials->count()));
-
-    // Recolectar inventos de manera aleatoria
-    $random_inventions = $invention_types->random(min($max_inventions, $invention_types->count()));
-
-
-    /* Guardar los recursos en la tabla resources */
-    foreach ($materials_ as $material) {
-        Resource::create([
-            'user_id' => $user->_id,
-            'resourceable_id' => $material->id,
-            'resourceable_type' => Material::class,
-            'zone_id' => $zone->id,
-        ]);
-    }
-
-    // Guardar los recursos de los inventos en la tabla `resources`
-    foreach ($inventions as $invention) {
-        Resource::create([
-            'user_id' => $user->_id,
-            'resourceable_id' => $invention->id,
-            'resourceable_type' => Invention::class,
-            'zone_id' => $zone->id,
-        ]);
-    }
-
-    return redirect()->route('zones.show')->with('success', 'Has recolectado recursos de la zona ' . $zone->name);
-}
+    
 
 }

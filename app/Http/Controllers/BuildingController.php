@@ -27,22 +27,6 @@ class BuildingController extends Controller
 
         $building = Building::with(['actions:efficiency','inventionTypes'])->findOrFail($id);
 
-        // $buildingName = (Building::where('id', '$building'))->name;
-
-        //Falta la relación con stats para saber los beneficios de construir este edificio
-        //que habrá que pasarlos a la vista show en el compact
-
-        //$building_stat = BuildingStat::where('building_id', $building->id)->first();
-        //$stat = $building_stat->stat_id;
-
-        /*
-        Para la vista:
-        <p>Al construir este edificio tu {{$stat->name}} aumenta en {{$building_stat->value}} puntos<p>
-        */
-
-        //Aquí faltará comprobar si el edificio ya se ha construido para que en la vista en lugar
-        //del boton de construir edificio salga actualizar edificio o subir de nivel
-
         $inventions_need = InventionType::where('building_id', $building->_id)->get();
 
         $actual_level = Action::where('user_id', $user->_id)->where('actionable_id', $building->_id)->count();

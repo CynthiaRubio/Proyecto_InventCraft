@@ -37,6 +37,8 @@
     </div>
 @endforeach
 
+<label for="time" class="form-label">Tiempo dedicado a la creación del invento</label>
+<input type="number" id="time" name="time" value="30" min=30 max=600 step=1 class="form-input">
 
     <button type="submit" class="btn btn-success">Crear Invento</button>
 </form>

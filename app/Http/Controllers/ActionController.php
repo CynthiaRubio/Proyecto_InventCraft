@@ -4,34 +4,49 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ActionManagementService;
+use App\Services\ResourceManagementService;
+//use App\Models\Zone;
 
 class ActionController extends Controller
 {
-    protected $action_service;
-    //protected $eventService;
 
     public function __construct(
-        ActionManagementService $actionService,
+        private ActionManagementService $action_service,
+        private ResourceManagementService $resource_service,
         //EventCalculateService $eventService
     ) {
-        $this->action_service = $actionService;
-        //$this->eventService = $eventService;
     }
 
     /**
      * Función que calcula el tiempo de desplazamiento a otra zona
     */
-    public function moveZone(string $zone_id)
+    public function moveZone(Request $request)
     {
         $user = auth()->user();
-        $time = $this->action_service->calculateMoveTime($user->_id, $zone_id);
-        $action = $this->action_service->createAction('Mover',$zone_id,'Zone',$time);
-        $zone = $this->action_service->getZone($zone_id)->name;
+        $moveTime = $this->action_service->calculateMoveTime($request->zone_id);
+        $action = $this->action_service->createAction('Mover',$request->zone_id,'Zone',$moveTime);
 
         if($action){
-            return redirect()->route('zones.index')->with('success', "Estas de viaje a la zona $zone. El viaje dura $time minutos.");
+            $zone_name = $this->action_service->getZone($request->zone_id)->name;
+            return view('actions.wait' , compact( 'zone_name' , 'moveTime'));
         } else {
             return redirect()->route('zones.index')->with('error', "Las carreteras están cortadas. No puedes viajar a esta zona.");
+        }
+        
+    }
+
+    /**
+     * Función para recolectar
+     */
+    public function farmZone(Request $request)
+    {
+        $result = $this->resource_service->calculateFarm($request->zone_id, $request->farmTime);
+
+        if(count($result) > 0){
+            $zone = $this->action_service->getZone($request->zone_id);
+            return redirect()->route('zones.index')->with('success' , "Estas explorando $zone->name durante $request->farmTime minutos.");
+        } else {
+            return redirect()->route('zones.index')->with('error' , "Ohhh que mala suerte! No has recolectado nada.");
         }
         
     }

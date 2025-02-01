@@ -27,7 +27,7 @@ class InventionSeeder extends Seeder
 
             foreach($inventories as $inventory){
 
-                for($i = 0; $i < 10; $i++){
+                for($i = 0; $i < 2; $i++){
                     $materials = Material::where('material_type_id', $type->material_type_id)->get();
                     $material = $materials->random();
         
@@ -39,7 +39,7 @@ class InventionSeeder extends Seeder
                         'invention_created_id' => null,
                         'name' => $faker->name(),
                         'efficiency' => $material->efficiency,
-                        //'time' => rand(0,1000),
+                        'available' => true,
                     ]);
                 }       
             }

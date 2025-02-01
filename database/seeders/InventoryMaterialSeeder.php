@@ -25,6 +25,7 @@ class InventoryMaterialSeeder extends Seeder
                     'inventory_id' => $inventory->_id,
                     'material_id' => $material->_id,
                     'quantity' => rand(1, 5),
+                    'quantity_na' => 0,
                 ]);
             }
         }     

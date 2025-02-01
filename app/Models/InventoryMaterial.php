@@ -16,7 +16,8 @@ class InventoryMaterial extends Model
     protected $fillable = [
         'inventory_id',
         'material_id',
-        'quantity'
+        'quantity',
+        'quantity_na',
     ];
 
     /* RELACIONES */

@@ -4,16 +4,58 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Inventory;
+use App\Models\Invention;
 use App\Models\User;
+
+use App\Services\UserManagementService;
 
 class InventoryController extends Controller
 {
+    protected $user_service;
+
+    public function __construct(
+        UserManagementService $userService,
+    ) {
+        $this->user_service = $userService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $user = auth()->user();
+        $inventory= Inventory::where('user_id', $user->id)->with([
+                                                                'user:name', 
+                                                                'materials:id,name', 
+                                                                'inventions:id,name'])->first();
+
+        $inventory = Inventory::where('user_id', $user->id)
+            ->with(['inventions.inventionType', 'materials.material'])
+            ->first();
+
+        // Agrupo inventos  y materiales por tipo 
+        $inventionsByType = $inventory->inventions->groupBy('inventionType.name');
+        $materialsByType = $inventory->materials->groupBy('material.materialType.name');
+
+        $totalMaterials = $inventory->materials->sum('quantity');
+
+        return view('inventories.index', compact('inventory', 'inventionsByType', 'materialsByType', 'totalMaterials'));
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $user = auth()->user();
+        $inventory_id = Inventory::where('user_id' , $user->_id)->first()->id;
+        $inventions = Invention::where('inventory_id', $inventory_id)
+                                ->where('invention_type_id', $id)
+                                ->with('inventionType')
+                                ->get();
+    
+        return view('inventories.show' , compact('inventions' , 'user'));
     }
 
     /**
@@ -32,32 +74,7 @@ class InventoryController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show()
-    {
-        $user = auth()->user();
-        $inventory= Inventory::where('user_id', $user->id)->with([
-                                                                'user:name', 
-                                                                'materials:id,name', 
-                                                                'inventions:id,name'])->first();
-
-        $inventory = Inventory::where('user_id', $user->id)
-            ->with(['inventions.inventionType', 'materials.material'])
-            ->first();
-
-        // Agrupo inventos  y materiales por tipo 
-        $inventionsByType = $inventory->inventions->groupBy('inventionType.name');
-        $materialsByType = $inventory->materials->groupBy('material.materialType.name');
-        return view('inventories.show', compact('inventory', 'inventionsByType', 'materialsByType'));
     
-        /* Código del controlador correspondiente a la vista que esta en Código anterior */
-//         $user = auth()->user();
-//         $inventory = Inventory::where('id' , $user->id)->with(['inventory.materials.material' , 'inventory.inventions.inventionType'])->get();
-// //dd($inventory);
-//         return view('inventories.show', compact('inventory' , 'user'));
-    }
 
     /**
      * Show the form for editing the specified resource.

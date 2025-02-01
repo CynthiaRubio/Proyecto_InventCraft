@@ -75,3 +75,4 @@ Variaciones de la wiki:
   - Acción de crear invento 
   - Acción de construir edificio
 - Se sube de nivel por cada 10 puntos.
+- En todos los tiempos se ven minutos en las vistas pero son segundos.

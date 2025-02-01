@@ -13,7 +13,7 @@ class Invention extends Model
     use SoftDeletes;
 
     protected $connection = 'mongodb';
-    protected $table = 'inventions';
+    protected $collection = 'inventions';
 
     protected $fillable = [
         'invention_type_id',
@@ -23,6 +23,7 @@ class Invention extends Model
         'invention_created_id',
         'name',
         'efficiency',
+        'available',
     ];
 
     /* RELACIONES */

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
             $table->foreignId('material_id')->constrained('materials')->onDelete('cascade');
             $table->integer('quantity');
+            $table->integer('quantity_na');
             $table->timestamps();
             $table->softDeletes();
             $table->primary(['inventory_id', 'material_id']);

@@ -4,7 +4,7 @@
 
 @section('content') <!-- Le pasamos el contenido a la plantilla -->
 
-    <h2 class="text-center mb-4">Listado de zonas:</h2>
+    <h2 class="text-center mb-4">Mapa</h2>
 
     <div class="row g-3">
         @foreach($zones as $zone)

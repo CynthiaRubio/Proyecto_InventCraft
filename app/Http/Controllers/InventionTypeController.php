@@ -6,8 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\InventionType;
 use App\Models\Invention;
 
+use App\Services\InventionTypeService;
+
 class InventionTypeController extends Controller
 {
+
+    public function __construct(
+        private InventionTypeService $invention_type_service,
+    ) {
+    }
+
+
     /**
      * Display a listing of the resource.
      */
@@ -15,15 +24,23 @@ class InventionTypeController extends Controller
     {
         $inventionTypes = InventionType::all();
 
-        /* Cargamos solo los datos de las columnas que queremos usando las relaciones */
-        $inventionTypes->load([
-            'inventions:id,name',
-            'zone:id,name',
-            'building:id,name',
-            'inventionTypesNeed:id,invention_type_id,invention_type_need_id',
-            'inventionTypes.inventionType:id,name',
-        ]);
+        // /* Cargamos solo los datos de las columnas que queremos usando las relaciones */
+        // $inventionTypes->load([
+        //     'inventions:id,name',
+        //     'zone:id,name',
+        //     'building:id,name',
+        //     'inventionTypesNeed:id,invention_type_id,invention_type_need_id',
+        //     'inventionTypes.inventionType:id,name',
+        // ]);
+
+        foreach($inventionTypes as $invention_type){
+            
+            $invention_types_needed[] = [$this->invention_type_service->getInventionsNeeded($invention_type->_id)];
+            
+        }
         
+        //dd($invention_types_needed);
+
         return view('inventionTypes.index', compact('inventionTypes') );
     }
 
@@ -32,8 +49,6 @@ class InventionTypeController extends Controller
      */
     public function show($id)
     {
-        $user= auth()->user();
-        /* TO DO Revisar si esto es correcto */
         $invention_type = InventionType::findOrFail($id);
 
         return view('inventionTypes.show', compact('invention_type'));

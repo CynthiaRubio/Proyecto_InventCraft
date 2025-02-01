@@ -20,7 +20,8 @@ class Action extends Model
         'actionable_type',
         'time',
         'finished',
-        'notificacion',
+        'notification',
+        'updated',
     ];
 
 

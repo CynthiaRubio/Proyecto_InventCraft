@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('invention_created_id')->constrained('inventions')->onDelete('cascade')->nullable();
             $table->string('name');
             $table->float('efficiency');
+            $table->boolean('available');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -10,49 +10,105 @@ use App\Models\Zone;
 use App\Models\Invention;
 use App\Models\Building;
 use App\Models\ActionType;
+use App\Models\ActionZone;
+use App\Models\Material;
+use App\Models\Resource;
+use App\Models\InventionType;
 
 class ActionManagementService
 {
-    protected $user_service;
-
     public function __construct(
-        UserManagementService $userService,
+        private UserManagementService $user_service,
     ) {
-        $this->user_service = $userService;
     }
+
+
+    /**
+     * Función que crea una acción recibiendo:
+     *
+     * @param $action_type = 'Crear', 'Construir', 'Recolectar' o 'Mover'
+     * @param $actionable_id = El id del edificio, del invento, de la zona o el action_zone_id
+     * @param $model = Building o Invention o Zone o ActionZone
+     * @param $time = Tiempo que tardará en hacer la acción a partir de ahora
+     */
+    public function createAction(string $action_type, string $actionable_id, string $model, int $time)
+    {
+        $user = auth()->user();
+        $action_type_id = ActionType::where('name', $action_type)->first()->id;
+        $actionable_type = "App\Models\\" .$model;
+
+        $action = Action::create([
+            'user_id' => $user->_id,
+            'action_type_id' => $action_type_id,
+            'actionable_id' => $actionable_id,
+            'actionable_type' => $actionable_type,
+            'time' =>  now()->addSeconds($time), //now()->addMinutes(rand(60, 240)),
+            'finished' => false,
+            'notification' => false,
+            'updated' => false,
+        ]);
+
+        if ($action) {
+            return $action->_id;
+        } else {
+            return redirect()->back()->with('error', 'Problemas al realizar la acción.');
+        }
+    }
+
+    /**
+     * Función para calcular el id de la última acción realizada de Mover y Crear
+     * 
+     * @param $actionType = 'Mover' o 'Crear'
+     */
+    public function lastActionableByType(string $actionType)
+    {
+
+        $user = auth()->user();
+        $action_type_id = ActionType::where('name', $actionType)->first()->id;
+        $last_actionable_id = Action::where('user_id', $user->_id)
+                            ->where('action_type_id', $action_type_id)
+                            ->latest()->value('actionable_id');
+        return $last_actionable_id;
+    }
+
+    /**
+     * Función para calcular el id de la última acción realizada de Construir
+     * 
+     * @param $building_id = id del edificio a mejorar
+     */
+    public function lastActionConstruct(string $building_id)
+    {
+
+        $user = auth()->user();
+        $action_type_id = ActionType::where('name', 'Construir')->first()->id;
+        $last_action_id = Action::where('user_id', $user->_id)
+                            ->where('action_type_id', $action_type_id)
+                            ->where('actionable_id', $building_id)
+                            ->latest()->value('id');
+        return $last_action_id;
+    }
+
 
     /**
      * Calcula el tiempo de desplazamiento entre dos zonas
      */
-    public function calculateMoveTime(string $user_id, string $zone_id)
+    public function calculateMoveTime(string $zone_id)
     {
-        $user = $this->user_service->getUserById($user_id);
         $zone = $this->getZone($zone_id);
-        $user_actual_zone = $this->user_service->getUserActualZone($user);
+        $user_actual_zone = $this->user_service->getUserActualZone();
 
-        return round($this->getMoveTime($user, $user_actual_zone, $zone));
+        return round($this->getMoveTime($user_actual_zone, $zone));
     }
 
-    /**
-     * Calcula los recursos obtenidos al explorar una zona
-     */
-    public function calculateFarm(string $user_id, string $zone_id, int $time)
-    {
-        $user = $this->user_service->getUserById($user_id);
-        $zone = $this->getZoneWithRelations($zone_id);
-        $suerte_user = $this->user_service->getUserStat($user, 'Suerte');
-
-        $farm_result = $this->calculateResources($zone, $suerte_user, $time);
-
-        return $farm_result;
-    }
 
     /**
      * Obtiene una zona por ID
      */
     public function getZone(string $zone_id)
     {
-        return Zone::findOrFail($zone_id);
+        $zone = Zone::findOrFail($zone_id);
+        return $zone;
+
     }
 
     /**
@@ -66,19 +122,20 @@ class ActionManagementService
     /**
      * Calcula el tiempo de movimiento entre dos zonas
      */
-    public function getMoveTime($user, $actualZone, $targetZone)
+    public function getMoveTime($actualZone, $targetZone)
     {
+        $user = auth()->user();
         $distancia_x = abs($targetZone->coord_x - $actualZone->coord_x);
         $distancia_y = abs($targetZone->coord_y - $actualZone->coord_y);
         $distancia = $distancia_x + $distancia_y;
-        $velocidad_user = $this->user_service->getUserStat($user, 'Velocidad');
+        $velocidad_user = $this->user_service->getUserStat('Velocidad');
         $tiempo_base = 50;
 
-        if($velocidad_user === 0){
+        if ($velocidad_user === 0) {
             $velocidad_user = 1;
         }
 
-        $tiempo = match(true){
+        $tiempo = match(true) {
             $distancia === 0 => 0,
             $distancia === 1 => $tiempo_base - $velocidad_user,
             $distancia === 2 => $tiempo_base + ($tiempo_base / $velocidad_user),
@@ -90,107 +147,13 @@ class ActionManagementService
     }
 
     /**
-     * Calcula los recursos disponibles en una zona según la suerte del usuario
+     * Función que calcula el tiempo de la creación de los inventos
      */
-    public function calculateResources($zone, int $suerte_user, int $time) //TENER EN CUENTA LO DEL TIEMPO
+    public function getInventTime()
     {
-        $recursos = [];
 
-        foreach ($zone->materials as $material) {
-
-            if ($this->calculateResourceProbability($material->efficiency, $suerte_user)) {
-                $recursos[] = [
-                    'material' => $material,
-                    'quantity' => $this->calculateResourceQuantity($material->efficiency)
-                ];
-            }
-        }
-
-        $recursos = array_merge($recursos, $this->calculateInventions($zone, $suerte_user));
-        
-        return $recursos;
     }
 
-    /**
-     * Calcula la probabilidad de obtener un recurso
-     */
-    public function calculateResourceProbability(int $efficiency, int $luck)
-    {
-        $probabilidad = 50 - $efficiency + $luck;
-        if($probabilidad >= rand(0,100)){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determina la cantidad de un recurso basado en su eficiencia
-     */
-    public function calculateResourceQuantity(int $efficiency)
-    {
-        return match (true) {
-            $efficiency <= 22 => rand(0, 8),
-            $efficiency > 22 && $efficiency <= 30 => rand(0, 4),
-            default => rand(0, 2)
-        };
-    }
-
-    /**
-     * Calcula la probabilidad de encontrar un invento en la zona
-     */
-    public function calculateInventions($zone, int $luck)
-    {
-        $probabilidad = rand(0, 100) + $luck;
-        $inventions = [];
-
-        if ($probabilidad >= 50) {
-            $inventions[] = ['invento' => $zone->inventionTypes->random(), 'efficiency' => rand(15, 30)];
-        }
-
-        if ($probabilidad >= 80) {
-            for ($i = 0; $i < 2; $i++) {
-                $inventions[] = ['invento' => $zone->inventionTypes->random(), 'efficiency' => rand(15, 30)];
-            }
-        }
-
-        return $inventions;
-    }
-
-    /**
-     * Función que crea una acción
-     */
-    public function createAction(string $action_type, string $actionable_id, string $model, int $time )
-    {
-        $user = auth()->user();
-        $action_type_id = ActionType::where('name', $action_type)->first()->id;
-        $actionable_type = "App\Models\\" .$model;
-
-        $action = Action::create([
-            'user_id' => $user->_id,
-            'action_type_id' => $action_type_id,
-            'actionable_id' => $actionable_id,
-            'actionable_type' => $actionable_type,
-            'time' =>  now()->addSeconds($time), //now()->addMinutes(rand(60, 240)),
-            'finished' => false,
-            'notificacion' => false,
-        ]);
-
-        if($action){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Función que comprueba que no hay acciones activas
-     */
-    public function activeAction (){
-
-        $user_id = auth()->user()->id;
-        $action = Action::where('user_id', $user_id);
-    }
 }
 
 //     /**

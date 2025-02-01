@@ -12,8 +12,19 @@ use App\Models\Invention;
 use App\Models\User;
 use App\Models\ActionType;
 
+use App\Services\ActionManagementService;
+
 class ActionBuildingController extends Controller
 {
+
+    protected $action_service;
+
+    public function __construct(
+        ActionManagementService $actionService,
+    ) {
+        $this->action_service = $actionService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -27,21 +38,22 @@ class ActionBuildingController extends Controller
      */
     public function create(string $id)
     {
+        /* Obtenemos el usuario autenticado y su inventario con los inventos */
         $user = auth()->user();
+        $inventory = Inventory::with('inventions')->where('user_id', $user->id)->firstOrFail();
 
-        $inventory = Inventory::where('user_id',$user->id)->first();
-
-        $invention_types = InventionType::where('building_id' , $id)->get();
-
-        $inventions_inventory = Invention::where('inventory_id', $inventory->_id)->get();
-
-        $building = Building::find($id);
-
-        $actual_level = Action::where('user_id', $user->_id)->where('actionable_id', $building->_id)->count();
-
+        /* Obtenemos los datos del edificio que queremos construir */
+        $building = Building::findOrFail($id);
+        /* Y el nivel del edificio y al que queremos mejorarlo ERROR HAY QUE BUSCAR EL ID DE LA ACCION */
+        $actual_level = ActionBuilding::where('building_id', $id)->count();
         $level = $actual_level + 1;
 
-        // Validar si el usuario tiene suficientes inventos
+        /* Obtenemos los tipos de inventos necesarios para crear el edificio */
+        $invention_types = InventionType::where('building_id', $id)->get();
+        /* Y agrupamos los inventos del usuario por tipo */
+        $user_inventions_by_type = $inventory->inventions->groupBy('invention_type_id');
+
+        /* Validamos la cantidad de inventos del usuario de cada tipo */
         foreach ($invention_types as $type) {
             if (!isset($user_inventions_by_type[$type->id]) || count($user_inventions_by_type[$type->id]) < $level) {
                 return redirect()->route('buildings.index')->with(
@@ -50,31 +62,8 @@ class ActionBuildingController extends Controller
                 );
             }
         }
-
-        return view('buildings.create' , compact( 'invention_types', 'inventions_inventory' , 'building' , 'level'));
+        return view('buildings.create', compact('invention_types', 'user_inventions_by_type', 'building', 'level'));
     }
-
-    // public function create(string $id)
-    // {
-    //     $user = auth()->user();
-    //     $inventory = Inventory::with('inventions')->where('user_id', $user->id)->firstOrFail();
-    //     $building = Building::findOrFail($id);
-    //     $invention_types = InventionType::where('building_id', $id)->get();
-    //     $user_inventions_by_type = $inventory->inventions->groupBy('invention_type_id');
-
-    //     $level = ActionBuilding::where('building_id', $id)->count() + 1;    //nivel al que mejorará
-
-    //     // Validar si el usuario tiene suficientes inventos
-    //     foreach ($invention_types as $type) {
-    //         if (!isset($user_inventions_by_type[$type->id]) || count($user_inventions_by_type[$type->id]) < $level) {
-    //             return redirect()->route('buildings.index')->with(
-    //                 'error',
-    //                 "No tienes suficientes inventos de tipo {$type->name}. Se requieren {$level}."
-    //             );
-    //         }
-    //     }
-    //     return view('buildings.create', compact('invention_types', 'user_inventions_by_type', 'building', 'level'));
-    // }
 
     /**
      * Store a newly created resource in storage.
@@ -88,15 +77,19 @@ class ActionBuildingController extends Controller
 
         $action_type_id = ActionType::where('name' , 'Construir')->first()->id;
 
+        $timeConstruct = (600 / $user->level) * $level; 
+
         //Tenemos que crear una accion de tipo construir para usar su id
+        $accion_id = $this->action_service->createAction('Construir' , $building_id , 'Building', $timeConstruct);
         Action::create([
             'user_id' => $user->_id,
             'action_type_id' => $action_type_id,
             'actionable_id' => $building_id,
             'actionable_type' => Building::class,
-            'time' => now()->addMinutes(rand(60, 240)),
+            'time' => now()->addSeconds(rand(60, 240)),
             'finished' => false,
-            'notificacion' => true,
+            'notification' => false,
+            'available' => false,
         ]);
 
         //Obtenemos el id de la última acción de construir

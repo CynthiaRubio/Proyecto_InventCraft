@@ -11,19 +11,11 @@ use App\Services\UserManagementService;
 
 class ZoneController extends Controller
 {
-    protected $action_service;
-    protected $user_Service;
-    //protected $eventService;
-
     public function __construct(
-        ActionManagementService $actionService,
-        UserManagementService $userService,
+        private UserManagementService $userService,
+        private ActionManagementService $actionService,
         //EventCalculateService $eventService,
-    ) {
-        $this->action_service = $actionService;
-        $this->user_service = $userService;
-        //$this->eventService = $eventService;
-    }
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -40,11 +32,9 @@ class ZoneController extends Controller
     {
         $zone = Zone::with(['materials' , 'inventionTypes'])->find($id);
 
-        $user = $this->user_service->getUserById(auth()->user()->id);
+        $moveTime = $this->actionService->calculateMoveTime($id);
 
-        $time = $this->action_service->calculateMoveTime($user->_id, $id);
-
-        return view('zones.show', compact('zone' , 'time'));
+        return view('zones.show', compact('zone' , 'moveTime'));
 
     }
 
@@ -89,8 +79,4 @@ class ZoneController extends Controller
         //
     }
 
-    public function mover(){
-        $action_type = 'Mover';
-        
-    }
 }

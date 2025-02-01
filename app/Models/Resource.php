@@ -17,6 +17,8 @@ class Resource extends Model
         'action_zone_id',
         'resourceable_id',
         'resourceable_type',
+        'quantity',
+        'available',
     ];
 
     /* RELACIONES */

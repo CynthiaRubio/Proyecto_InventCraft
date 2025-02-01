@@ -71,7 +71,8 @@ class ActionSeeder extends Seeder
                 'actionable_type' => $actionable_type,
                 'time' => now()->addSeconds(rand(60, 1440)), //Deberian ser minutos addMinutes(rand(60, 240)),
                 'finished' => true,
-                'notificacion' => false,
+                'notification' => false,
+                'updated' => true,
             ]);
 
             if($action_type->name === "Recolectar"){

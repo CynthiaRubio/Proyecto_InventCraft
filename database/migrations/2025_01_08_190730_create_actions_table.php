@@ -18,7 +18,8 @@ return new class extends Migration
             $table->morphs('actionable');
             $table->integer('time');
             $table->boolean('finished');
-            $table->boolean('notificacion');
+            $table->boolean('notification');
+            $table->boolean('updated');
             $table->timestamps();
         });
     }

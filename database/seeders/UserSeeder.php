@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
         $user->email = 'cynrusan@gmail.com';
         $user->password = bcrypt('juego_servidor');
         $user->remember_token = Str::random(10);
-        $user->level = 0;
+        $user->level = 1;
         $user->experience = 0;
         $user->unasigned_points = 15;
         $user->avatar = 1;
@@ -40,6 +40,7 @@ class UserSeeder extends Seeder
             'time' => now(), // now()->addSeconds(rand(60, 14400)), 
             'finished' => true,
             'notificacion' => true,
+            'updated' => true,
         ]);
     }
 }

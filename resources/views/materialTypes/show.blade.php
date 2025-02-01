@@ -40,10 +40,15 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ route('materialTypes.index') }}" class="btn btn-outline-dark btn-sm">
+                    Volver atrás
+                </a>
+            </div>
         </div>
     </div>
 </div>
-
 
 
         
