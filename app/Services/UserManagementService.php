@@ -13,36 +13,6 @@ use App\Models\Inventory;
 class UserManagementService {
 
     /**
-     * Función que crea un usuario nuevo con los datos que le llegan
-     */
-    public function createUser($userData)
-    {
-        return User::create($userData);
-    }
-
-    /**
-     * Función para actualizar un campo del usuario
-     */
-    public function updateUser($userId, $userData)
-    {
-        $user = User::findOrFail($userId);
-        $user->update($userData);
-
-        return $user;
-    }
-
-    /**
-     * Función para borrar un usuario a traves de su id
-     */
-    public function deleteUser($userId)
-    {
-        $user = User::findOrFail($userId);
-        $user->delete();
-
-        return $user;
-    }
-
-    /**
      * Función para encontrar un usuario en la BD por su id
      */
     public function getUser($userId)
@@ -96,6 +66,36 @@ class UserManagementService {
         $inventory_with_relations = Inventory::where('user_id', $user->id)
                         ->with('inventions' , 'materials');
         return $inventory_with_relations;
+    }
+
+    /**
+     * Función que crea un usuario nuevo con los datos que le llegan
+     */
+    public function createUser($userData)
+    {
+        return User::create($userData);
+    }
+
+    /**
+     * Función para actualizar un campo del usuario
+     */
+    public function updateUser($userId, $userData)
+    {
+        $user = User::findOrFail($userId);
+        $user->update($userData);
+
+        return $user;
+    }
+
+    /**
+     * Función para borrar un usuario a traves de su id
+     */
+    public function deleteUser($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->delete();
+
+        return $user;
     }
 
 }

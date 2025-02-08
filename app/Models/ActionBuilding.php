@@ -31,7 +31,7 @@ class ActionBuilding extends Model
     /* Action (polimórfica) 1:N ActionBuilding */
     public function action()
     {
-        return $this->morphTo();
+        return $this->belongsTo(Action::class, 'action_id');
     }
 
     /* Building 1:N ActionBuilding */

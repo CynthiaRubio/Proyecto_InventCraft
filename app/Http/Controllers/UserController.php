@@ -45,19 +45,8 @@ class UserController extends Controller
     {
         $user = auth()->user()->load('stats.stat',); 
 
-        /* Para conseguir el id de la zona en la que está el usuario
-        * usamos el service de action
-        */
         $zone_id = $this->action_service->lastActionableByType('Mover');
         $zone = $this->action_service->getZone($zone_id);
-
-        // $action_type_id = ActionType::where('name' , 'Mover')->first()->id;
-
-        // $zone_id = Action::where('user_id', $user->_id)->where('action_type_id', $action_type_id)->latest()->value('actionable_id');
-
-        /* Para obtener */
-        //$zone = Zone::where('id', $zone_id)->first();
-
         
         return view('users.show' , compact(['user' , 'zone' ]));
     }

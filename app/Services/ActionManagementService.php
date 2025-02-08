@@ -22,27 +22,26 @@ class ActionManagementService
     ) {
     }
 
-
     /**
      * Función que crea una acción recibiendo:
      *
      * @param $action_type = 'Crear', 'Construir', 'Recolectar' o 'Mover'
-     * @param $actionable_id = El id del edificio, del invento, de la zona o el action_zone_id
-     * @param $model = Building o Invention o Zone o ActionZone
+     * @param $actionable_id = El id del edificio, del invento o de la zona
+     * @param $model = Building o Invention o Zone
      * @param $time = Tiempo que tardará en hacer la acción a partir de ahora
      */
     public function createAction(string $action_type, string $actionable_id, string $model, int $time)
     {
         $user = auth()->user();
         $action_type_id = ActionType::where('name', $action_type)->first()->id;
-        $actionable_type = "App\Models\\" .$model;
+        $actionable_type = "App\Models\\".$model;
 
         $action = Action::create([
             'user_id' => $user->_id,
             'action_type_id' => $action_type_id,
             'actionable_id' => $actionable_id,
             'actionable_type' => $actionable_type,
-            'time' =>  now()->addSeconds($time), //now()->addMinutes(rand(60, 240)),
+            'time' =>  now()->addSeconds($time), //now()->addMinutes($time),
             'finished' => false,
             'notification' => false,
             'updated' => false,
@@ -56,13 +55,12 @@ class ActionManagementService
     }
 
     /**
-     * Función para calcular el id de la última acción realizada de Mover y Crear
+     * Función para calcular el id de la última acción realizada de Mover, Crear o Recolectar
      * 
-     * @param $actionType = 'Mover' o 'Crear'
+     * @param $actionType = 'Mover' o 'Crear' o 'Recolectar'
      */
     public function lastActionableByType(string $actionType)
     {
-
         $user = auth()->user();
         $action_type_id = ActionType::where('name', $actionType)->first()->id;
         $last_actionable_id = Action::where('user_id', $user->_id)
@@ -78,7 +76,6 @@ class ActionManagementService
      */
     public function lastActionConstruct(string $building_id)
     {
-
         $user = auth()->user();
         $action_type_id = ActionType::where('name', 'Construir')->first()->id;
         $last_action_id = Action::where('user_id', $user->_id)
@@ -108,7 +105,6 @@ class ActionManagementService
     {
         $zone = Zone::findOrFail($zone_id);
         return $zone;
-
     }
 
     /**

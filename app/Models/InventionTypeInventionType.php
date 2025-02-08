@@ -20,14 +20,14 @@ class InventionTypeInventionType extends Model
         'quantity',
     ];
 
-    /* RELACIÓN REFLEXIVA */
+    /* RELACIÓN REFLEXIVA InventionType N:M InventionTypes */
 
-    /* InventionType N:M InventionTypes */
+    /* Relación con el invento principal */
     public function inventionType(){
         return $this->belongsTo(InventionType::class , 'invention_type_id');
     }
 
-    
+    /* Relación con el invento que se necesita */
     public function inventionTypeNeed(){
         return $this->belongsTo(InventionType::class , 'invention_type_need_id');
     }

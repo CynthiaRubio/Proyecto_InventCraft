@@ -35,7 +35,7 @@ class Action extends Model
 
     /* Relación N:M con Building a través de la tabla pivote ActionBuilding */
     public function buildings(){
-        return $this->morphOne(ActionBuilding::class , 'actionable');
+        return $this->hasOne(ActionBuilding::class , 'action_id');
     }
 
     /* ActionType 1:N Actions */

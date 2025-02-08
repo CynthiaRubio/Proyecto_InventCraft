@@ -1,6 +1,6 @@
 @extends('layouts.full') <!-- Hereda de la plantilla de layouts app -->
 
-@section('title', 'Zona {{$zone}}') <!-- Le pasamos el titulo a la plantilla -->
+@section('title', "Zona $zone->name") <!-- Le pasamos el titulo a la plantilla -->
 
 @section('content') <!-- Le pasamos el contenido a la plantilla -->
 
@@ -13,6 +13,12 @@
 
             <h3 class="text-center">Coordenadas: [{{$zone->coord_x}} , {{$zone->coord_y}}]</h3>
     <br>
+    @if($sound_url)
+        <audio id="zoneSound" autoplay loop>
+            <source src="{{ $sound_url }}" type="audio/mpeg">
+            Tu navegador no soporta la reproducción de audio.
+        </audio>
+    @endif
             <div class="mt-">
                 <h3 class="text-center">Recursos que puedes encontrar</h3>
 
@@ -91,7 +97,6 @@
         </div>
         
     </div>
-
 </div>
 
 <style>

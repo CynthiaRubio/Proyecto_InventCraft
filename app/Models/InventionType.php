@@ -47,13 +47,14 @@ class InventionType extends Model
 
     /* RELACIÓN REFLEXIVA */
 
-    /* InventionType N:M InventionTypes */
+    /* Así obtenemos aquellos inventos que se necesitan para crear este */
     public function inventionTypes(){
-        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_need_id');
+        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_id');
     }
 
+    /* Así obtenemos los inventos que se pueden formar a partir de este invento */
     public function inventionTypesNeed(){
-        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_id');
+        return $this->hasMany(InventionTypeInventionType::class , 'invention_type_need_id');
     }
 
 }

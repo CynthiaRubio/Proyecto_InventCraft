@@ -28,7 +28,7 @@ class ResourceManagementService
     /**
      * Calcula los recursos obtenidos al explorar una zona
      */
-    public function calculateFarm(string $zone_id, int $time)
+    public function calculateFarm(string $zone_id, $time)
     {
         $user_id = auth()->user()->id;
         $zone = $this->action_service->getZoneWithRelations($zone_id);
@@ -43,27 +43,31 @@ class ResourceManagementService
         $action_id = Action::where('user_id', $user_id)
                     ->where('action_type_id', $action_type_id)
                     ->where('actionable_type', 'App\Models\Zone')
-                    ->latest()->first()->id;
+                    ->latest()->first();//->id;
 
         /* Buscamos el ActionZone creado cuando el usuario se ha movido a esa zona */
-        $action_zone = ActionZone::where('action_id', $action_id)
-                            ->where('zone_id', $zone_id)
+        $action_zone = ActionZone::where('action_id', $action_id->id)
+                            ->where('zone_id', $action_id->actionable_id)
                             ->latest()->first();
 
+
         /* Creamos la acción de recolectar */
+        /* TO DO Cambiar, el actionable_type es Zone y el actionable_id es el id de la zona */
         $this->action_service->createAction('Recolectar', $action_zone->_id, 'ActionZone', $time);
 
-        $events = Event::where('zone_id', $zone_id)->get();
+        $multiplier = $this->generateEvents($zone_id);
 
-        $event_probability = rand(0, 2);
-        /* Ocurren eventos 1 de cada 3 veces */
-        if ($event_probability == 2) {
-            $event_type = $events->random();
-            $loss_percent = rand(0, 100);
-            $multiplier = (100 - $loss_percent) / 100;
-        } else {
-            $multiplier = 1;
-        }
+        // $events = Event::where('zone_id', $zone_id)->get();
+
+        // $event_probability = rand(0, 2);
+        // /* Ocurren eventos 1 de cada 3 veces */
+        // if ($event_probability == 2) {
+        //     $event_type = $events->random();
+        //     $loss_percent = rand(0, 100);
+        //     $multiplier = (100 - $loss_percent) / 100;
+        // } else {
+        //     $multiplier = 1;
+        // }
 
         /* Asignar materiales obtenidos al inventario del jugador cuando accion este terminada */
 
@@ -219,6 +223,24 @@ class ResourceManagementService
         }
 
         return $save;
+    }
+
+    /**
+     * Función para saber la pérdida de materiales por evento en zona
+     */
+    public function generateEvents($zone_id)
+    {
+        $events = Event::where('zone_id', $zone_id)->get();
+
+        $event_probability = rand(0, 2);
+        /* Ocurren eventos 1 de cada 3 veces */
+        if ($event_probability == 2) {
+            $event_type = $events->random();
+            $loss_percent = rand(0, 100);
+            return (100 - $loss_percent) / 100;
+        } else {
+           return 1;
+        }
     }
 
 }

@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
+
 use App\Models\User;
 use App\Models\Inventory;
 use App\Models\Zone;
 use App\Models\UserStat;
 use App\Models\Stat;
+
 use App\Services\ActionManagementService;
 
 class AuthController extends Controller
@@ -63,63 +64,74 @@ class AuthController extends Controller
             ]);
         }
         
-        /* Redirige a la página de inicio confirmando el registro */
-        return redirect()->route('login')->with('success' ,"$user->name Te has registrado correctamente");
-    }
+        /* Generar token de Sanctum */
+        $token = $user->createToken('auth_token')->plainTextToken;
 
+        return response()->json([
+            'message' => 'Usuario registrado con éxito',
+            'user' => $user,
+            'token' => $token,
+        ], 201);
+    }
 
     /**
      * Función para validar el correo electrónico y la contraseña
      */
     public function login(Request $request){
 
-        //Lógica de validación de datos
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string', 
-        ],[
-            'email.required' => 'El correo electrónico es obligatorio',
-            'email.email' => 'Introduce una dirección de correo electrónico válida',
-            'password.required' => 'La contraseña es obligatoria',
-        ]);
+        // //Lógica de validación de datos
+        // $validator = Validator::make($request->all(), [
+        //     'email' => 'required|string|email',
+        //     'password' => 'required|string', 
+        // ],[
+        //     'email.required' => 'El correo electrónico es obligatorio',
+        //     'email.email' => 'Introduce una dirección de correo electrónico válida',
+        //     'password.required' => 'La contraseña es obligatoria',
+        // ]);
 
-        if($validator->fails()){
-            return redirect()->back()->withErrors($validator->errors());
+        // if($validator->fails()){
+        //     return redirect()->back()->withErrors($validator->errors());
+        // }
+
+        $credentials = $request->only('email' , 'password');
+        if(!$token = Sanctum::attempt($credentials)){
+            return response()->json(['error' => 'Credenciales incorrectas'] , 401);
         }
+        return response()->json(['token' => $token] , 200);
 
-        //Intento de inicio de sesión
-        $credentials = $request->only('email', 'password');
-        if(Auth::attempt($credentials)){
-            //Si la autenticación es correcta, se redirige a la vista de todas las zonas
-            $user = auth()->user();
-            return redirect()->route('users.show')->with('success', "$user->name has iniciado sessión correctamente");
-        }
+        // $user = User::where('email', $request->email)->first();
 
-        //Sino, se redirige al inicio de sesión con mensaje de error
-        return redirect()->back()->withErrors(['email' => 'Credenciales incorrectas'])->withInput();
+        // if (!$user || !Hash::check($request->password, $user->password)) {
+        //     return response()->json(['error' => 'Credenciales incorrectas'], 401);
+        // }
+
+        // // Generar token
+        // $token = $user->createToken('auth_token')->plainTextToken;
+
+        // return response()->json([
+        //     'message' => 'Inicio de sesión exitoso',
+        //     'user' => $user,
+        //     'token' => $token
+        // ]);
+
     }
 
     /**
      * Función para cerrar la sesión del usuario y volver a home
      */
     public function logout(Request $request){
-        Auth::logout();
-        return redirect()->route('login')->with('success', 'Has cerrado sessión correctamente');
-    }
+        
+        $request->user()->tokens()->delete();
 
+        return response()->json([
+            'message' => 'Cierre de sesión exitoso'
+        ]);
+    }
 
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
     {
         //
     }
@@ -135,15 +147,7 @@ class AuthController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
+    public function show(string $id)
     {
         //
     }
@@ -151,7 +155,7 @@ class AuthController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -159,7 +163,7 @@ class AuthController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(string $id)
     {
         //
     }

@@ -25,13 +25,13 @@
         <form action="{{ route('actionBuildings.store') }}" method="POST">
             @csrf
             <input type="hidden" value="{{ $building->id }}" name="building_id">
-            <input type="hidden" value="{{ $level }}" name="level">
+            <input type="hidden" value="{{ $building_level }}" name="building_level">
             
             @foreach($invention_types as $type)
                 <div class="mb-3">
                     <!-- Label en Negrita -->
                     <label for="{{ $type->id }}" class="form-label fw-bold">
-                        Selecciona {{ $level }} invento de tipo {{ $type->name }}
+                        Selecciona {{ $building_level }} invento de tipo {{ $type->name }}
                     </label>
                     <select id="{{ $type->id }}" name="inventions[{{ $type->id }}][]" class="form-select" required multiple>
                         @foreach($user_inventions_by_type[$type->_id] as $invention)

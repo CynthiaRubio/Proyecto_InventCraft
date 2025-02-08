@@ -40,14 +40,14 @@ class ActionController extends Controller
      */
     public function farmZone(Request $request)
     {
-        $result = $this->resource_service->calculateFarm($request->zone_id, $request->farmTime);
+        //$result = $this->resource_service->calculateFarm($request->zone_id, $request->farmTime);
 
-        if(count($result) > 0){
+        //if(count($result) > 0){
             $zone = $this->action_service->getZone($request->zone_id);
             return redirect()->route('zones.index')->with('success' , "Estas explorando $zone->name durante $request->farmTime minutos.");
-        } else {
-            return redirect()->route('zones.index')->with('error' , "Ohhh que mala suerte! No has recolectado nada.");
-        }
+        //} else {
+        //    return redirect()->route('zones.index')->with('error' , "Ohhh que mala suerte! No has recolectado nada.");
+        //}
         
     }
 

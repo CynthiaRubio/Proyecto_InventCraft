@@ -26,7 +26,7 @@
                         <p><strong>Zona en la que puedes encontrarlo:</strong> {{ $type->zone->name }}</p>
                         <p><strong>Tipos de inventos que puedes crear a partir de {{$type->name}}:</strong>
                             <ul class="list-unstyled text-center">
-                                @forelse($type->inventionTypes as $invention)
+                                @forelse($type->inventionTypesNeed as $invention)
                                     <li>{{ $invention->inventionType->name }}</li>
                                 @empty
                                     <li>Ninguno</li>
@@ -36,7 +36,7 @@
                        
                         <p><strong>Inventos necesarios para su creación:</strong>
                             <ul class="list-unstyled text-center">
-                                @forelse($type->inventionTypesNeed as $invention)
+                                @forelse($type->inventionTypes as $invention)
                                     <li>{{ $invention->inventionTypeNeed->name }}</li>
                                 @empty
                                     <li>Ninguno</li>
