@@ -25,11 +25,10 @@ class ActionBuildingRequest extends FormRequest
             'building_id' => 'required|exists:buildings,id',
         ];
 
-        /* TO DO Falta añadir esta regla
-        foreach ($inventions as $typeId => $selectedInventions) {
-            $rules["inventions.$typeId"] = "required|array|size:$level";
+        foreach ($request->input('inventions') as $typeId => $selectedInventions) {
+            $rules["inventions.$typeId"] = "required|array|size:$request->building_level";
         }
-        */
+    
     }
 
     /**

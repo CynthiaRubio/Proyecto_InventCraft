@@ -14,16 +14,18 @@ use App\Models\ActionZone;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Models\InventionType;
+use App\Models\ActionBuilding;
 
 class ActionManagementService
 {
     public function __construct(
         private UserManagementService $user_service,
+        private ZoneManagementService $zone_service,
     ) {
     }
 
     /**
-     * Función que crea una acción recibiendo:
+     * Crea una acción
      *
      * @param $action_type = 'Crear', 'Construir', 'Recolectar' o 'Mover'
      * @param $actionable_id = El id del edificio, del invento o de la zona
@@ -32,8 +34,8 @@ class ActionManagementService
      */
     public function createAction(string $action_type, string $actionable_id, string $model, int $time)
     {
-        $user = auth()->user();
-        $action_type_id = ActionType::where('name', $action_type)->first()->id;
+        $user = $this->user_service->getUser();
+        $action_type_id = $this->getActionTypeId($action_type);
         $actionable_type = "App\Models\\".$model;
 
         $action = Action::create([
@@ -41,169 +43,104 @@ class ActionManagementService
             'action_type_id' => $action_type_id,
             'actionable_id' => $actionable_id,
             'actionable_type' => $actionable_type,
-            'time' =>  now()->addSeconds($time), //now()->addMinutes($time),
+            /* Deberían ser minutos (now()->addMinutes($time),) pero ponemos segundos para las pruebas */
+            'time' =>  now()->addSeconds($time),
             'finished' => false,
             'notification' => false,
             'updated' => false,
         ]);
 
-        if ($action) {
-            return $action->_id;
-        } else {
-            return redirect()->back()->with('error', 'Problemas al realizar la acción.');
-        }
+        return $action;
     }
 
     /**
-     * Función para calcular el id de la última acción realizada de Mover, Crear o Recolectar
+     * Recupera el actionable_id de la última acción realizada de Mover, Crear o Recolectar
      * 
      * @param $actionType = 'Mover' o 'Crear' o 'Recolectar'
      */
-    public function lastActionableByType(string $actionType)
+    public function getLastActionableByType(string $actionType)
     {
-        $user = auth()->user();
-        $action_type_id = ActionType::where('name', $actionType)->first()->id;
+        $user = $this->user_service->getUser();
+
+        $action_type_id = $this->getActionTypeId($actionType);
+
         $last_actionable_id = Action::where('user_id', $user->_id)
                             ->where('action_type_id', $action_type_id)
+                            ->where('finished' , true)
                             ->latest()->value('actionable_id');
         return $last_actionable_id;
     }
 
     /**
-     * Función para calcular el id de la última acción realizada de Construir
+     * Recupera el id de la última acción realizada de Construir
      * 
      * @param $building_id = id del edificio a mejorar
      */
-    public function lastActionConstruct(string $building_id)
+    public function getLastActionConstruct(string $building_id)
     {
-        $user = auth()->user();
-        $action_type_id = ActionType::where('name', 'Construir')->first()->id;
+        $user = $this->user_service->getUser();
+
+        $action_type_id = $this->getActionTypeId('Construir');
+
         $last_action_id = Action::where('user_id', $user->_id)
                             ->where('action_type_id', $action_type_id)
                             ->where('actionable_id', $building_id)
+                            ->where('finished' , true)
                             ->latest()->value('id');
+
         return $last_action_id;
     }
 
-
     /**
-     * Calcula el tiempo de desplazamiento entre dos zonas
+     * Recupera el id de ActionType según cual sea la acción a realizar
      */
-    public function calculateMoveTime(string $zone_id)
-    {
-        $zone = $this->getZone($zone_id);
-        $user_actual_zone = $this->user_service->getUserActualZone();
+    public function getActionTypeId ($name){
 
-        return round($this->getMoveTime($user_actual_zone, $zone));
+        $action_type_id = ActionType::where('name', $name)->first()->id;
+
+        return $action_type_id;
     }
 
 
     /**
-     * Obtiene una zona por ID
+     * Crea un registro ActionBuilding tras una acción de construir
      */
-    public function getZone(string $zone_id)
-    {
-        $zone = Zone::findOrFail($zone_id);
-        return $zone;
+    public function createActionBuilding($action , $building_id , $efficiency){
+
+        $action_building = ActionBuilding::create([
+            'action_id' => $action->_id,
+            'building_id' => $building_id,
+            'efficiency' => $efficiency,
+            'available' => false,
+        ]);
+
+        return $action_building;
     }
 
     /**
-     * Obtiene una zona con relaciones precargadas
+     * Crea un registro ActionZone tras una acción de recolectar
      */
-    public function getZoneWithRelations(string $zone_id)
-    {
-        return Zone::with(['materials', 'inventionTypes', 'events'])->findOrFail($zone_id);
+    public function createActionZone($action){
+
+        $action_zone = ActionZone::create([
+            'action_id' => $action->_id,
+            'zone_id' => $action->actionable_id,
+        ]);
+
+        return $action_zone;
     }
 
     /**
-     * Calcula el tiempo de movimiento entre dos zonas
+     * Recupera el ActionZone creado con los datos de la acción
      */
-    public function getMoveTime($actualZone, $targetZone)
-    {
-        $user = auth()->user();
-        $distancia_x = abs($targetZone->coord_x - $actualZone->coord_x);
-        $distancia_y = abs($targetZone->coord_y - $actualZone->coord_y);
-        $distancia = $distancia_x + $distancia_y;
-        $velocidad_user = $this->user_service->getUserStat('Velocidad');
-        $tiempo_base = 50;
-
-        if ($velocidad_user === 0) {
-            $velocidad_user = 1;
-        }
-
-        $tiempo = match(true) {
-            $distancia === 0 => 0,
-            $distancia === 1 => $tiempo_base - $velocidad_user,
-            $distancia === 2 => $tiempo_base + ($tiempo_base / $velocidad_user),
-            $distancia >= 3 => (2 * $tiempo_base) + ($tiempo_base / $velocidad_user),
-            default => 0,
-        };
-
-        return max(0, $tiempo);
-    }
-
-    /**
-     * Función que calcula el tiempo de la creación de los inventos
-     */
-    public function getInventTime()
-    {
-
+    public function getActionZone($action){
+        $action_zone = ActionZone::where('action_id', $action->_id)
+                        ->where('zone_id' , $action->actionable_id)
+                        ->first();
+        return $action_zone;
     }
 
 }
-
-//     /**
-//      * Función que calcula el tiempo de desplazamiento entre dos zonas
-//      */
-//     public function calculateMoveTime(string $user_id, string $zone_id):int
-//     {
-//         // TO DO Revisar el tema de las excepciones
-
-//         /* Obtenemos los datos del usuario cuyo id nos pasan */
-//         $user = User::find($user_id);
-//         if (!$user) {
-//             throw new \Exception('Usuario no encontrado.');
-//         }
-//         /* Obtenemos los datos de la zona a la que se quiere viajar cuyo id nos pasan */
-//         $zone = Zone::find($zone_id);
-//         if (!$zone) {
-//             throw new \Exception('Zona a la que se quiere viajar no encontrada.');
-//         }
-
-//         /* Obtenemos el id de la zona en la que se encuentra el usuario */
-//         $action_type_id = ActionType::where('name', 'Mover')->first()->id;
-//         $user_action = Action::where('user_id', $user->_id)
-//                                 ->where('action_type_id', $action_type_id)
-//                                 ->latest('id');//->value('actionable');
-// // TO DO Esta consulta devuelve null :( habrá que probar a coger el primero ordenando decreciente
-//                                 //dd($user_action);
-//         $user_actual_zone = Zone::find($user_action->actionable_id);
-
-//         /* Calculamos las coordenadas de cada zona para saber distancia entre zonas */
-//         $coord_x_actual_zone = $user_actual_zone->coord_x;
-//         $coord_y_actual_zone = $user_actual_zone->coord_y;
-//         $coord_x_zone = $zone->coord_x;
-//         $coord_y_zone = $zone->coord_y;
-
-//         $distancia_x = abs($coord_x_zone - $coord_x_actual_zone);
-//         $distancia_y = abs($coord_y_zone - $coord_y_actual_zone);
-
-//         /* Obtenemos el valor de la velocidad del usuario */
-//         $velocidad_id = Stat::where('name', 'Velocidad')->first()->id;
-//         $velocidad_user = UserStat::where('user_id', $user->_id)->where('stat_id', $velocidad_id)->value('value');
-
-//         /* Calculamos el tiempo según la velocidad y la distancia */
-//         $tiempo_base = 50;
-
-//         if ($distancia_x <= 1 && $distancia_y <= 1) {
-//             $tiempo = $tiempo_base - ($tiempo_base / $velocidad_user);
-//         } else {
-//             $tiempo = (2 * $tiempo_base) - ($tiempo_base / $velocidad_user);
-//         }
-
-//         return max(0, $tiempo);
-
-//     }
 
 //     /**
 //      * Función para calcular los recursos obtenidos al explorar una zona

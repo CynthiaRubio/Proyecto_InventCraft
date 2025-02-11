@@ -21,9 +21,9 @@ class ActionZone extends Model
 
     /* RELACIONES */
 
-    /* Resources (polimórfica) N:1 ActionZone */
+    /* Resources N:1 ActionZone */
     public function resources (){
-        return $this->morphMany(Resource::class , 'resourceable');
+        return $this->hasMany(Resource::class , 'action_zone_id');
     }
 
     /* Action N: 1 ActionZone */

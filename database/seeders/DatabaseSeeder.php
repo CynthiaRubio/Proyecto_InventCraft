@@ -26,22 +26,23 @@ class DatabaseSeeder extends Seeder
             BuildingSeeder::class,
             StatSeeder::class,
             BuildingStatSeeder::class,
-            UserStatSeeder::class,
             MaterialTypeSeeder::class,
             MaterialSeeder::class,
             InventionTypeSeeder::class,
+            InventionTypeInventionTypeSeeder::class,
         ]);
 
         //Invention::factory(100)->create();
+        //ActionBuilding::factory(10)->create();
+        //Action::factory(10)->create();
 
         $this->call([
             InventionSeeder::class,
+            UserStatSeeder::class,
             //ActionSeeder::class,
             //ActionZoneSeeder::class,
             //ResourceSeeder::class,
-            //ActionBuildingSeeder::class,
-            //InventoryMaterialSeeder::class,
-            InventionTypeInventionTypeSeeder::class,
+            InventoryMaterialSeeder::class,
         ]);
 
         //Si queremos crear usuarios con valores específicos en los campos

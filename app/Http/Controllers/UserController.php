@@ -12,12 +12,14 @@ use App\Models\Zone;
 
 use App\Services\UserManagementService;
 use App\Services\ActionManagementService;
+use App\Services\ZoneManagementService;
 
 class UserController extends Controller
 {
     public function __construct(
         private UserManagementService $user_service,
         private ActionManagementService $action_service,
+        private ZoneManagementService $zone_service,
     ) {}
 
     /**
@@ -45,8 +47,8 @@ class UserController extends Controller
     {
         $user = auth()->user()->load('stats.stat',); 
 
-        $zone_id = $this->action_service->lastActionableByType('Mover');
-        $zone = $this->action_service->getZone($zone_id);
+        $zone_id = $this->action_service->getLastActionableByType('Mover');
+        $zone = $this->zone_service->getZone($zone_id);
         
         return view('users.show' , compact(['user' , 'zone' ]));
     }

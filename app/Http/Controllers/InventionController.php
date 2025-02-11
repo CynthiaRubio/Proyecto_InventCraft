@@ -24,7 +24,6 @@ class InventionController extends Controller
         private UserManagementService $user_service,
         private ActionManagementService $action_service,
         private InventionService $invention_service,
-        //EventCalculateService $eventService,
     ) {
     }
 
@@ -55,9 +54,9 @@ class InventionController extends Controller
         $user = auth()->user();
 
         //el inventario tendrá que ser el del propio usuario, lo de arriba, esta linea habra que quitarla
-        $inventory = Inventory::where('user_id', $user->_id)
-        ->with(['materials.material', 'inventions'])
-        ->first();
+         $inventory = Inventory::where('user_id', $user->_id)
+         ->with(['materials.material', 'inventions'])
+         ->first();
         //tipo de invento que vamos a crear. Pongo el with para poder sacar el tipo de material necesario
         $invention_type = InventionType::with('materialType')->findOrFail($id);
 
@@ -105,14 +104,14 @@ class InventionController extends Controller
         $invention_types_needed = InventionTypeInventionType::where('invention_type_id', $invention_type->_id)->with('inventionTypeNeed')->get();
 
         /* Materiales e inventos del usuario del tipo necesario (la primera linea es la buena, la comento porque de momento no hay materiales en inventario) */
-        $user_materials = $inventory->materials->where('material_type_id', $invention_type->material_type_id);
+        //$user_materials = $inventory->materials->where('material_type_id', $invention_type->material_type_id);
         //$user_materials = Material::where('material_type_id', $invention_type->material_type_id)->get();
         $user_invention_by_type = $inventory->inventions->groupBy('invention_type_id');
 
         /* Validamos si el usuario tiene materiales del tipo necesario */
-        if ($user_materials->isEmpty()) {
-            return redirect()->route('inventionTypes.index')->with('error', 'No tienes materiales de tipo '.$invention_type->material_type->name.' para crear este invento.');
-        }
+        // if ($user_materials->isEmpty()) {
+        //     return redirect()->route('inventionTypes.index')->with('error', 'No tienes materiales de tipo '.$invention_type->material_type->name.' para crear este invento.');
+        // }
 
 
         /* Validamos si tiene la cantidad necesaria de cada tipo de inventos */
@@ -314,7 +313,7 @@ class InventionController extends Controller
         ]);
 
         return redirect()->route('inventions.show', $new_invention->_id)
-                         ->with('success', 'Invention created successfully');
+                         ->with('success', "El invento $new_invention->name ha sido creado");
 
     }
 
@@ -343,7 +342,7 @@ class InventionController extends Controller
         $invention->delete();
 
         return redirect()->route('inventions.index')
-            ->with('success', 'Invention deleted successfully');
+            ->with('success', "El invento $invention->name ha sido eliminado");
     }
 
 }

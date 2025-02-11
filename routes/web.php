@@ -46,7 +46,7 @@ Route::middleware(['guest'])->group(function () {
 });
 
 /* Rutas permitidas para usuarios que se hayan autenticado */
-Route::middleware(['auth' , 'check.actions'])->group(function () {
+Route::middleware(['auth' , 'check.actions' , 'check.experience'])->group(function () {
     //Ruta para cerrar sesión
     Route::get('/logout', [AuthController::class , 'logout'])->name('logout');//->middleware('auth');
 
@@ -56,11 +56,17 @@ Route::middleware(['auth' , 'check.actions'])->group(function () {
     //Ruta para acceder a los inventos de un tipo del inventario
     Route::get('/inventories/show', [InventoryController::class, 'show'])->name('inventories.show');
 
-    //Ruta que carga la vista de construir edificio pasándole el id del edificio a crear
-    Route::get('actionBuildings/create/{building}', [ActionBuildingController::class, 'create'])->name('actionBuildings.create.withBuilding');
+    //Ruta que carga la vista de construir edificio pasándole el id del edificio a construir
+    Route::get('buildings/create/{building}', [ActionController::class, 'createBuilding'])->name('createBuilding');
+
+     //Ruta para construir un edificio
+     Route::post('buildings/construct', [ActionController::class, 'storeBuilding'])->name('storeBuilding');
 
     //Ruta que carga la vista de crear invento pasándole el tipo de invento
     Route::get('inventions/create/{invention_type}', [InventionController::class, 'create'])->name('inventions.create.withType');
+
+    //Ruta que carga la vista de crear invento pasándole el tipo de invento
+    //Route::get('inventions/create/{invention_type}', [ActionController::class, 'createInvention'])->name('createInvention');
 
     //Ruta que carga el ranking de los usuarios
     Route::get('/users/ranking', [UserController::class, 'ranking'])->name('users.ranking');
@@ -74,7 +80,7 @@ Route::middleware(['auth' , 'check.actions'])->group(function () {
     //Ruta para guardar la asignación de puntos del usuario
     Route::post('/users/stats/', [UserController::class , 'addStats'])->name('users.addStats');
 
-    //Ruta para calcular el tiempo que tardas en desplazarte de zona
+    //Ruta para desplazarte de zona
     Route::post('/moveZone/', [ActionController::class, 'moveZone'])->name('moveZone');
 
     //Ruta para explorar una zona

@@ -15,8 +15,7 @@ class BuildingStatSeeder extends Seeder
      */
     public function run(): void
     {
-        /* ¿Como implementamos el resto de los edificios? */
-
+        
         $estacion_transporte = Building::where('name', 'Estación de Transporte')->first();
         $manufactura = Building::where('name', 'Taller de Manufactura')->first();
         $granja = Building::where('name', 'Granja')->first();
@@ -84,7 +83,7 @@ class BuildingStatSeeder extends Seeder
         $building_stat->value = 2;
         $building_stat->save();
 
-        $estacion_espacial = new BuildingStat();
+        $building_stat = new BuildingStat();
         $building_stat->building_id = $estacion_espacial->_id;
         $building_stat->stat_id = $estadistica_aleatoria->_id; 
         $building_stat->value = 5;

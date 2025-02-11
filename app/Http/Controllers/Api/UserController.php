@@ -12,15 +12,15 @@ use App\Models\ActionType;
 
 class UserController extends Controller
 {
-    use HasApiTokens;
+    //use HasApiTokens;
 
-    public function getSanctumIdentifier(){
-        return $this->getKey();
-    }
+    // public function getSanctumIdentifier(){
+    //     return $this->getKey();
+    // }
 
-    public function getSanctumCustomClaims(){
-        return [];
-    }
+    // public function getSanctumCustomClaims(){
+    //     return [];
+    // }
 
 
     /**

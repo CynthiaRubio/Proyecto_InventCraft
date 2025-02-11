@@ -4,167 +4,121 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-use App\Models\Inventory;
-use App\Models\Zone;
-use App\Models\UserStat;
-use App\Models\Stat;
-
-use App\Services\ActionManagementService;
 
 class AuthController extends Controller
 {
-    public function __construct(
-        private ActionManagementService $action_service,
-    ) {
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login','register']]);
     }
 
     /**
-     * Función para validar los datos de registro y generar un nuevo usuario
+     * 
      */
-    public function register(Request $request){
-        
-        /* Lógica de validación de datos */
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+    public function register(Request $request) 
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|string|email|max:100|unique:users',
+            'password' => 'required|string|min:4,confirm',
+            'password_confirm' => 'required',
         ]);
 
-        /* Crear el usuario */
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
         $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => bcrypt($validatedData['password']), // Hash::make($validatedData['password'])
-            'level' => 0,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($request->name) . '&size=256&background=random',
+            'level' => 1,
             'experience' => 0,
             'unasigned_points' => 15,
-            'avatar' => null,
+            'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-
-        /* Crear el inventario del usuario */
-        Inventory::create([
-            'user_id' => $user->_id,
-        ]);
-
-        /* Asignar zona de inicio aleatoria para el jugador creando una acción de mover */
-        $zones = Zone::all();
-        $zone = $zones->random();
-
-        $this->action_Service->createAction('Mover' , $zone->_id, 'Zone' , 0);
-
-        /* Creamos las estadísticas del usuario */
-        $stats = Stat::all();
-        foreach($stats as $stat){
-            UserStat::create([
-                'user_id' => $user->_id,
-                'stat_id' => $stat->_id,
-                'value' => 0,
-            ]);
-        }
-        
-        /* Generar token de Sanctum */
-        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Usuario registrado con éxito',
+            'message' => 'Usuario registrado con exito!',
             'user' => $user,
-            'token' => $token,
-        ], 201);
-    }
-
-    /**
-     * Función para validar el correo electrónico y la contraseña
-     */
-    public function login(Request $request){
-
-        // //Lógica de validación de datos
-        // $validator = Validator::make($request->all(), [
-        //     'email' => 'required|string|email',
-        //     'password' => 'required|string', 
-        // ],[
-        //     'email.required' => 'El correo electrónico es obligatorio',
-        //     'email.email' => 'Introduce una dirección de correo electrónico válida',
-        //     'password.required' => 'La contraseña es obligatoria',
-        // ]);
-
-        // if($validator->fails()){
-        //     return redirect()->back()->withErrors($validator->errors());
-        // }
-
-        $credentials = $request->only('email' , 'password');
-        if(!$token = Sanctum::attempt($credentials)){
-            return response()->json(['error' => 'Credenciales incorrectas'] , 401);
-        }
-        return response()->json(['token' => $token] , 200);
-
-        // $user = User::where('email', $request->email)->first();
-
-        // if (!$user || !Hash::check($request->password, $user->password)) {
-        //     return response()->json(['error' => 'Credenciales incorrectas'], 401);
-        // }
-
-        // // Generar token
-        // $token = $user->createToken('auth_token')->plainTextToken;
-
-        // return response()->json([
-        //     'message' => 'Inicio de sesión exitoso',
-        //     'user' => $user,
-        //     'token' => $token
-        // ]);
-
-    }
-
-    /**
-     * Función para cerrar la sesión del usuario y volver a home
-     */
-    public function logout(Request $request){
-        
-        $request->user()->tokens()->delete();
-
-        return response()->json([
-            'message' => 'Cierre de sesión exitoso'
         ]);
     }
 
     /**
-     * Display a listing of the resource.
+     * Get a JWT via given credentials.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function login(Request $request)
     {
-        //
+        $credentials = $request->only('email', 'password');
+
+        if (! $token = auth('api')->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        //return response$this->respondWithToken($token);
+        return response()->json([
+            'token' => $token,
+            'user' => auth('api')->user()
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function me()
     {
-        //
+        return response()->json(auth()->user());
     }
 
     /**
-     * Display the specified resource.
+     * Log the user out (Invalidate the token).
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(string $id)
+    public function logout()
     {
-        //
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out']);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Refresh a token.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, string $id)
+    public function refresh()
     {
-        //
+        return $this->respondWithToken(auth()->refresh());
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Get the token array structure.
+     *
+     * @param  string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(string $id)
+    protected function respondWithToken($token)
     {
-        //
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
     }
 }

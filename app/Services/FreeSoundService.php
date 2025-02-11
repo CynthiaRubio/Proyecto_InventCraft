@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Session;
 
 class FreesoundService
 {
@@ -15,6 +16,40 @@ class FreesoundService
         ]);
     }
 
+    /**
+     * Función que devuelve el sonido de la zona
+     */
+    public function getSound($zone){
+
+        $zoneSounds = [
+            'Pradera' => 'meadow birds',
+            'Bosque' => 'forest',
+            'Selva' => 'jungle birds',
+            'Desierto' => 'desert wind',
+            'Montaña' => 'mountain wind',
+            'Lagos' => 'lake water',
+            'Polo Norte' => 'arctic wind',
+            'Glaciar de Montaña' => 'glacier ice',
+            'Polo Sur' => 'antarctica'
+        ];
+        $soundQuery = $zoneSounds[$zone->name] ?? 'nature ambience'; 
+
+        /* Comprobamos si ya hay sonido guardado en la sesion */
+        if (Session::has('zonesound' . $zone->id)) {
+            $sound_url = Session::get('zonesound' . $zone->id);
+        
+        } else {
+            /* Sino, buscamos el sonido en la api */
+            $sound_url = $this->getSoundUrl($soundQuery);
+            Session::put('zonesound' . $zone->id, $sound_url);
+        }
+
+        return $sound_url;
+
+    }
+    
+    
+    
     /**
      * Función que se conecta para obtener un sonido
      */
@@ -45,7 +80,7 @@ class FreesoundService
             'query' => ['token' => env('FREESOUND_API_KEY')]
         ]);
 
-        /* Guaardamos los detalles */
+        /* Guardamos los detalles */
         $soundDetails = json_decode($response->getBody(), true);
 
         /* Devolvemos la URL del sonido en alta calidad (o baja si no está disponible) */

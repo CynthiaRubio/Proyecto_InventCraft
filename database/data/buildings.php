@@ -26,7 +26,7 @@ return [
         "coord_y" => 1,
     ],
     [
-        "name" => "Fundación de Metales",
+        "name" => "Fundición de Metales",
         "description" => "Un lugar para la fundición y trabajo de metales.",
         "coord_x" => 2,
         "coord_y" => 2,

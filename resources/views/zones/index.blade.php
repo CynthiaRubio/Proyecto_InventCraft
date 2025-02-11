@@ -1,10 +1,12 @@
 @extends('layouts.full') <!-- Hereda de la plantilla de layouts app -->
 
-@section('title', 'Zonas') <!-- Le pasamos el titulo a la plantilla -->
+@section('title', 'Mapa') <!-- Le pasamos el titulo a la plantilla -->
 
 @section('content') <!-- Le pasamos el contenido a la plantilla -->
 
-    <h2 class="text-center mb-4">Mapa</h2>
+    <h2 class="text-center mb-4 text-success">Mapa</h2>
+    <h3 class="text-center mb-4 text-secondary">Estas en la zona {{$zone->name}}</h3>
+
 
     <div class="row g-3">
         @foreach($zones as $zone)

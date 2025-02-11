@@ -16,23 +16,40 @@ use App\Http\Controllers\Api\AuthController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
-Route::post('/register', [AuthController::class , 'register']);
-Route::post('/login', [AuthController::class , 'login']);
+// Route::post('/register', [AuthController::class , 'register']);
+// Route::post('/login', [AuthController::class , 'login']);
 
 
 /* Rutas con Sanctum */
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class , 'logout']);
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::post('/logout', [AuthController::class , 'logout']);
+
+// });
+
+/* Rutas para la api de user */
+Route::apiResource('users', 'App\Http\Controllers\Api\UserController');
+Route::get('ranking', 'App\Http\Controllers\Api\UserController@ranking');
+Route::get('points/{user}', 'App\Http\Controllers\Api\UserController@points');
+Route::get('users/show/{user}', 'App\Http\Controllers\Api\UserController@users/show');
 
 
-    /* Rutas para la api de user */
-    Route::apiResource('users', UserController::class);
-    Route::get('/users/ranking', [UserController::class, 'ranking'])->name('ranking');
-    Route::get('/users/points/{user}', [UserController::class , 'points'])->name('points');
+
+/* Rutas para la Api de AuthController */
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'auth'
+
+], function ($router) {
+    Route::post('register', 'App\Http\Controllers\Api\AuthController@register');
+    Route::post('login', 'App\Http\Controllers\Api\AuthController@login');
+    Route::post('logout', 'App\Http\Controllers\Api\AuthController@logout');
+    Route::post('refresh', 'App\Http\Controllers\Api\AuthController@refresh');
+    Route::post('me', 'App\Http\Controllers\Api\AuthController@me');
 
 
 });

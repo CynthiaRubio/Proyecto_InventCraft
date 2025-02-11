@@ -12,13 +12,13 @@
         <div class="col-md-6">
 
             <h3 class="text-center">Coordenadas: [{{$zone->coord_x}} , {{$zone->coord_y}}]</h3>
-    <br>
-    @if($sound_url)
-        <audio id="zoneSound" autoplay loop>
-            <source src="{{ $sound_url }}" type="audio/mpeg">
-            Tu navegador no soporta la reproducción de audio.
-        </audio>
-    @endif
+            <br>
+            @if($sound_url)
+                <audio id="zoneSound" autoplay loop>
+                    <source src="{{ $sound_url }}" type="audio/mpeg">
+                    Tu navegador no soporta la reproducción de audio.
+                </audio>
+            @endif
             <div class="mt-">
                 <h3 class="text-center">Recursos que puedes encontrar</h3>
 
@@ -71,14 +71,14 @@
                         @csrf
                         <input type="hidden" value="{{$zone->_id}}" name="zone_id"> 
                         <label for="farmTime" class="form-label">Tiempo dedicado a explorar la zona</label>
-                        <input type="number" id="farmTime" name="farmTime" value=30 min=30 max=600 class="form-input">
+                        <input type="number" id="farmTime" name="farmTime" value=30 min=30 max=600 class="form-input"><br><br>
                         <button type="submit" class="btn btn-warning">Explorar esta Zona</button>
                     </form>
                 @else
                 <h3 class="text-center">Tiempo de viaje: {{$moveTime}} minutos</h3>
                     <form action="{{ route('moveZone') }}" method="POST">
                         @csrf
-                        <input type="hidden" value="{{$zone->_id}}" name="zone_id"> 
+                        <input type="hidden" value="{{$zone->_id}}" name="zone_id"><br> 
                         <button type="submit" class="btn btn-warning">Mover a esta Zona</button>
                     </form>
                 @endif
@@ -112,6 +112,7 @@
         transform: translateY(-15px);
     }
 }
+
 </style>
 
 @endsection

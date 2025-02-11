@@ -26,7 +26,6 @@ class InventionFactory extends Factory
     {
 
         $invention_types = InventionType::all();
-        $invention_types = InventionType::all();
         $invention_type = $invention_types->random();
         $material_type_id = $invention_type->material_type_id;
 
@@ -46,26 +45,8 @@ class InventionFactory extends Factory
             'invention_used_id' => null,
             'name' => $this->faker->name(), //También se puede poner faker()->name()
             'efficiency' => $material->efficiency,
-            'time' => rand(0,1000),
+            'available' => true,
         ];
 
-        /*
-        $materialType = MaterialType::pluck('id')->random();
-        $materials = Material::where('material_type_id', $materialType)->get();
-        $inventionTypes = InventionType::all();
-
-
-
-        return [
-            'invention_type_id' => InventionType::pluck('id')->random(),
-            'name' => $this->faker->name(), //También se puede poner faker()->name()
-            'description'=> $this->faker->sentence(),
-            'material_type_id' => $materialType,
-            //'material_id' => array_rand($materials->pluck('id')),
-            'efficiency' => rand(0,100),
-            'time' => rand(0,1000),
-        ];
-
-        */
     }
 }

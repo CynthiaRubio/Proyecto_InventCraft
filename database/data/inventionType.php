@@ -64,7 +64,7 @@ return [
         'creation_time' => 180
     ],
     [
-        'material_type_id' => $madera->_id,
+        'material_type_id' => $arena->_id,
         'zone_id' => $desierto->_id,
         'building_id' => $manufactura->_id,
         'name' => 'Lanza',
@@ -91,7 +91,7 @@ return [
         'creation_time' => 180
     ],
     [
-        'material_type_id' => $madera->_id,
+        'material_type_id' => $metal->_id,
         'zone_id' => $bosque->_id,
         'building_id' => $estacion_transporte->_id,
         'name' => 'Rueda',
@@ -118,7 +118,7 @@ return [
         'creation_time' => 200
     ],
     [
-        'material_type_id' => $madera->_id,
+        'material_type_id' => $metal->_id,
         'zone_id' => $glaciar->_id,
         'building_id' => $estacion_transporte->_id,
         'name' => 'Carro',
@@ -136,7 +136,7 @@ return [
         'creation_time' => 720
     ],
     [
-        'material_type_id' => $organico->_id,
+        'material_type_id' => $arena->_id,
         'zone_id' => $desierto->_id,
         'building_id' => $ceramica->_id,
         'name' => 'Cerámica',
@@ -154,7 +154,7 @@ return [
         'creation_time' => 450
     ],
     [
-        'material_type_id' => $madera->_id,
+        'material_type_id' => $resina->_id,
         'zone_id' => $bosque->_id,
         'building_id' => $manufactura->_id,
         'name' => 'Torno',
@@ -172,7 +172,7 @@ return [
         'creation_time' => 1000
     ],
     [
-        'material_type_id' => $madera->_id,
+        'material_type_id' => $organico->_id,
         'zone_id' => $bosque->_id,
         'building_id' => $granja->_id,
         'name' => 'Arado',
@@ -208,7 +208,7 @@ return [
         'creation_time' => 400
     ],
     [
-        'material_type_id' => $madera->_id,
+        'material_type_id' => $mineral->_id,
         'zone_id' => $bosque->_id,
         'building_id' => $fundicion_metales->_id,
         'name' => 'Metalurgia',
@@ -226,7 +226,7 @@ return [
         'creation_time' => 1200
     ],
     [
-        'material_type_id' => $roca->_id,
+        'material_type_id' => $metal->_id,
         'zone_id' => $desierto->_id,
         'building_id' => $ceramica->_id,
         'name' => 'Horno',
@@ -253,7 +253,7 @@ return [
         'creation_time' => 1800
     ],
     [
-        'material_type_id' => $madera->_id,
+        'material_type_id' => $mineral->_id,
         'zone_id' => $pradera->_id,
         'building_id' => $acueducto->_id,
         'name' => 'Acueducto',

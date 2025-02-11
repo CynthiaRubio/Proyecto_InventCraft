@@ -4,10 +4,11 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ActionResource>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UserStat>
  */
-class ActionResourceFactory extends Factory
+class UserStatFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -16,8 +17,11 @@ class ActionResourceFactory extends Factory
      */
     public function definition(): array
     {
+        
         return [
-            //
+            'stat_id' => rand(0,5),
+            'user_id' => null,
+            'value' => rand(0,5 ),
         ];
     }
 }

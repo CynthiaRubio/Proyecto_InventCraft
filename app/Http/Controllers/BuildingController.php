@@ -6,10 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\Building;
 use App\Models\InventionType;
 use App\Models\BuildingStat;
+use App\Models\Stat;
 use App\Models\Action;
+use App\Models\ActionBuilding;
+
+use App\Services\BuildingManagementService;
 
 class BuildingController extends Controller
 {
+    public function __construct(
+        private BuildingManagementService $building_service,
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -23,15 +32,13 @@ class BuildingController extends Controller
      */
     public function show(string $id)
     {
-        $user = auth()->user();
+        $building = $this->building_service->getBuildingWithRelations($id);
 
-        $building = Building::with(['actions:efficiency','inventionTypes'])->findOrFail($id);
+        $actual_level = $this->building_service->getActualLevel($id);
 
-        $inventions_need = InventionType::where('building_id', $building->_id)->get();
+        $efficiency = $this->building_service->getEfficiency($id);
 
-        $actual_level = Action::where('user_id', $user->_id)->where('actionable_id', $building->_id)->count();
-
-        return view('buildings.show', compact('building','inventions_need' , 'actual_level')); //,'building_stat','stat'));
+        return view('buildings.show', compact('building' , 'actual_level' , 'efficiency'));
     }
 
 

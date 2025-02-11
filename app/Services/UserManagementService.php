@@ -9,15 +9,17 @@ use App\Models\User;
 use App\Models\Zone;
 use App\Models\ActionType;
 use App\Models\Inventory;
+use App\Models\InventoryMaterial;
 
-class UserManagementService {
 
+class UserManagementService
+{
     /**
      * Función para encontrar un usuario en la BD por su id
      */
-    public function getUser($userId)
+    public function getUser()
     {
-        return User::findOrFail($userId);
+        return auth()->user();
     }
 
     /**
@@ -30,8 +32,8 @@ class UserManagementService {
         $value_stat = UserStat::where('user_id', $user_id)
                         ->where('stat_id', $stat_id)
                         ->value('value') ?? 0; // Valor por defecto si no tiene la estadística
-        
-        return $value_stat; 
+
+        return $value_stat;
     }
 
     /**
@@ -45,31 +47,45 @@ class UserManagementService {
                                     ->where('action_type_id', $action_type_id)
                                     ->latest('id')
                                     ->value('actionable_id');
-        
+
         return $user_action_zone_id ? Zone::find($user_action_zone_id) : null;
     }
 
     /**
-     * Función para obtener el id del inventario del jugador
+     * Obteniene el id del inventario del jugador
      */
-    public function getUserInventory(){
+    public function getUserInventory()
+    {
         $user = auth()->user();
+        
         $inventory = Inventory::where('user_id', $user->id)->first();
         return $inventory;
     }
 
     /**
-     * Función para obtener el id del inventario del jugador con sus relaciones
+     * Obtiene el inventario del jugador con sus relaciones
      */
-    public function getUserInventoryWithRelations(){
+    public function getUserInventoryWithRelations()
+    {
         $user = auth()->user();
+
         $inventory_with_relations = Inventory::where('user_id', $user->id)
-                        ->with('inventions' , 'materials');
+                        ->with(['materials.material' , 'inventions'])->first();
+
         return $inventory_with_relations;
     }
 
     /**
-     * Función que crea un usuario nuevo con los datos que le llegan
+     * Función para encontrar un usuario en la BD por su id
+     */
+    public function getUserById($userId)
+    {
+        return User::findOrFail($userId);
+    }
+
+
+    /**
+     * Crea un usuario nuevo con los datos que le llegan
      */
     public function createUser($userData)
     {
@@ -77,7 +93,7 @@ class UserManagementService {
     }
 
     /**
-     * Función para actualizar un campo del usuario
+     * Actualiza un campo del usuario
      */
     public function updateUser($userId, $userData)
     {
@@ -88,7 +104,7 @@ class UserManagementService {
     }
 
     /**
-     * Función para borrar un usuario a traves de su id
+     * Borra un usuario a traves de su id
      */
     public function deleteUser($userId)
     {

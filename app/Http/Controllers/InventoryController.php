@@ -35,12 +35,13 @@ class InventoryController extends Controller
             ->first();
 
         // Agrupo inventos  y materiales por tipo 
-        $inventionsByType = $inventory->inventions->groupBy('inventionType.name');
+        $inventionsByType = $inventory->inventions->where('available' , true)->groupBy('inventionType.name');
         $materialsByType = $inventory->materials->groupBy('material.materialType.name');
 
-        $totalMaterials = $inventory->materials->sum('quantity');
+        $total_materials = $inventory->materials->sum('quantity');
+        $total_inventions = $inventory->inventions->where('available' , true)->count();
 
-        return view('inventories.index', compact('inventory', 'inventionsByType', 'materialsByType', 'totalMaterials'));
+        return view('inventories.index', compact('inventory', 'inventionsByType', 'materialsByType', 'total_materials' , 'total_inventions'));
     }
 
     /**

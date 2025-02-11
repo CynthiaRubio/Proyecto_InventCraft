@@ -8,22 +8,27 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Inventory;
 use App\Models\Zone;
+use App\Models\ActionType;
+use App\Models\Action;
 use App\Models\UserStat;
 use App\Models\Stat;
 use App\Services\ActionManagementService;
+use App\Services\ZoneManagementService;
 
 class AuthController extends Controller
 {
     public function __construct(
         private ActionManagementService $action_service,
+        private ZoneManagementService $zone_service,
     ) {
     }
 
     /**
      * Función para validar los datos de registro y generar un nuevo usuario
      */
-    public function register(Request $request){
-        
+    public function register(Request $request)
+    {
+
         /* Lógica de validación de datos */
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
@@ -47,62 +52,82 @@ class AuthController extends Controller
             'user_id' => $user->_id,
         ]);
 
-        /* Asignar zona de inicio aleatoria para el jugador creando una acción de mover */
-        $zones = Zone::all();
-        $zone = $zones->random();
-
-        $this->action_Service->createAction('Mover' , $zone->_id, 'Zone' , 0);
-
         /* Creamos las estadísticas del usuario */
         $stats = Stat::all();
-        foreach($stats as $stat){
+        foreach ($stats as $stat) {
             UserStat::create([
                 'user_id' => $user->_id,
                 'stat_id' => $stat->_id,
                 'value' => 0,
             ]);
         }
-        
+
         /* Redirige a la página de inicio confirmando el registro */
-        return redirect()->route('login')->with('success' ,"$user->name Te has registrado correctamente");
+        return redirect()->route('login')->with('success', "$user->name Te has registrado correctamente");
     }
 
 
     /**
      * Función para validar el correo electrónico y la contraseña
      */
-    public function login(Request $request){
+    public function login(Request $request)
+    {
 
         //Lógica de validación de datos
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
-            'password' => 'required|string', 
-        ],[
+            'password' => 'required|string',
+        ], [
             'email.required' => 'El correo electrónico es obligatorio',
             'email.email' => 'Introduce una dirección de correo electrónico válida',
             'password.required' => 'La contraseña es obligatoria',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors());
         }
-
-        //Intento de inicio de sesión
+    
         $credentials = $request->only('email', 'password');
-        if(Auth::attempt($credentials)){
-            //Si la autenticación es correcta, se redirige a la vista de todas las zonas
+
+        /* Si la autenticación es correcta */
+        if (Auth::attempt($credentials)) {
+
             $user = auth()->user();
+
+            /* Y el usuario no tiene ninguna accion de mover -> no está en ninguna zona */
+            if ($this->action_service->getLastActionableByType('Mover')) {
+                /* Asignar zona de inicio aleatoria para el jugador creando una acción de mover */
+                $zones = Zone::all();
+                $zone = $zones->random();
+
+                /* Se crea la primera acción de mover para situarlo en la zona aleatoria */
+                $action_type_id = ActionType::where('name', 'Mover')->first()->id;
+                $actionable_type = "App\Models\Zone";
+
+                $action = Action::create([
+                    'user_id' => $user->_id,
+                    'action_type_id' => $action_type_id,
+                    'actionable_id' => $zone->_id,
+                    'actionable_type' => $actionable_type,
+                    'time' =>  now()->addSeconds(0),
+                    'finished' => true,
+                    'notification' => false,
+                    'updated' => true,
+                ]);
+            }
+
             return redirect()->route('users.show')->with('success', "$user->name has iniciado sessión correctamente");
         }
 
-        //Sino, se redirige al inicio de sesión con mensaje de error
+        /* Si la autenticación no es correcta */
         return redirect()->back()->withErrors(['email' => 'Credenciales incorrectas'])->withInput();
     }
 
     /**
      * Función para cerrar la sesión del usuario y volver a home
      */
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
         Auth::logout();
         return redirect()->route('login')->with('success', 'Has cerrado sessión correctamente');
     }

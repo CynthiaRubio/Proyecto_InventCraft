@@ -15,6 +15,7 @@ use App\Models\ActionZone;
 use App\Models\Resource;
 use App\Models\InventoryMaterial;
 use App\Models\Event;
+use App\Models\MaterialType;
 
 class ResourceManagementService
 {
@@ -22,86 +23,57 @@ class ResourceManagementService
         private UserManagementService $user_service,
         private ActionManagementService $action_service,
         private InventionService $invention_service,
+        private ZoneManagementService $zone_service,
     ) {
     }
 
     /**
      * Calcula los recursos obtenidos al explorar una zona
      */
-    public function calculateFarm(string $zone_id, $time)
+    public function calculateFarm(string $zone_id, $time, $action)
     {
-        $user_id = auth()->user()->id;
-        $zone = $this->action_service->getZoneWithRelations($zone_id);
-
-        $suerte_user = $this->user_service->getUserStat('Suerte');
-
-        $farm_result = $this->calculateResources($zone, $suerte_user, $time);
-
-        $action_type_id = ActionType::where('name', 'Mover')->first()->id;
-
-        /* Buscamos la última acción de mover del usuario */
-        $action_id = Action::where('user_id', $user_id)
-                    ->where('action_type_id', $action_type_id)
-                    ->where('actionable_type', 'App\Models\Zone')
-                    ->latest()->first();//->id;
-
-        /* Buscamos el ActionZone creado cuando el usuario se ha movido a esa zona */
-        $action_zone = ActionZone::where('action_id', $action_id->id)
-                            ->where('zone_id', $action_id->actionable_id)
-                            ->latest()->first();
-
-
-        /* Creamos la acción de recolectar */
-        /* TO DO Cambiar, el actionable_type es Zone y el actionable_id es el id de la zona */
-        $this->action_service->createAction('Recolectar', $action_zone->_id, 'ActionZone', $time);
-
+        $action_zone = $this->action_service->createActionZone($action);
         $multiplier = $this->generateEvents($zone_id);
 
-        // $events = Event::where('zone_id', $zone_id)->get();
+        if ($action_zone && $multiplier !== 0) {
 
-        // $event_probability = rand(0, 2);
-        // /* Ocurren eventos 1 de cada 3 veces */
-        // if ($event_probability == 2) {
-        //     $event_type = $events->random();
-        //     $loss_percent = rand(0, 100);
-        //     $multiplier = (100 - $loss_percent) / 100;
-        // } else {
-        //     $multiplier = 1;
-        // }
+            $farm_result = [];
 
-        /* Asignar materiales obtenidos al inventario del jugador cuando accion este terminada */
+            $zone = $this->zone_service->getZoneWithRelations($zone_id);
 
-        if ($farm_result) {
+            $suerte_user = $this->user_service->getUserStat('Suerte');
 
-            foreach ($farm_result as $resource) {
-                if ($resource['type'] === 'Material') {
-                    $resourceable_type = 'App\Models\Material';
-                    /* LLamar a guardar materiales */
-                    $quantity = round($resource['quantity'] * $multiplier);
-                    $this->saveMaterials($resource['id'], $quantity);
-                } elseif ($resource['type'] === 'Invention') {
-                    $resourceable_type = 'App\Models\Invention';
-                } else {
-                    continue;
-                }
+            $farm_results = $this->calculateResources($zone, $suerte_user, $time, $multiplier);
 
-                $resource = Resource::create([
-                    'action_zone_id' => $action_zone->_id,
-                    'resourceable_id' => $resource['id'],
-                    'resourceable_type' => $resourceable_type,
-                    'quantity' => $resource['quantity'],
-                ]);
+            if (count($farm_results) > 0) {
+                $this->saveResources($farm_results, $action_zone);
+                return $farm_results;
+            } else {
+                return 0;
             }
         }
-
-        return $farm_result;
     }
 
     /**
-     * Calcula los recursos disponibles en una zona según la suerte del usuario
+     * Obtiene los recursos recolectados en una zona según la suerte del usuario
      */
-    public function calculateResources($zone, int $suerte_user, int $time)
+    public function calculateResources($zone, int $suerte_user, int $time, float $multiplier)
     {
+        $result_materials = $this->farmMaterials($zone, $suerte_user, $time, $multiplier);
+
+        $result_inventions = $this->farmInventions($zone, $suerte_user, $time, $multiplier);
+
+        $results = array_merge($result_materials, $result_inventions);
+
+        return $results;
+    }
+
+    /**
+     * Recolecta los materiales en la exploracion
+     */
+    public function farmMaterials($zone, int $suerte_user, int $time, float $multiplier)
+    {
+
         $result_materials = [];
 
         foreach ($zone->materials as $material) {
@@ -109,31 +81,29 @@ class ResourceManagementService
             $probability = $this->calculateMaterialProbability($material->efficiency, $suerte_user, $time);
 
             if ($probability) {
-                $quantity = $this->calculateMaterialQuantity($material->efficiency);
 
+                $quantity = round($this->calculateMaterialQuantity($material->efficiency) * $multiplier);
 
-                if ($quantity !== 0) {
+                if ($quantity > 0) {
                     $result_materials[] = [
                         'type' => 'Material',
                         'id' => $material->_id,
                         'quantity' => $quantity,
                     ];
-
                 }
             }
         }
-        $result_inventions = $this->calculateInventions($zone, $suerte_user, $time);
-        $result = array_merge($result_materials, $result_inventions);
 
-        return $result;
+        return $result_materials;
     }
+
 
     /**
      * Calcula la probabilidad de obtener un material
      */
-    public function calculateMaterialProbability(int $efficiency, int $luck, int $time)
+    public function calculateMaterialProbability(int $efficiency, int $suerte_user, int $time)
     {
-        $probabilidad = min((50 - $efficiency + $luck + ($time / 30)), 100);
+        $probabilidad = min((50 - $efficiency + $suerte_user + ($time / 30)), 100);
 
         if ($probabilidad >= rand(0, 100)) {
             return true;
@@ -143,7 +113,7 @@ class ResourceManagementService
     }
 
     /**
-     * Determina la cantidad de un material basado en su eficiencia
+     * Determina la cantidad encontrada de un material basado en su eficiencia
      */
     public function calculateMaterialQuantity(int $efficiency)
     {
@@ -158,20 +128,11 @@ class ResourceManagementService
     /**
      * Calcula la probabilidad de encontrar un invento en la zona
      */
-    public function calculateInventions($zone, int $luck, int $time)
+    public function farmInventions($zone, int $suerte_user, int $time, $multiplier)
     {
-        $probability = rand(0, 100) + $luck + ($time / 30);
-        $inventions = [];
+        $num_inventions = round($this->calculateNumberInvention($suerte_user, $time) * $multiplier);
 
-        if ($probability >= 85) {
-            $num_inventions = 3;
-        } elseif ($probability >= 60) {
-            $num_inventions = 2;
-        } elseif ($probability >= 40) {
-            $num_inventions = 1;
-        } else {
-            $num_inventions = 0;
-        }
+        $inventions = [];
 
         for ($i = 0; $i < $num_inventions; $i++) {
             $invention_type = $zone->inventionTypes->random();
@@ -191,45 +152,215 @@ class ResourceManagementService
     }
 
     /**
-     * Función que guarda los materiales en el inventario recibiendo:
-     *
-     * @param $material_id: El id del material a guardar
-     * @param $quantity: La cantidad de material
+     * Calcula el número de inventos encontrados durante la exploración
      */
-    public function saveMaterials(string $material_id, int $quantity)
+    public function calculateNumberInvention(int $suerte_user, int $time)
+    {
+        $probability = min((50 + $suerte_user + ($time / 30)), 100);
+
+        if ($probability >= 85) {
+            $num_inventions = 3;
+        } elseif ($probability >= 60) {
+            $num_inventions = 2;
+        } elseif ($probability >= 40) {
+            $num_inventions = 1;
+        } else {
+            $num_inventions = 0;
+        }
+
+        return $num_inventions;
+    }
+
+
+    /**
+     * Guarda los recursos obtenidos en el inventario del jugador
+     */
+    public function saveResources($results, $action_zone)
     {
 
+        foreach ($results as $resource) {
+            if ($resource['type'] === 'Material') {
+                $resourceable_type = 'App\Models\Material';
+                $this->saveMaterials($resource);
+            } elseif ($resource['type'] === 'Invention') {
+                $resourceable_type = 'App\Models\Invention';
+                /* No hay que guardar los inventos porque se asocian al inventario cuando se crean pero no disponibles */
+            } else {
+                continue;
+            }
+
+            Resource::create([
+                'action_zone_id' => $action_zone->_id,
+                'resourceable_id' => $resource['id'],
+                'resourceable_type' => $resourceable_type,
+                'quantity' => $resource['quantity'],
+                'available' => false,
+            ]);
+        }
+
+    }
+
+    /**
+     * Guarda los materiales en el inventario
+     *
+     * @param $resource: El recurso obtenido
+     */
+    public function saveMaterials($resource)
+    {
         $save = false;
         $inventory = $this->user_service->getUserInventory();
 
         /* Comprobamos si el jugador ya tiene el material en el inventario */
-        $inventoryMaterial = InventoryMaterial::where('inventory_id', $inventory->id)
-                                              ->where('material_id', $material_id)
+        $inventoryMaterial = InventoryMaterial::where('inventory_id', $inventory->_id)
+                                              ->where('material_id', $resource['id'])
                                               ->first();
 
         /* Si existe se añade la cantidad no disponible */
         if ($inventoryMaterial) {
-            $inventoryMaterial->increment('quantity_na', $quantity);
+            $inventoryMaterial->increment('quantity_na', $resource['quantity']);
             $save = true;
-            /* Sino, se guarda pero sin poder disponer de la cantidad */
+            /* Sino, se crea en el inventario pero sin poder disponer de la cantidad */
         } else {
             InventoryMaterial::create([
                 'inventory_id' => $inventory->id,
-                'material_id' => $material_id,
+                'material_id' => $resource['id'],
                 'quantity' => 0,
-                'quantity_na' => $quantity,
+                'quantity_na' => $resource['quantity'],
             ]);
             $save = true;
         }
-
         return $save;
     }
 
     /**
-     * Función para saber la pérdida de materiales por evento en zona
+     * Actualiza los recursos y los prepara para mostrarlo
+     */
+    public function updateResources($action)
+    {
+        $inventory_id = $this->user_service->getUserInventory()->id;
+
+        $action_zone = $this->action_service->getActionZone($action);
+
+        $results = $this->recolectResourcesNoAvailables($action_zone);
+
+        if (count($results) > 0) {
+
+            $farm_result = [];
+
+            foreach ($results as $result) {
+
+                if ($result->resourceable_type === 'App\Models\Material') {
+
+                    $material = InventoryMaterial::where('inventory_id', $inventory_id)
+                        ->where('material_id', $result->resourceable_id)
+                        ->first();
+
+                    $quantity = $material->quantity + $material->quantity_na;
+
+                    $material_name = Material::where('id', $material->material_id)->first()->value('name');
+
+                    $farm_result[] = [$material_name => $material->quantity_na];
+
+                    $material->update(['quantity' => $quantity , 'quantity_na' => 0]);
+
+                } elseif ($result->resourceable_type === 'App\Models\Invention') {
+                    $invention = Invention::where('id', $result->resourceable_id)->first();
+                    $invention->update(['available' => true]);
+                    $farm_result[] = ['Invento' => $invention->name];
+                }
+            }
+
+        } else {
+            $farm_result = "Ohhh no has encontrado nada en esta exploración";
+        }
+        return $farm_result;
+    }
+
+    /**
+     * Obtiene los recursos no disponibles, que son los últimos recogidos
+     */
+    public function recolectResourcesNoAvailables($action_zone)
+    {
+
+        $results = Resource::where('action_zone_id', $action_zone->_id)
+                    ->where('available', false)->get();
+
+        return $results;
+    }
+
+    /**
+     * Obtiene los inventos del inventario del jugador agrupados por tipo
+     */
+    public function getInventionsByType()
+    {
+
+        $inventory_user = $this->user_service->getUserInventoryWithRelations();
+        //dd($inventory_user);
+        $inventions_by_type = $inventory_user->inventions->groupBy('invention_type_id');
+//dd($inventions_by_type);
+        return $inventions_by_type;
+    }
+
+    /**
+     * Comprueba que el jugador posee los inventos necesarios para construir un edificio
+     */
+    public function checkInventionsToConstruct($inventionTypes_needed, $num_needed)
+    {
+
+        $user_inventions_by_type = $this->getInventionsByType();
+
+        foreach ($inventionTypes_needed as $type) {
+            if (!isset($user_inventions_by_type[$type->id]) || count($user_inventions_by_type[$type->id]) < $num_needed) {
+                return redirect()->back()
+                    ->with('error', "No tienes suficientes inventos de tipo {$type->name}. Se requieren {$num_needed}.");
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Comprueba que el jugador posee los inventos necesarios para crear un invento
+     */
+    public function checkInventionsToCreate($inventionTypes_needed)
+    {
+
+        $user_inventions_by_type = $this->getInventionsByType();
+
+        foreach ($inventionTypes_needed as $type) {
+            if (!isset($user_inventions_by_type[$type->invention_type_need_id]) || count($user_inventions_by_type[$type->invention_type_need_id]) < $type->quantity) {
+                return redirect()->back()
+                    ->with('error', "No tienes suficientes inventos de tipo {$type->inventionTypeNeed->name}. Se requieren {$type->quantity}.");
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Comprueba que el jugador posee los materiales necesarios para crear un invento
+     */
+    public function checkMaterials($material_type_id , $name)
+    {
+        $inventory_user = $this->user_service->getUserInventoryWithRelations();
+        $materials_user = $inventory_user->materials->where('material_type_id', $material_type_id)->get();
+dd($materials_user);
+        if ($materials_user->isEmpty()) {
+            return redirect()->back()
+                ->with('error', "No tienes materiales de tipo {$name}");
+        }
+
+        return $materials_user;
+    }
+
+
+
+    /**
+     * Calcula el porcentaje de pérdida de recursos por evento durante la exploración
      */
     public function generateEvents($zone_id)
     {
+        /* TODO Habría que establecer la pérdida por evento y no de forma independiente como está */
         $events = Event::where('zone_id', $zone_id)->get();
 
         $event_probability = rand(0, 2);
@@ -239,7 +370,7 @@ class ResourceManagementService
             $loss_percent = rand(0, 100);
             return (100 - $loss_percent) / 100;
         } else {
-           return 1;
+            return 1;
         }
     }
 

@@ -13,6 +13,8 @@ class BuildingStatUnitTest extends TestCase
 {
     private $new_building;
     private $new_stat;
+    private $new_building_2;
+    private $new_stat_2;
     private $new_buildingStat;
     private $building;
     private $stat;
@@ -27,7 +29,7 @@ class BuildingStatUnitTest extends TestCase
         /* Rellenamos la base de datos */
         Artisan::call('migrate:refresh --seed');
 
-        /* Creamos un nuevo edificio */
+        /* Creamos nuevos edificios */
         $this->new_building = Building::create([
             'name' => 'Platillo volante',
             'description' => 'Nave espacial para cambiar de mundo',
@@ -35,15 +37,33 @@ class BuildingStatUnitTest extends TestCase
             'coord_y' => 4,
         ]);
 
-        /* Creamos una nueva estadística */
+        $this->new_building_2 = Building::create([
+            'name' => 'Torre effiel',
+            'description' => 'Torre muy alta',
+            'coord_x' => 4,
+            'coord_y' => 1,
+        ]);
+
+        /* Creamos nuevas estadísticas */
         $this->new_stat = Stat::create([
             'name' => 'Ataque',
             'description' => 'Capacidad del usuario para atacar a otros jugadores',
         ]);
 
+        $this->new_stat_2 = Stat::create([
+            'name' => 'Agilidad',
+            'description' => 'Capacidad del usuario para esquivar a otros jugadores',
+        ]);
+
         /* Crear un BuildingStat asociando el edificio y la estadística */
         $this->new_buildingStat = BuildingStat::create([
             'building_id' => $this->new_building->id,
+            'stat_id' => $this->new_stat_2->id,
+            'value' => rand(0,100),
+        ]);
+
+        $this->new_buildingStat_2 = BuildingStat::create([
+            'building_id' => $this->new_building_2->id,
             'stat_id' => $this->new_stat->id,
             'value' => rand(0,100),
         ]);
@@ -73,6 +93,7 @@ class BuildingStatUnitTest extends TestCase
 
         /* Verificamos que el BuildingStat tiene el edificio correspondiente asociado */
         $this->assertEquals($this->new_building->id, $this->new_buildingStat->building->id);
+        $this->assertEquals($this->new_building_2->id, $this->new_buildingStat_2->building->id);
         $this->assertEquals($this->building->id, $this->buildingStat->building->id);
     }
 
@@ -82,7 +103,8 @@ class BuildingStatUnitTest extends TestCase
         $this->buildingStatSetUp();
 
         /* Verificamos que el BuildingStat tiene la estadística correspondiente asociada */
-        $this->assertEquals($this->new_stat->id, $this->new_buildingStat->stat->id);
+        $this->assertEquals($this->new_stat_2->id, $this->new_buildingStat->stat->id);
+        $this->assertEquals($this->new_stat->id, $this->new_buildingStat_2->stat->id);
         $this->assertEquals($this->stat->id, $this->buildingStat->stat->id);
     }
 }

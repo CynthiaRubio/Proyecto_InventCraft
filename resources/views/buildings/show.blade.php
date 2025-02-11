@@ -4,7 +4,9 @@
 
 @section('content')
 
-<h2 class="text-center mb-4">{{$building->name}}</h2>
+<h2 class="text-center mb-4" style="font-size: 3rem; font-weight: bold; color: #fff; background: linear-gradient(45deg, #ff6f61, #ff9a8b); border-radius: 8px; padding: 10px 20px; border: 3px solid #ff6f61;">
+    {{ $building->name }}
+</h2>
 
 <div class="container mt-5">
 
@@ -33,8 +35,17 @@
                         <dt class="col-sm-4">Tipos de inventos necesarios:</dt>
                         <dd class="col-sm-8">
                             <ul>
-                                @foreach($inventions_need as $invention)
+                                @foreach($building->inventionTypes as $invention)
                                     <li>{{$invention->name}}</li>
+                                @endforeach
+                            </ul>
+                        </dd>
+
+                        <dt class="col-sm-4">Aumenta:</dt>
+                        <dd class="col-sm-8">
+                            <ul>
+                                @foreach($building->stats as $stat)
+                                    <li>{{$stat->stat->name}} en {{$stat->value}} puntos</li>
                                 @endforeach
                             </ul>
                         </dd>
@@ -45,7 +56,7 @@
             <!-- Barra de progreso -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="text-center">Nivel actual: {{$actual_level}} / 10</h5>
+                    <h5 class="text-center">Nivel actual: {{$actual_level}} / 10 con eficiencia de {{$efficiency}}%</h5>
                     <div class="progress" style="height: 30px;">
                         @php
                             $progress = ($actual_level / 10) * 100;
@@ -72,11 +83,11 @@
             <!-- Botones de acción -->
             <div class="text-center">
                 @if($actual_level > 0)
-                    <a href="{{route('actionBuildings.create.withBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                    <a href="{{route('createBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
                         Mejorar este edificio
                     </a>
                 @else
-                    <a href="{{route('actionBuildings.create.withBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                    <a href="{{route('createBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
                         Construir este edificio
                     </a>
                 @endif

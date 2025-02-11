@@ -16,6 +16,16 @@
 
     @yield('timer')
 
+    @if(session('error'))
+    <div class="container mt-4">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">¡Error!</h4>
+            <p>{{ session('error') }}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    @endif
+
     @if ($errors->any())
     <div class="container mt-4">
         <div class="alert alert-danger" role="alert">
@@ -38,13 +48,25 @@
     </div>
     @endif
 
-    @if(session('error'))
-    <div class="container mt-4">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <h4 class="alert-heading">¡Error!</h4>
-            <p>{{ session('error') }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+    @if(session('data_resource'))
+    <div class="alert alert-success">
+        <ul>
+            @foreach (session('data_resource') as $resource)
+                @foreach($resource as $name => $quantity)
+                    <li>Has recolectado {{$name}}: {{ $quantity }}</li>
+                @endforeach
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    @if(session('data_inventions'))
+    <div class="alert alert-success">
+        <ul>
+            @foreach (session('data_inventions') as $invention)
+                <li>Has creado {{$invention->name}} con {{ $invention->efficiency }} puntos de eficiencia</li>
+            @endforeach
+        </ul>
     </div>
     @endif
 
