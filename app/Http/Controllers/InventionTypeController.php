@@ -39,7 +39,6 @@ class InventionTypeController extends Controller
             
         }
         
-        //dd($invention_types_needed);
 
         return view('inventionTypes.index', compact('inventionTypes') );
     }

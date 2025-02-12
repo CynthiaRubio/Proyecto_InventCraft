@@ -17,6 +17,7 @@ use App\Models\InventoryMaterial;
 use App\Models\Event;
 use App\Models\MaterialType;
 use App\Models\InventionType;
+use App\Models\InventionTypeInventionType;
 
 class ResourceManagementService
 {
@@ -279,7 +280,7 @@ class ResourceManagementService
                     }
 
                 } else {
-                    $farm_result = "Ohhh no has encontrado nada en esta exploración";
+                    $farm_result = "Ohhh los eventos de esta zona no te han permitdo no encontrar nada en esta exploración ¡Inténtalo de nuevo! seguro que el evento ocurrido ha terminado.";
                 }
 
                 $this->updateResourcesNoAvailables($action_zone);
@@ -316,13 +317,25 @@ class ResourceManagementService
     }
 
     /**
+     * Obtiene los inventos del inventario del jugador agrupados por tipo
+     */
+    public function getUserInventionsByTypeWithoutRelations()
+    {
+        $inventory_user = $this->user_service->getUserInventory();
+
+        // $user_inventions_by_type = $inventory_user->inventions->groupBy('invention_type_id');
+        $user_inventions_by_type = Invention::where('inventory_id', $inventory_user->_id)->get()->groupBy('invention_type_id');
+        return $user_inventions_by_type;
+    }
+
+    /**
      * Comprueba que el jugador posee los inventos necesarios para construir un edificio
      */
     public function checkInventionsToConstruct($invention_types_needed, $num_needed, $user_inventions_by_type)
     {
-
         foreach ($invention_types_needed as $type) {
-            if (!isset($user_inventions_by_type[$type->id]) || count($user_inventions_by_type[$type->id]) < $num_needed) {
+
+            if (count($user_inventions_by_type[$type->id]) < $num_needed) {
                 return redirect()->back()
                     ->with('error', "No tienes suficientes inventos de tipo {$type->name}. Se requieren {$num_needed}.");
             }
@@ -333,12 +346,17 @@ class ResourceManagementService
     /**
      * Comprueba que el jugador posee los inventos necesarios para crear un invento
      */
-    public function checkInventionsToCreate($inventionTypes_needed, $user_inventions_by_type)
+    public function checkInventionsToCreate($invention_types_needed, $user_inventions_by_type)
     {
-        foreach ($inventionTypes_needed as $type) {
-            if (!isset($user_inventions_by_type[$type->invention_type_need_id]) || count($user_inventions_by_type[$type->invention_type_need_id]) < $type->quantity) {
-                return redirect()->back()
-                    ->with('error', "No tienes suficientes inventos de tipo {$type->inventionTypeNeed->name}. Se requieren {$type->quantity}.");
+
+        foreach($invention_types_needed as $needed_type){
+            foreach($user_inventions_by_type as $type => $arrayInventions){
+                if($needed_type->invention_type_need_id === $type){
+                    if(count($arrayInventions) < $needed_type->quantity){
+                        return redirect()->back()
+                            ->with('error', "No tienes suficientes inventos de tipo {$needed_type->invention_type_need_id}.");
+                    }
+                }
             }
         }
 
@@ -350,11 +368,11 @@ class ResourceManagementService
      */
     public function getUserMaterialsByType($material_type_id)
     {
-
         $inventory_user = $this->user_service->getUserInventoryWithRelations();
-        /* TODO Revisar que el ->get() añadido no supone un problema */
+        
         $materials_user = $inventory_user->materials->where('material.material_type_id', $material_type_id);
         return $materials_user;
+
     }
 
     /**
@@ -362,9 +380,8 @@ class ResourceManagementService
      */
     public function checkMaterials($user_materials, $name)
     {
-        if (! $user_materials) {
-            return redirect()->back()
-                ->with('error', "No tienes materiales de tipo {$name}");
+        if (count($user_materials) <= 0) {
+            return redirect()->back()->with('error', "No tienes materiales de tipo {$name}");
         }
 
         return true;

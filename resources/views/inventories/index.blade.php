@@ -6,14 +6,13 @@
 
 @section('content')
 <div class="container mt-5">
-<h2 class="text-center mb-4 fw-bold"> 📋 Inventario de {{$inventory->user->name}} 📋 </h2>
-
+    <h2 class="text-center mb-4 fw-bold p-3 rounded-3" style="background-color: #2196F3; color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+        📋 Inventario de {{$inventory->user->name}} 📋
+    </h2>
 <div class="row">
     <div class="col-md-6">
-        <h3 class="d-flex justify-content-center align-items-center btn btn-light w-100 fw-bold fs-4">🛠️ Inventos</h3>
-        <div class="alert alert-info text-center fw-bold">
-        🛠️ Inventos Totales: <span class="text-dark">{{ $total_inventions }}</span>
-        </div>
+        <h3 class="d-flex justify-content-center align-items-center fs-4 alert alert-info text-center fw-bold">🛠️ Inventos: {{$total_inventions}} 🛠️</h3>
+        
         <div class="accordion">
             @forelse($inventionsByType as $type => $inventions)
                 <div class="accordion-item border-light">
@@ -42,10 +41,8 @@
     </div>
 
     <div class="col-md-6">
-        <h3 class="d-flex justify-content-center align-items-center fs-4 alert alert-info text-center fw-bold">🪵 Materiales</h3>
-        <div class="alert alert-info text-center fw-bold">
-            🪵 Materiales Totales: <span class="text-dark">{{ $total_materials }}</span>
-        </div>
+        <h3 class="d-flex justify-content-center align-items-center fs-4 alert alert-info text-center fw-bold">🪵 Materiales: {{$total_materials}} 🪵</h3>
+        
         <div class="accordion">
             @forelse($materialsByType as $type => $materials)
                 <div class="accordion-item border-light">
@@ -72,6 +69,8 @@
             @endforelse
         </div>
     </div>
+</div>
+
 </div>
 
 

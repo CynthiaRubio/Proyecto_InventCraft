@@ -1,82 +1,145 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# InventCraft
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Ilustración del juego](public/images/home/principal.png)
 
-## About Laravel
+## Descripción del Proyecto
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Se trata de una versión beta de un juego de estrategia individual hecho en Laravel, donde los jugadores compiten por alcanzar la mayor puntuación y construir la Estación Espacial, representando una carrera por el desarrollo tecnológico y la exploración.
 
 
+## Mapa
 
-Variaciones de la wiki:
-- La asignación de la zona es aleatoria
-- Experiencia por:
-  - Acción de recolectar + por cada recurso recolectado (más puntos cuanto menos probable sea)
-  - Acción de mover
-  - Acción de crear invento 
-  - Acción de construir edificio
-- Se sube de nivel por cada 100 puntos de experiencia.
-- En todos los tiempos se ven minutos en las vistas pero son segundos.
-- El UserSeeder y el InventorySeeder no debería estar pero así creamos un usuario con datos conocidos y nos aseguramos que todos los usuarios tienen inventario
-- UserStat creado para asignar estadísticas a los usuarios creados. Esto no hace falta para el juego porque este proceso se hace cuando el usuario se registra.
-- Al realizar la acción de crear invento se crea primero el invento ya que la acción necesita el id del invento creado en el actionable_id. Para evitarlo, podria crearse la acción primero dando el id del tipo de invento como actionable_id y, cuando la acción finalice crear el invento y actualizar el actionable_id con el id del invento creado.
-- No está implementado que la estación espacial no se pueda crear hasta que el resto de edificios esten creados con una eficiencia del 100% o un nivel establecido.
+![Mapa](public/images/home/mapa.jpg)
+- El mapa principal será un cuadrado de 3X3. Esto significa que habrá un total de 9 zonas.
+- Cada zona contiene recursos únicos que no están disponibles en otras zonas.
+- En las zonas es posible encontrar inventos.
+- La dificultad de recolectar recursos depende de la zona, ya que en cada una pueden ocurrir diferentes eventos que le hagan perder los recursos recolectados total o parcialmente. Aunque en esta versión beta está implementada la ocurrencia de estos eventos, solo se informa al jugador cuando le ha supuesto la pérdida total de los recursos recolectados sin informarle de las características del evento.
+- El jugador puede crear inventos en todas las zonas.
+
+
+## Progresión de Jugadores
+
+![Progresion](public/images/home/progresion.png)
+- Comienza con el nivel 1 y no se ha establecido nivel máximo que el jugador pueda alcanzar
+- Experiencia (EXP) ganada por:
+  1. Desplazamientos entre zonas exitoso
+  2. Creación de inventos
+  3. Exploración de una zona y la recolección de recursos en ella
+  4. Construcción y mejora de edificios
+- Cualidades del jugador:
+  1. Los jugadores obtendrán 15 puntos por nivel y 15 puntos iniciales por registrarse. Estos puntos se podrán repartir como deseen.
+  2. Una vez repartidos no podrán volverse a usar.
+    1. Suerte: Incrementa la probabilidad de encontrar recursos.
+    2. Vitalidad: En estos momentos no se implementa su uso, sería conveniente en versiones futuras cambiarla por otra relacionada con la construcción de edificios.
+    3. Ingenio: Incrementa la eficiencia al inventar.
+    4. Velocidad: Reduce el tiempo de realizar una acción.
+
+
+## Acciones posibles
+
+![Acciones](public/images/home/acciones.png)
+- Recolectar: Recoger los recursos de una zona.
+  - Los jugadores exploran zonas para recolectar materiales y/o inventos.
+- Moverse: Cambiar de una zona a otra.
+- Inventar: Crear inventos a partir de un invento anterior o de materiales encontrados.
+    - Los jugadores pueden crear inventos a partir de materiales recolectados.
+    - Los inventos sirven para crear edificios.
+- Construir: Crear edificios.
+  - Los edificios otorgan bonificaciones permanentes que afectan a las cualidades del jugador.
+  - Construir la estación espacial será la clave para la victoria, aunque siendo el objetivo del juego no está implementado, pues en esta versión no está limitada su construcción.
+
+
+## Tiempo y Progresión
+
+1. Duración de las Acciones: Los jugadores eligen cuánto tiempo dedicar a una acción con un mínimo de 30 minutos y hasta un máximo de 600 minutos.
+
+  - Explorar: Cuanto más tiempo dediquen, mayor será la cantidad de objetos encontrados.
+    - La fórmula para el cálculo de la probabilidad de encontrar cada uno de los materiales disponibles en la zona es:
+      > ( 50 - la eficiencia del material + la suerte del jugador + (el tiempo dedicado a la recolección / 30) ) >= valor aleatorio entre 0 y 70
+    - De cada objeto se pueden conseguir un valor aleatorio de cantidades según la eficiencia.
+      - Valor mínimo 1
+      - Valor máximo 9 para aquellos materiales con una eficiencia inferior o igual a 22%
+      - Valor máximo 6 para aquellos materiales con una eficiencia superior a 22% e inferior o igual a 30%
+      - Valor máximo 3 para aquellos materiales con una eficiencia superior a 30%
+    - Por ejemplo, se puede encontrar un jugador con 30 de suerte, pudiendo encontrar un material con 25% de eficiencia e invirtiendo 30 minutos sin penalizaciones de zona: 
+      - Su probabilidad de encontrar ese material es = 50 - 25 + (30/30) = 26. 
+      - Por lo que siempre que salga un número aleatorio entre 0 y 26 se realizará un random para averiguar la cantidad (entre 1 y 6 por tener una eficiencia del 25%) que obtendrá de ese material.
+
+  - Inventar: Dedicando más tiempo, aumentará la eficiencia del invento hasta 10 horas como máximo.
+    - La fórmula será:
+      > Eficiencia del material + (ingenio del jugador / 10) + tiempo invertido dividido por 30.
+    - Por ejemplo, un jugador de ingenio 20 invirtiendo 60 minutos puede crear una piedra afilada con un material X:
+      - Suponemos que la eficiencia del material es 40,5%
+      - La eficiencia total será 40,5 + 2 + (60/30) = 44,5 %
+
+  - Construir Edificios: Los edificios tienen tiempos de construcción dependiendo de su nivel.
+    - La fórmula será:
+      > 10h (600 min) dividido por el nivel del jugador más 1, por el nivel del edificio.
+    - Por ejemplo, un jugador de nivel 3 invirtiendo para construir un edificio de nivel 2:
+      > Tiempo total = (600 / (3+1) ) * 2 = 400 minutos
+
+
+## Construcciones y niveles de edificios
+
+![Edificios](public/images/home/edificios.png)
+Tipos de Edificios e inventos requeridos:
+- Estación de Transporte: Carro, Rueda, Barco
+- Taller de Manufactura:	Herramientas de piedra, Cuerdas, Lanza, Arco y flechas, Hacha, Cestas, Torno
+- Granja: Agricultura, Ganadería, Arado, Trampas para caza, Sistema de riego automatizado
+- Planta de Energía:	Fuego, Canales
+- Fundición de Metales:	Metalurgia, Vidrio
+- Taller de Cerámica:	Cerámica, Alfarería, Horno de alta temperatura
+- Fábrica de Textiles:	Tela
+- Sistema de Acueductos:	Acueducto, Molino de agua
+- Estación espacial:	Requiere todos los edificios con eficiencia 100 %
+
+Al construir un edificio obtiene la eficiencia media de los inventos con los que se ha creado siguiendo la formula siguiente:
+> Eficiencia = (suma de eficiencia de inventos / número inventos) / (nivel * 2)
+
+Ejemplo - Edificio de nivel 1:
+> Estación de Transporte:	(1 Carro 50%, 1 Rueda 100%, 1 Barco 25.6%) / 3 = 58.53% / 2 = 29,26%
+
+Cada nivel de edificio requiere el doble de los inventos.
+
+Ejemplo - Edificio de nivel 2:
+- Eficiencia anterior = 29,26%
+> Estación de Transporte: 1 Carro 50%, 1 Carro 40%, 1 Rueda 80%,1 Rueda 100%, 1 Barco 25.6%, 1 Barco 22.4% = 53% / (2 * 2) = 13.25% + 29,26% = 42.51
+
+El nivel podrá subirse hasta conseguir una eficiencia de 100% en el edificio.
+
+Cada edificio aumentará las estadísticas del jugador:
+- Estación de Transporte: Velocidad y Suerte en 1 punto
+- Taller de Manufactura: Velocidad e Ingenio en 1 punto
+- Granja: Vitalidad e Ingenio en 1 punto
+- Planta de Energía: Ingenio y Velocidad en 1 punto
+- Fundición de Metales: Vitalidad y Suerte en 1 punto
+- Taller de Cerámica: Ingenio y Surte en 1 punto
+- Fábrica de Textiles: Suerte y Vitalidad en 1 punto
+- Sistema de Acueductos: Aumentará una estadística calculada de forma aleatoria en 5 puntos. En estos momentos aumenta 0 puntos dado que no está limitada su construcción a la condición de que se posean todos los demás edificios con una eficiencia del 100%.
+
+
+## Recursos
+
+- El jugador tendrá un inventario propio que podrá almacenar recursos ilimitados.
+- Los inventos creados consumen recursos como materia prima y/o otros inventos para su creación.
+- Los inventos han de ser de nivel inferior al del jugado, lo que ocurrirá siempre ya que todos los tipos de inventos tienen un nivel requerido de 1 que es con el nivel que comienza el jugador.
+- La probabilidad de encontrar inventos se obtiene con la siguiente fórmula: 50 + suerte del jugador + (tiempo dedicado a la exploración de la zona / 30).
+  - Si su probabilidad es igual o superior a 85 y sin que ocurran eventos en la zona, encontrará 3 inventos, el tipo de los mismos se determinará de forma aleatoria.
+  - Si su probabilidad es igual o superior a 60 y sin que ocurran eventos en la zona, encontrará 2 inventos, el tipo de los mismos se determinará de forma aleatoria.
+  - Si su probabilidad es igual o superior a 40 y sin que ocurran eventos en la zona, encontrará 1 inventos, el tipo del mismo se determinará de forma aleatoria.
+
+
+## Condiciones de Victoria
+
+- Objetivo Principal: Construir la Estación espacial garantiza la victoria total. Algo que en estos momentos no se puede aplicar ya que no está limitada la construcción de la estación espacial.
+- No se puede lograr la victoria total dado que tampoco se ha establecido una puntuación máxima a la que puede llegar el jugador. Si se ha realizado un ranking en el que puedes ver la posición de los 10 primeros y sus puntos para saber cuanto te acercas tu pero no hay posibilidad de victoria en estos momentos.
+
+## Comentarios adicionales
+
+- No se actualizan los recursos en el inventario hasta que la acción de recolectar esta terminada.
+- No se permite realizar acciones mientras está en curso una acción previa.
+- No se actualizan las estadísticas por beneficios en la construcción de edificios hasta que el edificio se ha construido.
+- No aparece el invento creado en el inventario hasta que la acción de crearlo ha concluido. Sin embargo, a nivel de código se debe crear el invento antes de realizar la acción de Crear Invento dado que el id de ese invento es el actionable_id de la Acción. Esto se podría haber solucionado realizando la acción con el id del tipo de invento inicialmente y, al terminar la acción de crear y obtener el id del invento, actualizándolo en la base de datos pero, no he tenido tiempo de implementarlo.
+- El cálculo de los puntos de experiencia necesarios para aumentar de nivel se calcula sumándole 1 al nivel del usuario y multiplicándolo por 100.
+- Ha sido un proyecto apasionante en el que ha faltado tiempo a pesar de la cantidad de horas diarias invertidas, por eso el código no está lo limpio que me gustaría y soy consciente de que hay archivos que no se utilizan pero no me arriesgo a tocar nada más.
+

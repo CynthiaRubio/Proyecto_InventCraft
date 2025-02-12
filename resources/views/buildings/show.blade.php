@@ -83,18 +83,18 @@
             <!-- Botones de acción -->
             <div class="text-center">
                 @if($actual_level > 0)
-                    <a href="{{route('createBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                    <a href="{{route('createBuilding' , $building) }}" class="btn btn-outline-danger btn-lg w-100 mb-3">
                         Mejorar este edificio
                     </a>
                 @else
-                    <a href="{{route('createBuilding' , $building) }}" class="btn btn-outline-primary btn-lg w-100 mb-3">
+                    <a href="{{route('createBuilding' , $building) }}" class="btn btn-outline-danger btn-lg w-100 mb-3">
                         Construir este edificio
                     </a>
                 @endif
             </div>
 
             <div class="text-center">
-                <a href="{{route('buildings.index')}}" class="btn btn-outline-primary btn-lg w-100">
+                <a href="{{route('buildings.index')}}" class="btn btn-outline-danger btn-lg w-100">
                     Regresar al Listado de Edificios
                 </a>
             </div>

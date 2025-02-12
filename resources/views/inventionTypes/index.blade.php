@@ -5,7 +5,9 @@
 
 @section('content') <!-- Le pasamos el contenido a la plantilla -->
 
-<h2 class="text-center mb-5 text-black">Tipos de Inventos</h2>
+<h2 class="text-center mb-4" style="background: linear-gradient(to right, #FF9800, #FFC107); color: white; padding: 10px; border-radius: 8px;">
+    Tipos de Inventos
+</h2>
 
 <div class="container mt-5">
     <div class="accordion" id="inventionTypesAccordion" style="max-width: 800px; margin: 0 auto;">
@@ -48,7 +50,7 @@
                     </div>
 
                     <div class="accordion-body text-center">
-                        <a href="{{ route('inventories.show', $type) }}" class="btn btn-warning mt-3">Ver inventos de este tipo</a>
+                        <a href="{{ route('inventories.show', $type) }}" class="btn btn-outline-warning btn-lg fw-bold">Ver inventos de este tipo</a>
                     </div>
 
                     <div class="accordion-body text-center">

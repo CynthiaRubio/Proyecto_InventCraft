@@ -7,12 +7,14 @@
 @section('content')
 
 <div class="container mt-5">
-    <h2 class="text-center mb-4 fw-bold"> 📋 Inventario de {{$user->name}} 📋 </h2>
+<h2 class="text-center mb-4 fw-bold p-3 rounded-3" style="background-color: #2196F3; color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+        📋 Inventario de {{$user->name}} 📋
+    </h2>
 
     <div class="row">
         <div class="col-md-12">
             <h3 class="d-flex justify-content-center align-items-center btn btn-light w-100 fw-bold fs-4">
-                🛠️ Inventos 🛠️
+                🛠️ Inventos Tipo {{$inventions[0]->inventionType->name}} 🛠️
             </h3>
 
             <div class="table-responsive">

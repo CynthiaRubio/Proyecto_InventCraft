@@ -17,7 +17,7 @@ class UserUnitTest extends TestCase
 
     public function test_user_id_is_valid_mongo_objectid()
     {
-        $user = User::factory()->create();
+        $user = User::create();
         $this->assertNotNull($user->id);
         $this->assertIsString($user->id);
         $this->assertMatchesRegularExpression('/^[0-9a-fA-F]{24}$/', $user->id);

@@ -11,22 +11,23 @@
                     <a class="nav-link {{ Request::routeIs('zones.*') ? 'active' : '' }}" href="{{ route('zones.index') }}">Mapa</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::routeIs('inventories.index') ? 'active' : '' }}" href="{{ route('inventories.index') }}">Inventario</a>
+                    <a class="nav-link {{ Request::routeIs('events.*') ? 'active' : '' }}" href="{{ route('events.index') }}">Eventos</a>
                 </li>
+                
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('buildings.*') ? 'active' : '' }}" href="{{ route('buildings.index') }}">Edificios</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::routeIs('users.ranking') ? 'active' : '' }}" href="{{ route('users.ranking') }}">Ranking</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::routeIs('materialTypes.*') ? 'active' : '' }}" href="{{ route('materialTypes.index') }}">Tipos de Materiales</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('inventionTypes.*') ? 'active' : '' }}" href="{{ route('inventionTypes.index') }}">Tipos de Inventos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::routeIs('events.*') ? 'active' : '' }}" href="{{ route('events.index') }}">Eventos</a>
+                    <a class="nav-link {{ Request::routeIs('materialTypes.*') ? 'active' : '' }}" href="{{ route('materialTypes.index') }}">Tipos de Materiales</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('users.ranking') ? 'active' : '' }}" href="{{ route('users.ranking') }}">Ranking</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('inventories.index') ? 'active' : '' }}" href="{{ route('inventories.index') }}">Inventario</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.show' , auth()->id()) }}">Mi perfil</a>
@@ -38,7 +39,7 @@
                     <!-- Si el usuario está autenticado -->
                 
                     <li class="nav-item">
-                    <a href="{{ route('logout') }}" class="btn btn-primary">Cierra sesión</a>
+                    <a href="{{ route('logout') }}" class="btn btn-primary">Cerrar sesión</a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                             @csrf
                         </form>

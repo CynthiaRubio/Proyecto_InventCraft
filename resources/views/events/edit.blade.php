@@ -4,35 +4,47 @@
 
 @section('content')
 <div class="container mt-5">
-    <h2 class="text-center mb-4">✏️ Editar Evento</h2>
+<h2 class="text-center mb-4" style="background: linear-gradient(to right,rgb(113, 241, 117), #81C784); color: white; padding: 10px; border-radius: 8px;">
+     ✏️ Editar Evento
+</h2>
 
-    <form action="{{ route('events.update', $event->_id) }}" method="POST">
-        @csrf
-        @method('PUT')
+    <div class="row justify-content-center">
+        
+        <div class="col-md-6">
+            <form action="{{ route('events.update', $event->_id) }}" method="POST">
+                @csrf
+                @method('PUT')
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Nombre del Evento:</label>
-            <input type="text" id="name" name="name" class="form-control" value="{{ $event->name }}" required>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre del Evento:</label>
+                    <input type="text" id="name" name="name" class="form-control" value="{{ $event->name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descripción:</label>
+                    <textarea id="description" name="description" class="form-control">{{ $event->description }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="zone_id" class="form-label">Zona:</label>
+                    <select id="zone_id" name="zone_id" class="form-control" required>
+                        @foreach($zones as $zone)
+                            <option value="{{ $zone->_id }}" {{ $event->zone_id == $zone->_id ? 'selected' : '' }}>
+                                {{ $zone->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Botones alineados uno debajo del otro -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-outline-primary btn-lg">✅ Guardar Cambios</button>
+                    <a href="{{ route('events.index') }}" class="btn btn-outline-secondary btn-lg">⬅️ Cancelar</a>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label for="description" class="form-label">Descripción:</label>
-            <textarea id="description" name="description" class="form-control">{{ $event->description }}</textarea>
-        </div>
-
-        <div class="mb-3">
-            <label for="zone_id" class="form-label">Zona:</label>
-            <select id="zone_id" name="zone_id" class="form-control" required>
-                @foreach($zones as $zone)
-                    <option value="{{ $zone->_id }}" {{ $event->zone_id == $zone->_id ? 'selected' : '' }}>
-                        {{ $zone->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">✅ Guardar Cambios</button>
-        <a href="{{ route('events.index') }}" class="btn btn-secondary">⬅️ Cancelar</a>
-    </form>
+    </div>
 </div>
+
+
 @endsection

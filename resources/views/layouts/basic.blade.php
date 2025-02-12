@@ -52,9 +52,13 @@
     <div class="alert alert-success">
         <ul>
             @foreach (session('data') as $resource)
-                @foreach ($resource as $name => $quantity)
-                    <li>Has recolectado {{$name}}: {{ $quantity }}</li>
-                @endforeach
+                @if(is_array($resource))
+                    @foreach ($resource as $name => $quantity)
+                        <li>Has recolectado {{$name}}: {{ $quantity }}</li>
+                    @endforeach
+                @else
+                <li>Has recolectado {{$resource}}</li>
+                @endif
             @endforeach
         </ul>
     </div>

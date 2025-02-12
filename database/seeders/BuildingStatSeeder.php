@@ -134,7 +134,7 @@ class BuildingStatSeeder extends Seeder
         $building_stat = new BuildingStat();
         $building_stat->building_id = $estacion_espacial->_id;
         $building_stat->stat_id = $estadistica_aleatoria->_id; 
-        $building_stat->value = 5;
+        $building_stat->value = 0;
         $building_stat->save();
     }
 }

@@ -4,7 +4,9 @@
 
 @section('content')
 
-<h2 class="text-center mb-5 text-black">{{ $materialType->name }}</h2>
+<h2 class="text-center mb-4 fw-bold p-3 rounded-3" style="background-color: #2196F3; color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+    {{$materialType->name}}
+</h2>
 
 <div class="container mt-5">
     <div class="row">

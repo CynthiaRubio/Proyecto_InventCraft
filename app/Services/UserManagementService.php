@@ -44,6 +44,7 @@ class UserManagementService
         $user_id = auth()->user()->id;
         $user_action_zone_id = Action::where('user_id', $user_id)
                                     ->where('action_type_id', $action_type_id)
+                                    ->where('finished' , true)
                                     ->latest('id')
                                     ->value('actionable_id');
 

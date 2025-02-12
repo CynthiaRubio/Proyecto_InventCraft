@@ -34,7 +34,6 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'password_confirm' => 'required',
         ]);
 
         /* Crear el usuario */
@@ -43,10 +42,10 @@ class AuthController extends Controller
             'email' => $validatedData['email'],
             'password' => bcrypt($validatedData['password']), // Hash::make($validatedData['password'])
             /* TODO Cambiar a 0 si da tiempo a revisar los cálculos en los que interviene */
-            'level' => 1,
+            'level' => 0,
             'experience' => 0,
             'unasigned_points' => 15,
-            'avatar' => null,
+            'avatar' => 0,
         ]);
 
         /* Crear el inventario del usuario */
@@ -84,7 +83,7 @@ class AuthController extends Controller
         }
 
         /* Redirige a la página de inicio confirmando el registro */
-        return redirect()->route('login')->with('success', "$user->name, te has registrado correctamente");
+        return redirect()->route('users.show')->with('success', "$user->name, te has registrado correctamente");
     }
 
 

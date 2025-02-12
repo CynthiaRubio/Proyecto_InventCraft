@@ -1,7 +1,7 @@
 <header class="bg-white py-3 d-flex align-items-center border-bottom shadow-sm">
     <!-- Logo -->
     <div class="ms-3">
-    <a href="{{route('inventories.index')}}"><img src="{{ asset('images/home/logo_min.png') }}" alt="Logo de InventCraft" class="img-fluid" style="max-height: 100px;"></a>
+    <a href="{{route('users.show')}}"><img src="{{ asset('images/home/logo_min.png') }}" alt="Logo de InventCraft" class="img-fluid" style="max-height: 100px;"></a>
     </div>
     <!-- Título -->
     <h1 class="m-0 ms-4 text-left flex-grow-1" style="font-family: 'Roboto', serif; font-weight: 600; font-style: italic; color: #444;">

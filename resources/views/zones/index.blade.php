@@ -4,8 +4,11 @@
 
 @section('content') <!-- Le pasamos el contenido a la plantilla -->
 
-    <h2 class="text-center mb-4 text-success">Mapa</h2>
-    <h3 class="text-center mb-4 text-secondary">Estas en la zona {{$zone->name}}</h3>
+    <h2 class="text-center mb-4 fw-bold p-3 rounded-3" style="background: linear-gradient(to right,rgb(58, 132, 60), #8BC34A); color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+        Mapa 
+    </h2>
+    
+    <h3 class="text-center mb-4 text-success">Estás en la zona {{$zone->name}}</h3>
 
 
     <div class="row g-3">

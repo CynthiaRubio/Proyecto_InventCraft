@@ -4,7 +4,7 @@
 
 @section('content')
 
-<h2 class="text-center mb-4" style="font-size: 3rem; font-weight: bold; color: #fff; background: linear-gradient(45deg, #ff6f61, #ff9a8b); border-radius: 8px; padding: 10px 20px; border: 3px solid #ff6f61;">
+<h2 class="text-center mb-4" style="font-size: 3rem; font-weight: bold; color: #fff; background: linear-gradient(45deg,rgb(217, 101, 90), #ff9a8b); border-radius: 8px; padding: 10px 20px; border: 3px solid #ff6f61;">
     {{ $building->name }}
 </h2>
 
@@ -24,7 +24,7 @@
                     <select id="inventions_{{ $type->id }}" name="inventions[{{ $type->id }}][]" multiple required class="form-select">
                         @if(isset($user_inventions_by_type[$type->id]))
                             @foreach($user_inventions_by_type[$type->id] as $invention)
-                                <option value="{{ $invention->id }}">{{ $invention->name }}</option>
+                                <option value="{{ $invention->id }}">{{ $invention->name}}: {{$invention->efficiency}}% de eficiencia</option>
                             @endforeach
                         @else
                             <option disabled>No tienes inventos de este tipo</option>
@@ -34,7 +34,7 @@
             @endforeach
 
             <div class="text-center mb-4">
-                <button type="submit" class="btn btn-warning btn-lg shadow-sm fw-bold">Crear Edificio</button>
+                <button type="submit" class="btn btn-danger btn-lg shadow-sm fw-bold text-white">Crear Edificio</button>
             </div>
         </form>
     </div>

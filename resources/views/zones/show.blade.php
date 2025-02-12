@@ -4,7 +4,10 @@
 
 @section('content') <!-- Le pasamos el contenido a la plantilla -->
 
-<h2 class="text-center mb-4">{{$zone->name}}</h2>
+<h2 class="text-center mb-4 fw-bold p-3 rounded-3" style="background: linear-gradient(to right,rgb(58, 132, 60), #8BC34A); color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
+    {{$zone->name}}
+</h2>
+
 <div class="container mt-5">
 
     <div class="row align-items-center">
@@ -61,6 +64,7 @@
                     </div>
 
                 </div>
+                
             </div>
             <br><br>
             <div class="text-center">
@@ -88,7 +92,7 @@
             <br>
 
             <div class="text-center">
-                <a href="{{ route('zones.index') }}" class="btn btn-primary">Regresar al mapa</a>
+                <a href="{{ route('zones.index') }}" class="btn btn-success">Regresar al mapa</a>
             </div>
         </div>
 

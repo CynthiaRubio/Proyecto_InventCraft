@@ -55,7 +55,7 @@ class InventoryController extends Controller
                                 ->where('invention_type_id', $id)
                                 ->with('inventionType')
                                 ->get();
-    
+
         return view('inventories.show' , compact('inventions' , 'user'));
     }
 

@@ -45,7 +45,7 @@ class CheckActionStatus
         if ($last_action !== null) {
 
             $time = $last_action->time->diffInSeconds($last_action->created_at);
-            $user_experience = $user->experience + (1 * ($user->level+1) * ($time / 30));
+            $user_experience = $user->experience + round(3 * ($user->level+1) * ($time / 30));
             $user->update(['experience' => $user_experience]);
 
             /* Recuperamos el tipo de acción que es */
@@ -54,14 +54,14 @@ class CheckActionStatus
             switch ($action_type->name) {
 
                 case 'Mover':
-                    session()->flash('success', "Has llegado a tu destino");
+                    session()->flash('success', "$user->name, has llegado a tu destino ¡Aumenta tu velocidad y serás más rápido en tus próximos trayectos!");
                     break;
 
                 case 'Construir':
                     ActionBuilding::where('action_id' , $last_action->_id)
                                     ->update(['available' => true]);
                     $user_stat = $this->building_service->updateUserStats($last_action->actionable_id);
-                    session()->flash('success', "Terminaste la construcción de tu edificio. ¡Tus habilidades han mejorado!");
+                    session()->flash('success', "$user->name, terminaste la construcción de tu edificio. ¡Tus habilidades han mejorado!");
                     break;
 
                 case 'Crear':
@@ -71,7 +71,7 @@ class CheckActionStatus
                             ->where('available', false)
                             ->update(['available' => true]);
                     
-                    session()->flash('success', "Has terminado la creación de tu invento.");
+                    session()->flash('success', "$user->name, has terminado la creación de tu invento gracias a tu ingenio.");
                     break;
 
                 case 'Recolectar':

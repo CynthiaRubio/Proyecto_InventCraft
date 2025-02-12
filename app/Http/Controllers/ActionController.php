@@ -31,6 +31,9 @@ class ActionController extends Controller
     public function moveZone(Request $request)
     {
         $moveTime = $this->zone_service->calculateMoveTime($request->zone_id);
+        
+        $moveTime = 8;
+
         $action = $this->action_service->createAction('Mover', $request->zone_id, 'Zone', $moveTime);
 
         if ($action) {
@@ -47,7 +50,8 @@ class ActionController extends Controller
      */
     public function farmZone(Request $request)
     {
-        $action = $this->action_service->createAction('Recolectar', $request->zone_id, 'Zone', $request->farmTime);
+        /* Harcodeamos el tiempo para el video */
+        $action = $this->action_service->createAction('Recolectar', $request->zone_id, 'Zone', 5);//$request->farmTime);
 
         if ($action) {
             $user = $this->user_service->getUser();
@@ -115,7 +119,8 @@ class ActionController extends Controller
 
         $constructTime = $this->building_service->getConstructTime($request->building_level);
 
-        $action = $this->action_service->createAction('Construir', $request->building_id, 'Building', $constructTime);
+        /* Harcodeamos el tiempo para el video */
+        $action = $this->action_service->createAction('Construir', $request->building_id, 'Building', 10);//$constructTime);
 
         /* Ahora se crea el edificio aunque no esté disponible y se borran los inventos usados para ello */
 
@@ -197,7 +202,8 @@ class ActionController extends Controller
         $new_invention = $this->invention_service->createInvention($request->invention_type_id, $request->material_id, $request->time);
 
         /* Se realiza la acción de crear invento */
-        $action = $this->action_service->createAction('Crear', $new_invention->id, 'Invention', $request->time);
+        /* Harcodeamos el tiempo para el video */
+        $action = $this->action_service->createAction('Crear', $new_invention->id, 'Invention', 5);//$request->time);
 
         /* Se eliminan los recursos utilizados para la creación del invento */
         $this->resource_service->decrementMaterial($request->material_id);
