@@ -113,9 +113,10 @@ Cada edificio aumentará las estadísticas del jugador:
 - Granja: Vitalidad e Ingenio en 1 punto
 - Planta de Energía: Ingenio y Velocidad en 1 punto
 - Fundición de Metales: Vitalidad y Suerte en 1 punto
-- Taller de Cerámica: Ingenio y Surte en 1 punto
-- Fábrica de Textiles: Suerte y Vitalidad en 1 punto
-- Sistema de Acueductos: Aumentará una estadística calculada de forma aleatoria en 5 puntos. En estos momentos aumenta 0 puntos dado que no está limitada su construcción a la condición de que se posean todos los demás edificios con una eficiencia del 100%.
+- Taller de Cerámica: Ingenio y Suerte en 1 punto
+- Fábrica de Textiles: Suerte y Velocidad en 1 punto
+- Sistema de Acueductos: Suerte y Vitalidad en 1 punto
+- Estación espacial: Aumentará una estadística calculada de forma aleatoria en 5 puntos. En estos momentos aumenta 0 puntos dado que no está limitada su construcción a la condición de que se posean todos los demás edificios con una eficiencia del 100%.
 
 
 ## Recursos
