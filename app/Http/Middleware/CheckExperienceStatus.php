@@ -21,9 +21,10 @@ class CheckExperienceStatus
         /* Comprobamos la experiencia del jugador */
         $user = auth()->user();
 
+        $experience_by_level = ($user->level + 1) * 100;
         /* Si es superior a 100, restamos 100 puntos, aumentamos en 1 el nivel y le asignamos 15 puntos */
-        if($user->experience >= 100){
-            $new_experience = $user->experience - 100;
+        if($user->experience >= $experience_by_level){
+            $new_experience = $user->experience - $experience_by_level;
             $new_level = $user->level + 1;
             $new_unasigned_points = $user->unasigned_points + 15;
             $user->update([

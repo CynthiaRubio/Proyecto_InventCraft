@@ -69,7 +69,7 @@ class InventionService
                 ($this->user_service->getUserStat('Ingenio') / 10) +
                 ($time / 30);
 
-        return $efficiency;
+        return min($efficiency, 100);
     }
 
     /**
@@ -107,21 +107,4 @@ class InventionService
         }
     }
 
-    /**
-     * Función para eliminar el material usado en la creación de inventos
-     *
-     * @param $material_id
-     */
-    public function decrementMaterial()
-    {
-
-        if ($inventoryMaterial->quantity > 1) {
-            $inventoryMaterial->decrement('quantity', 1);
-            $inventoryMaterial->refresh(); // Recargar el modelo desde la base de datos
-        }
-
-        if ($inventoryMaterial->quantity <= 1) {
-            $inventoryMaterial->delete();
-        }
-    }
 }

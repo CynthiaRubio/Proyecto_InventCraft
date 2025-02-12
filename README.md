@@ -74,5 +74,9 @@ Variaciones de la wiki:
   - Acción de mover
   - Acción de crear invento 
   - Acción de construir edificio
-- Se sube de nivel por cada 10 puntos.
+- Se sube de nivel por cada 100 puntos de experiencia.
 - En todos los tiempos se ven minutos en las vistas pero son segundos.
+- El UserSeeder y el InventorySeeder no debería estar pero así creamos un usuario con datos conocidos y nos aseguramos que todos los usuarios tienen inventario
+- UserStat creado para asignar estadísticas a los usuarios creados. Esto no hace falta para el juego porque este proceso se hace cuando el usuario se registra.
+- Al realizar la acción de crear invento se crea primero el invento ya que la acción necesita el id del invento creado en el actionable_id. Para evitarlo, podria crearse la acción primero dando el id del tipo de invento como actionable_id y, cuando la acción finalice crear el invento y actualizar el actionable_id con el id del invento creado.
+- No está implementado que la estación espacial no se pueda crear hasta que el resto de edificios esten creados con una eficiencia del 100% o un nivel establecido.

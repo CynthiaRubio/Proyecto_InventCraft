@@ -14,6 +14,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\EventController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,7 @@ Route::middleware(['guest'])->group(function () {
 
 /* Rutas permitidas para usuarios que se hayan autenticado */
 Route::middleware(['auth' , 'check.actions' , 'check.experience'])->group(function () {
+    
     //Ruta para cerrar sesión
     Route::get('/logout', [AuthController::class , 'logout'])->name('logout');//->middleware('auth');
 
@@ -63,10 +65,13 @@ Route::middleware(['auth' , 'check.actions' , 'check.experience'])->group(functi
      Route::post('buildings/construct', [ActionController::class, 'storeBuilding'])->name('storeBuilding');
 
     //Ruta que carga la vista de crear invento pasándole el tipo de invento
-    Route::get('inventions/create/{invention_type}', [InventionController::class, 'create'])->name('inventions.create.withType');
+    //Route::get('inventions/create/{invention_type}', [InventionController::class, 'create'])->name('inventions.create.withType');
 
     //Ruta que carga la vista de crear invento pasándole el tipo de invento
-    //Route::get('inventions/create/{invention_type}', [ActionController::class, 'createInvention'])->name('createInvention');
+    Route::get('inventions/create/{invention_type}', [ActionController::class, 'createInvention'])->name('createInvention');
+
+    //Ruta para construir un edificio
+    Route::post('inventions/construct', [ActionController::class, 'storeInvention'])->name('storeInvention');
 
     //Ruta que carga el ranking de los usuarios
     Route::get('/users/ranking', [UserController::class, 'ranking'])->name('users.ranking');
@@ -102,53 +107,6 @@ Route::middleware(['auth' , 'check.actions' , 'check.experience'])->group(functi
             'buildings' => BuildingController::class,
             'actionBuildings' => ActionBuildingController::class,
             'inventories' => InventoryController::class,
-            //'users' => UserController::class,
-            // 'stats' => StatController::class,
-            // 'actions' => ActionController::class,
-            // 'actionTypes' => ActionType::class,
+            'events' => EventController::class,
         ]);
 });
-
-
-
-//Route::get('/buildings/{name}', [BuildingController::class , 'create']);
-
-// Route::resource('/materialTypes', MaterialTypeController::class); /* De esta forma usa todos los CRUD */
-// Route::get('/materialTypes', [MaterialTypeController::class, 'index']);
-// Route::get('/materialTypes/{id}', [MaterialTypeController::class, 'show']);//->name('materialTypes.show');
-
-
-/*
-Route::get('/', function () {
-    return view('welcome');
-});
-*/
-
-// Route::get('/', [BuildingController::class, 'index']);
-
-// // Rutas adicionales para estadísticas de building
-// Route::get('buildings/{building}/stats/select', [BuildingController::class, 'selectStat'])->name('buildings.selectStat');
-// Route::post('buildings/{building}/stats', [BuildingController::class, 'addStat'])->name('buildings.addStat');
-// Route::get('buildings/{building}/stats/{stat}/edit', [BuildingController::class, 'editStat'])->name('buildings.editStat');
-// Route::put('buildings/{building}/stats/{stat}', [BuildingController::class, 'updateStat'])->name('buildings.updateStat');
-// Route::delete('buildings/{building}/stats/{stat}', [BuildingController::class, 'removeStat'])->name('buildings.removeStat');
-
-// // Rutas adicionales para estadísticas de invention
-// Route::get('inventions/{invention}/stats/select', [InventionController::class, 'selectStat'])->name('inventions.selectStat');
-// Route::post('inventions/{invention}/stats', [InventionController::class, 'addStat'])->name('inventions.addStat');
-// Route::get('inventions/{invention}/stats/{stat}/edit', [InventionController::class, 'editStat'])->name('inventions.editStat');
-// Route::put('inventions/{invention}/stats/{stat}', [InventionController::class, 'updateStat'])->name('inventions.updateStat');
-// Route::delete('inventions/{invention}/stats/{stat}', [InventionController::class, 'removeStat'])->name('inventions.removeStat');
-
-// // Rutas adicionales para estadísticas de user
-// Route::get('users/{user}/stats/select', [UserController::class, 'selectStat'])->name('users.selectStat');
-// Route::post('users/{user}/stats', [UserController::class, 'addStat'])->name('users.addStat');
-// Route::get('users/{user}/stats/{stat}/edit', [UserController::class, 'editStat'])->name('users.editStat');
-// Route::put('users/{user}/stats/{stat}', [UserController::class, 'updateStat'])->name('users.updateStat');
-// Route::delete('users/{user}/stats/{stat}', [UserController::class, 'removeStat'])->name('users.removeStat');
-
-// Route::resources([
-//     'buildings' => BuildingController::class,
-//     'users' => UserController::class,
-//     'inventions' => InventionController::class,
-// ]);

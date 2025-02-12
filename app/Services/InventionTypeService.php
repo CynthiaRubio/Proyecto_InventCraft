@@ -25,13 +25,27 @@ class InventionTypeService
         return $invention_type;
     }
 
-
     /**
      * Determina el tipo de inventos necesarios para el id de un tipo de inventos
      *
      * @param $invention_type_id: Id del tipo de inventos padre
      */
     public function getInventionsNeeded(string $invention_type_id)
+    {
+        $invention_types_needed = InventionTypeInventionType::where('invention_type_id', $invention_type_id)
+                    ->with('inventionTypeNeed')->get();
+
+        return $invention_types_needed;
+
+    }
+
+
+    /**
+     * Determina el tipo de inventos necesarios para el id de un tipo de inventos
+     *
+     * @param $invention_type_id: Id del tipo de inventos padre
+     */
+    public function beforeGetInventionsNeeded(string $invention_type_id)
     {
         $required_inventions = [];
 

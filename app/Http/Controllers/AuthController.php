@@ -41,7 +41,8 @@ class AuthController extends Controller
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => bcrypt($validatedData['password']), // Hash::make($validatedData['password'])
-            'level' => 0,
+            /* TODO Cambiar a 0 si da tiempo a revisar los cálculos en los que interviene */
+            'level' => 1,
             'experience' => 0,
             'unasigned_points' => 15,
             'avatar' => null,
@@ -50,6 +51,25 @@ class AuthController extends Controller
         /* Crear el inventario del usuario */
         Inventory::create([
             'user_id' => $user->_id,
+        ]);
+
+        /* Asignar zona de inicio aleatoria para el jugador creando una acción de mover */
+        $zones = Zone::all();
+        $zone = $zones->random();
+
+        /* Se crea la primera acción de mover para situarlo en la zona aleatoria */
+        $action_type_id = ActionType::where('name', 'Mover')->first()->id;
+        $actionable_type = "App\Models\Zone";
+
+        $action = Action::create([
+            'user_id' => $user->_id,
+            'action_type_id' => $action_type_id,
+            'actionable_id' => $zone->_id,
+            'actionable_type' => $actionable_type,
+            'time' =>  now()->addSeconds(0),
+            'finished' => true,
+            'notification' => false,
+            'updated' => true,
         ]);
 
         /* Creamos las estadísticas del usuario */
@@ -93,29 +113,6 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
 
             $user = auth()->user();
-
-            /* Y el usuario no tiene ninguna accion de mover -> no está en ninguna zona */
-            if ($this->action_service->getLastActionableByType('Mover')) {
-                /* Asignar zona de inicio aleatoria para el jugador creando una acción de mover */
-                $zones = Zone::all();
-                $zone = $zones->random();
-
-                /* Se crea la primera acción de mover para situarlo en la zona aleatoria */
-                $action_type_id = ActionType::where('name', 'Mover')->first()->id;
-                $actionable_type = "App\Models\Zone";
-
-                $action = Action::create([
-                    'user_id' => $user->_id,
-                    'action_type_id' => $action_type_id,
-                    'actionable_id' => $zone->_id,
-                    'actionable_type' => $actionable_type,
-                    'time' =>  now()->addSeconds(0),
-                    'finished' => true,
-                    'notification' => false,
-                    'updated' => true,
-                ]);
-            }
-
             return redirect()->route('users.show')->with('success', "$user->name has iniciado sessión correctamente");
         }
 

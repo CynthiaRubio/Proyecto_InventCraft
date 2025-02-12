@@ -8,28 +8,25 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/zones">Mapa</a>
+                    <a class="nav-link {{ Request::routeIs('zones.*') ? 'active' : '' }}" href="{{ route('zones.index') }}">Mapa</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ Request::routeIs('inventories.index') ? 'active' : '' }}" href="{{ route('inventories.index') }}">Inventario</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/buildings">Edificios</a>
+                    <a class="nav-link {{ Request::routeIs('buildings.*') ? 'active' : '' }}" href="{{ route('buildings.index') }}">Edificios</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('users.ranking') }}">Ranking</a>
+                    <a class="nav-link {{ Request::routeIs('users.ranking') ? 'active' : '' }}" href="{{ route('users.ranking') }}">Ranking</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/materialTypes">Tipos de Materiales</a>
+                    <a class="nav-link {{ Request::routeIs('materialTypes.*') ? 'active' : '' }}" href="{{ route('materialTypes.index') }}">Tipos de Materiales</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/inventionTypes">Tipos de Inventos</a>
+                    <a class="nav-link {{ Request::routeIs('inventionTypes.*') ? 'active' : '' }}" href="{{ route('inventionTypes.index') }}">Tipos de Inventos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/materials">Materiales</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('users.show') }}">Usuario</a>
+                    <a class="nav-link {{ Request::routeIs('events.*') ? 'active' : '' }}" href="{{ route('events.index') }}">Events</a>
                 </li>
             </ul>
 

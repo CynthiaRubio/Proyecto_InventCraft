@@ -11,7 +11,6 @@ use App\Models\ActionType;
 use App\Models\Inventory;
 use App\Models\InventoryMaterial;
 
-
 class UserManagementService
 {
     /**
@@ -57,7 +56,7 @@ class UserManagementService
     public function getUserInventory()
     {
         $user = auth()->user();
-        
+
         $inventory = Inventory::where('user_id', $user->id)->first();
         return $inventory;
     }
@@ -69,8 +68,12 @@ class UserManagementService
     {
         $user = auth()->user();
 
-        $inventory_with_relations = Inventory::where('user_id', $user->id)
+        $inventory_with_relations = Inventory::where('user_id', $user->_id)
                         ->with(['materials.material' , 'inventions'])->first();
+
+        $inventory = Inventory::where('user_id', $user->id)
+        ->with(['materials.material', 'inventions'])
+        ->first();
 
         return $inventory_with_relations;
     }

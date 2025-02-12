@@ -16,6 +16,7 @@ use App\Models\Resource;
 use App\Models\InventoryMaterial;
 use App\Models\Event;
 use App\Models\MaterialType;
+use App\Models\InventionType;
 
 class ResourceManagementService
 {
@@ -75,25 +76,27 @@ class ResourceManagementService
     {
 
         $result_materials = [];
+        
 
         foreach ($zone->materials as $material) {
-
+            
             $probability = $this->calculateMaterialProbability($material->efficiency, $suerte_user, $time);
 
             if ($probability) {
 
                 $quantity = round($this->calculateMaterialQuantity($material->efficiency) * $multiplier);
-
+                
                 if ($quantity > 0) {
-                    $result_materials[] = [
+                    array_push( $result_materials, [
                         'type' => 'Material',
                         'id' => $material->_id,
                         'quantity' => $quantity,
-                    ];
+                    ] );
+                    
                 }
             }
         }
-
+        
         return $result_materials;
     }
 
@@ -105,7 +108,7 @@ class ResourceManagementService
     {
         $probabilidad = min((50 - $efficiency + $suerte_user + ($time / 30)), 100);
 
-        if ($probabilidad >= rand(0, 100)) {
+        if ($probabilidad >= rand(0, 70)) {
             return true;
         } else {
             return false;
@@ -141,11 +144,11 @@ class ResourceManagementService
             $material_id = $materials->random()->id;
 
             $invention_created_id = $this->invention_service->createInvention($invention_type->id, $material_id, 0)->id;
-            $inventions[] = [
+            array_push( $inventions,  [
                 'type' => 'Invention',
                 'id' => $invention_created_id,
                 'quantity' => 1,
-            ];
+            ] );
         }
 
         return $inventions;
@@ -179,6 +182,7 @@ class ResourceManagementService
     {
 
         foreach ($results as $resource) {
+
             if ($resource['type'] === 'Material') {
                 $resourceable_type = 'App\Models\Material';
                 $this->saveMaterials($resource);
@@ -189,13 +193,14 @@ class ResourceManagementService
                 continue;
             }
 
-            Resource::create([
+            $resource_created = Resource::create([
                 'action_zone_id' => $action_zone->_id,
                 'resourceable_id' => $resource['id'],
                 'resourceable_type' => $resourceable_type,
                 'quantity' => $resource['quantity'],
                 'available' => false,
             ]);
+
         }
 
     }
@@ -217,8 +222,10 @@ class ResourceManagementService
 
         /* Si existe se añade la cantidad no disponible */
         if ($inventoryMaterial) {
-            $inventoryMaterial->increment('quantity_na', $resource['quantity']);
+
+            $inventoryMaterial->update(['quantity_na' => $resource['quantity']]);
             $save = true;
+
             /* Sino, se crea en el inventario pero sin poder disponer de la cantidad */
         } else {
             InventoryMaterial::create([
@@ -229,6 +236,7 @@ class ResourceManagementService
             ]);
             $save = true;
         }
+
         return $save;
     }
 
@@ -237,43 +245,45 @@ class ResourceManagementService
      */
     public function updateResources($action)
     {
-        $inventory_id = $this->user_service->getUserInventory()->id;
 
-        $action_zone = $this->action_service->getActionZone($action);
+                $inventory_id = $this->user_service->getUserInventory()->id;
 
-        $results = $this->recolectResourcesNoAvailables($action_zone);
+                $action_zone = $this->action_service->getActionZone($action);
 
-        if (count($results) > 0) {
+                $results = $this->recolectResourcesNoAvailables($action_zone);
 
-            $farm_result = [];
+                if (count($results) > 0) {
 
-            foreach ($results as $result) {
+                    $farm_result = [];
 
-                if ($result->resourceable_type === 'App\Models\Material') {
+                    foreach ($results as $result) {
+                        if ($result->resourceable_type === 'App\Models\Material') {
 
-                    $material = InventoryMaterial::where('inventory_id', $inventory_id)
-                        ->where('material_id', $result->resourceable_id)
-                        ->first();
+                            $material = InventoryMaterial::where('inventory_id', $inventory_id)
+                                ->where('material_id', $result->resourceable_id)
+                                ->first();
+                            $quantity = $material->quantity + $material->quantity_na;
 
-                    $quantity = $material->quantity + $material->quantity_na;
+                            $material_details = Material::where('id', $material->material_id)->first();
 
-                    $material_name = Material::where('id', $material->material_id)->first()->value('name');
+                            array_push($farm_result, [$material_details->name => $material->quantity_na]);
 
-                    $farm_result[] = [$material_name => $material->quantity_na];
+                            $material->update(['quantity' => $quantity , 'quantity_na' => 0]);
+    
+                        } elseif ($result->resourceable_type === 'App\Models\Invention') {
+                            $invention = Invention::where('id', $result->resourceable_id)->first();
+                            $invention->update(['available' => true]);
+                            array_push($farm_result, [$invention->name => 1]);
+                        }
 
-                    $material->update(['quantity' => $quantity , 'quantity_na' => 0]);
+                    }
 
-                } elseif ($result->resourceable_type === 'App\Models\Invention') {
-                    $invention = Invention::where('id', $result->resourceable_id)->first();
-                    $invention->update(['available' => true]);
-                    $farm_result[] = ['Invento' => $invention->name];
+                } else {
+                    $farm_result = "Ohhh no has encontrado nada en esta exploración";
                 }
-            }
 
-        } else {
-            $farm_result = "Ohhh no has encontrado nada en esta exploración";
-        }
-        return $farm_result;
+                $this->updateResourcesNoAvailables($action_zone);
+                return $farm_result;
     }
 
     /**
@@ -281,52 +291,50 @@ class ResourceManagementService
      */
     public function recolectResourcesNoAvailables($action_zone)
     {
+            $results = Resource::where('action_zone_id', $action_zone->_id)
+                        ->where('available', false)->get();
+  
+            return $results;
+    }
 
-        $results = Resource::where('action_zone_id', $action_zone->_id)
-                    ->where('available', false)->get();
-
-        return $results;
+    public function updateResourcesNoAvailables($action_zone)
+    {
+        Resource::where('action_zone_id', $action_zone->_id)
+                    ->where('available', false)->update(['available' => true]);
     }
 
     /**
      * Obtiene los inventos del inventario del jugador agrupados por tipo
      */
-    public function getInventionsByType()
+    public function getUserInventionsByType()
     {
-
         $inventory_user = $this->user_service->getUserInventoryWithRelations();
-        //dd($inventory_user);
-        $inventions_by_type = $inventory_user->inventions->groupBy('invention_type_id');
-//dd($inventions_by_type);
-        return $inventions_by_type;
+
+        $user_inventions_by_type = $inventory_user->inventions->groupBy('invention_type_id');
+
+        return $user_inventions_by_type;
     }
 
     /**
      * Comprueba que el jugador posee los inventos necesarios para construir un edificio
      */
-    public function checkInventionsToConstruct($inventionTypes_needed, $num_needed)
+    public function checkInventionsToConstruct($invention_types_needed, $num_needed, $user_inventions_by_type)
     {
 
-        $user_inventions_by_type = $this->getInventionsByType();
-
-        foreach ($inventionTypes_needed as $type) {
+        foreach ($invention_types_needed as $type) {
             if (!isset($user_inventions_by_type[$type->id]) || count($user_inventions_by_type[$type->id]) < $num_needed) {
                 return redirect()->back()
                     ->with('error', "No tienes suficientes inventos de tipo {$type->name}. Se requieren {$num_needed}.");
             }
         }
-
         return true;
     }
 
     /**
      * Comprueba que el jugador posee los inventos necesarios para crear un invento
      */
-    public function checkInventionsToCreate($inventionTypes_needed)
+    public function checkInventionsToCreate($inventionTypes_needed, $user_inventions_by_type)
     {
-
-        $user_inventions_by_type = $this->getInventionsByType();
-
         foreach ($inventionTypes_needed as $type) {
             if (!isset($user_inventions_by_type[$type->invention_type_need_id]) || count($user_inventions_by_type[$type->invention_type_need_id]) < $type->quantity) {
                 return redirect()->back()
@@ -338,19 +346,49 @@ class ResourceManagementService
     }
 
     /**
+     * Obtiene los materiales del inventario del jugador
+     */
+    public function getUserMaterialsByType($material_type_id)
+    {
+
+        $inventory_user = $this->user_service->getUserInventoryWithRelations();
+        /* TODO Revisar que el ->get() añadido no supone un problema */
+        $materials_user = $inventory_user->materials->where('material.material_type_id', $material_type_id);
+        return $materials_user;
+    }
+
+    /**
      * Comprueba que el jugador posee los materiales necesarios para crear un invento
      */
-    public function checkMaterials($material_type_id , $name)
+    public function checkMaterials($user_materials, $name)
     {
-        $inventory_user = $this->user_service->getUserInventoryWithRelations();
-        $materials_user = $inventory_user->materials->where('material_type_id', $material_type_id)->get();
-dd($materials_user);
-        if ($materials_user->isEmpty()) {
+        if (! $user_materials) {
             return redirect()->back()
                 ->with('error', "No tienes materiales de tipo {$name}");
         }
 
-        return $materials_user;
+        return true;
+    }
+
+
+    /**
+     * Reduce la cantidad que hay en el inventario del material utilizado en la creación de inventos 
+     */
+    public function decrementMaterial($material_id)
+    {
+
+        $inventory = $this->user_service->getUserInventory();
+        $material = InventoryMaterial::where('inventory_id', $inventory->_id)
+            ->where('material_id', $material_id)->first();
+
+        if ($material->quantity > 1) {
+            $new_quantity = $material->quantity - 1;
+            $material->update(['quantity' => $new_quantity]);
+        } else {
+            $material->delete();
+        }
+
+        return true;
     }
 
 

@@ -8,26 +8,27 @@
     {{ $building->name }}
 </h2>
 
-
-
 <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-5"> <!-- Hacemos la columna del formulario más estrecha (col-md-5) -->
         <form action="{{ route('storeBuilding') }}" method="POST">
             @csrf
             <input type="hidden" value="{{ $building->id }}" name="building_id">
             <input type="hidden" value="{{ $building_next_level }}" name="building_level">
             
-            @foreach($building->inventionTypes as $type)
+            @foreach($invention_types_needed as $type)
                 <div class="mb-3">
-                    <label for="{{ $type->id }}" class="form-label fw-bold">
-                        Selecciona {{ $building_next_level }} invento de tipo {{ $type->name }}
-                    </label>
-                    <select id="{{ $type->id }}" name="inventions[{{ $type->id }}][]" class="form-select" required multiple>
-                        @foreach($user_inventions_by_type[$type->_id] as $invention)
-                            <option value="{{ $invention->_id }}">
-                                {{ $invention->name }}: Tiene {{ $invention->efficiency }} puntos de eficiencia
-                            </option>
-                        @endforeach
+                    <label for="inventions{{ $type->id }}" class="form-label">
+                        Selecciona {{ $building_next_level }} invento(s) de tipo {{ $type->name }}
+                    </label><br>
+
+                    <select id="inventions_{{ $type->id }}" name="inventions[{{ $type->id }}][]" multiple required class="form-select">
+                        @if(isset($user_inventions_by_type[$type->id]))
+                            @foreach($user_inventions_by_type[$type->id] as $invention)
+                                <option value="{{ $invention->id }}">{{ $invention->name }}</option>
+                            @endforeach
+                        @else
+                            <option disabled>No tienes inventos de este tipo</option>
+                        @endif
                     </select>
                 </div>
             @endforeach
@@ -38,7 +39,7 @@
         </form>
     </div>
 
-    <div class="col-md-6 d-flex justify-content-center align-items-center">
+    <div class="col-md-6 d-flex justify-content-center align-items-center"> 
         <div class="text-center">
             <img src="{{ asset('images/buildings/' . $building->name . '.webp') }}" alt="Imagen de {{ $building->name }}" 
                 class="img-fluid rounded shadow" style="max-height: 600px; object-fit: contain;">
@@ -51,7 +52,6 @@
         Volver al listado de edificios
     </a>
 </div>
-
 
 @endsection
 

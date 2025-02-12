@@ -10,10 +10,6 @@
 <body>
     @include('partials.header') <!-- Con esto incluimos el header de la carpeta partials -->
 
-    <!-- @if( @yield('nav') )
-        @include('partials.nav')
-    @endif -->
-
     @yield(section('nav')) <!-- Si desde las hijas llaman a esta sección, la recuperará de partials.nav -->
     
     <div class="container mt-5">

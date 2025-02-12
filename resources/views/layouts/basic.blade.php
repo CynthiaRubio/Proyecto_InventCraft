@@ -47,12 +47,12 @@
         </div>
     </div>
     @endif
-
-    @if(session('data_resource'))
+    
+    @if(session('data'))
     <div class="alert alert-success">
         <ul>
-            @foreach (session('data_resource') as $resource)
-                @foreach($resource as $name => $quantity)
+            @foreach (session('data') as $resource)
+                @foreach ($resource as $name => $quantity)
                     <li>Has recolectado {{$name}}: {{ $quantity }}</li>
                 @endforeach
             @endforeach

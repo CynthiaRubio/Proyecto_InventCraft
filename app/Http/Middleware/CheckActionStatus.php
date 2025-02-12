@@ -16,12 +16,14 @@ use App\Models\InventoryMaterial;
 use App\Models\Resource;
 
 use App\Services\ResourceManagementService;
+use App\Services\BuildingManagementService;
 
 
 class CheckActionStatus
 {
     public function __construct(
         private ResourceManagementService $resource_service,
+        private BuildingManagementService $building_service,
     ) {
     }
 
@@ -40,16 +42,10 @@ class CheckActionStatus
                         ->where('time', '<=', now())
                         ->first();
 
-        if ($last_action != null) {
+        if ($last_action !== null) {
 
-            /* Asignamos los puntos de experiencia */
-            if($user->level === 0){
-                $user_level = 1;
-            } else {
-                $user_level = $user->level;
-            }
             $time = $last_action->time->diffInSeconds($last_action->created_at);
-            $user_experience = $user->experience + (5 * $user_level * ($time / 30));
+            $user_experience = $user->experience + (1 * ($user->level+1) * ($time / 30));
             $user->update(['experience' => $user_experience]);
 
             /* Recuperamos el tipo de acción que es */
@@ -62,10 +58,10 @@ class CheckActionStatus
                     break;
 
                 case 'Construir':
-                    $last_action_building = ActionBuilding::where('action_id' , $last_action->_id)
+                    ActionBuilding::where('action_id' , $last_action->_id)
                                     ->update(['available' => true]);
-                    
-                    session()->flash('success', "Terminaste la construcción de tu edificio");
+                    $user_stat = $this->building_service->updateUserStats($last_action->actionable_id);
+                    session()->flash('success', "Terminaste la construcción de tu edificio. ¡Tus habilidades han mejorado!");
                     break;
 
                 case 'Crear':
@@ -74,14 +70,19 @@ class CheckActionStatus
                     $invention = Invention::where('inventory_id', $inventory_id)
                             ->where('available', false)
                             ->update(['available' => true]);
-
+                    /* TODO Revisar porque este mensaje no está saliendo por pantalla */
                     session()->flash('data_invention', $invention);
                     break;
 
                 case 'Recolectar':
+
                     $results = $this->resource_service->updateResources($last_action);
+                    
                     /* TODO Falta sacar por pantalla la información sobre el evento ocurrido */
-                    session()->flash('data_resource', $results);
+                    if(! is_array($results)){
+                         $results = [$results];
+                    }
+                    session()->flash('data', $results);
                     break;
             }
 

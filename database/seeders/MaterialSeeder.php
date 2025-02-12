@@ -19,24 +19,5 @@ class MaterialSeeder extends Seeder
             Material::create($material);
         }
 
-        /*
-        foreach ($materials as $key => $material) {
-
-            $materialType = MaterialType::where('name', $material['category'])->first();
-            $materialTypeId = $materialType->_id;
-
-            $zones = Zone::all();
-            $zone = $zones->random();
-            $zoneId = $zone->_id;
-
-            Material::create([
-                'material_type_id' => $materialTypeId,
-                'zone_id' => $zoneId,
-                'name' => $material['name'],
-                'description' => $material['description'],
-                'efficiency' => rand(1, 50),
-            ]);
-        }
-        */
     }
 }

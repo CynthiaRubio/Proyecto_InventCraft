@@ -8,6 +8,7 @@ use App\Models\Building;
 use App\Models\BuildingStat;
 use App\Models\Stat;
 use App\Models\Invention;
+use App\Models\UserStat;
 
 
 class BuildingManagementService
@@ -61,7 +62,9 @@ class BuildingManagementService
 
         if($action_id){
             $action_building = ActionBuilding::where('action_id', $action_id)->where('building_id', $building_id)->first();
-            return round($action_building->efficiency , 2);
+            if($action_building){
+                return round($action_building->efficiency , 2);
+            }
         } else {
             return 0;
         }   
@@ -75,11 +78,7 @@ class BuildingManagementService
 
         $user = $this->user_service->getUser();
 
-        if($user->level === 0){
-            $user->level = 1;
-        }
-
-        $constructTime = (600 / $user->level) * $building_level; 
+        $constructTime = (600 / ($user->level + 1) ) * $building_level; 
 
         return $constructTime;
     }
@@ -117,7 +116,49 @@ class BuildingManagementService
             $efficiency += $actual_efficiency;
         }
 
-        return round($efficiency , 2);
+        return min($efficiency , 100);
+    }
+
+
+    /**
+     * Actualiza la estadística correspondiente tras crear un edificio
+     */
+    public function updateUserStats($building_id){
+
+        $user = $this->user_service->getUser();
+
+        $building_stats = $this->getBuildingStats($building_id);
+
+        foreach($building_stats as $stat){
+
+            $details_stat = Stat::where('name', $stat['name'])->first();
+            $user_stat = UserStat::where('user_id', $user->_id)->where('stat_id', $details_stat->_id)->first();
+            $new_value = $user_stat->value + $stat['value'];
+            $user_stat->update(['value' => $new_value]);
+        }
+
+        return $building_stats;
+    }
+
+    /**
+     * Recupera las estadísticas asociadas al edificio
+     */
+    public function getBuildingStats($building_id)
+    {
+        $building_stats = BuildingStat::where('building_id', $building_id)->get();
+
+        $stats = [];
+
+        foreach ($building_stats as $stat) {
+            $stat_value = $stat->value;
+
+            $stats[] = [
+                'name' => $stat->stat->name,
+                'value' => $stat_value,
+            ];
+        }
+
+        return $stats;
     }
     
 }

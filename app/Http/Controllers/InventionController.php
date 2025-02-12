@@ -57,24 +57,30 @@ class InventionController extends Controller
          $inventory = Inventory::where('user_id', $user->_id)
          ->with(['materials.material', 'inventions'])
          ->first();
+
         //tipo de invento que vamos a crear. Pongo el with para poder sacar el tipo de material necesario
+        //Hecho
         $invention_type = InventionType::with('materialType')->findOrFail($id);
 
         //tipos de invento que necesitamos para crearlo(y cantidad de cada tipo de invento). Pongo el with para poder sacar el nombre del tipo de invento
+        //Hecho
         $invention_types_needed = InventionTypeInventionType::where('invention_type_id', $id)->with('inventionTypeNeed')->get();
 
         // Materiales e inventos del usuario del tipo necesario (la primera linea es la buena, la comento porque de momento no hay materiales en inventario)
+        //Hecho
         $user_materials = $inventory->materials->where('material.material_type_id', $invention_type->material_type_id);
         // $user_materials = Material::all();
+        //hecho
         $user_invention_by_type = $inventory->inventions->groupBy('invention_type_id');
 
-
         //Validamos si tiene materiales del tipo necesario. Lo dejo comentado porque de momento no tenemos materiales, pero funciona bien
+        //hecho
         if ($user_materials->isEmpty()) {
             return redirect()->route('inventionTypes.index')->with('error', 'No tienes materiales de tipo '.$invention_type->materialType->name.' para crear este invento.');
         }
 
         //Validamos si tiene la cantidad necesaria de cada tipo de inventos
+        //hecho
         foreach ($invention_types_needed as $needed) {
             // Si no tiene ningun invento de ese tipo
             if (!isset($user_invention_by_type[$needed->invention_type_need_id])) {
@@ -145,6 +151,7 @@ class InventionController extends Controller
         $inventory = Inventory::where('user_id', $user->_id)->first();
 
         /* Establecemos las reglas de los datos de material del formulario */
+        //Hecho
         $rules = [
             'material_id' => 'required|exists:materials,id',
         ];
@@ -153,6 +160,7 @@ class InventionController extends Controller
         $validated = $request->validate($rules, [
             'material.required' => 'Debes seleccionar un material',
         ]);
+        
 
         //tipo de invetno y tipos de inventos necesarios
         $invention_type_id = $request->input('invention_type_id');
@@ -168,7 +176,7 @@ class InventionController extends Controller
             }
         }
 
-
+//Hasta aqui
         $material_id = $request->input('material_id');
         
         //Crear invento

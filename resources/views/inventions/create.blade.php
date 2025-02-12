@@ -6,7 +6,7 @@
 
 <h2 class="text-center mb-4">Crea tu {{$invention_type->name}}</h2>
 
-<form action="{{ route('inventions.store') }}" method="POST">
+<form action="{{ route('storeInvention') }}" method="POST">
     @csrf
     <input type="hidden" name="invention_type_id" value="{{$invention_type->id}}">
 
@@ -28,7 +28,7 @@
         <label class="form-label">Selecciona {{$needed->quantity}} invento de tipo {{$needed->inventionTypeNeed->name}}</label>
 
         <select name="inventions[{{ $needed->invention_type_need_id }}][]" class="form-select" multiple>            
-                @foreach($user_invention_by_type[$needed->invention_type_need_id] as $invention)
+                @foreach($user_inventions_by_type[$needed->invention_type_need_id] as $invention)
                     <option value="{{ $invention->id }}">
                         {{ $invention->name }} 
                     </option>

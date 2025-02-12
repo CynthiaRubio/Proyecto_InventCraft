@@ -42,8 +42,20 @@ class BuildingStatSeeder extends Seeder
         $building_stat->save();
 
         $building_stat = new BuildingStat();
+        $building_stat->building_id = $estacion_transporte->_id;
+        $building_stat->stat_id = $suerte->_id; 
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
         $building_stat->building_id = $granja->_id;
         $building_stat->stat_id = $vitalidad->_id; 
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
+        $building_stat->building_id = $granja->_id;
+        $building_stat->stat_id = $ingenio->_id; 
         $building_stat->value = 1;
         $building_stat->save();
 
@@ -54,33 +66,69 @@ class BuildingStatSeeder extends Seeder
         $building_stat->save();
 
         $building_stat = new BuildingStat();
+        $building_stat->building_id = $planta_energia->_id;
+        $building_stat->stat_id = $velocidad->_id; 
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
         $building_stat->building_id = $textil->_id;
         $building_stat->stat_id = $suerte->_id; 
         $building_stat->value = 1;
         $building_stat->save();
 
         $building_stat = new BuildingStat();
+        $building_stat->building_id = $textil->_id;
+        $building_stat->stat_id = $velocidad->_id; 
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
         $building_stat->building_id = $manufactura->_id;
         $building_stat->stat_id = $velocidad->_id; 
-        $building_stat->value = 2;
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
+        $building_stat->building_id = $manufactura->_id;
+        $building_stat->stat_id = $ingenio->_id; 
+        $building_stat->value = 1;
         $building_stat->save();
 
         $building_stat = new BuildingStat();
         $building_stat->building_id = $fundicion_metales->_id;
         $building_stat->stat_id = $vitalidad->_id; 
-        $building_stat->value = 2;
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
+        $building_stat->building_id = $fundicion_metales->_id;
+        $building_stat->stat_id = $suerte->_id; 
+        $building_stat->value = 1;
         $building_stat->save();
 
         $building_stat = new BuildingStat();
         $building_stat->building_id = $ceramica->_id;
         $building_stat->stat_id = $ingenio->_id; 
-        $building_stat->value = 2;
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
+        $building_stat->building_id = $ceramica->_id;
+        $building_stat->stat_id = $suerte->_id; 
+        $building_stat->value = 1;
         $building_stat->save();
 
         $building_stat = new BuildingStat();
         $building_stat->building_id = $acueducto->_id;
         $building_stat->stat_id = $suerte->_id; 
-        $building_stat->value = 2;
+        $building_stat->value = 1;
+        $building_stat->save();
+
+        $building_stat = new BuildingStat();
+        $building_stat->building_id = $acueducto->_id;
+        $building_stat->stat_id = $vitalidad->_id; 
+        $building_stat->value = 1;
         $building_stat->save();
 
         $building_stat = new BuildingStat();

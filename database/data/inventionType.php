@@ -9,12 +9,10 @@ $fibra = MaterialType::where('name', 'Fibra')->first();
 $mineral = MaterialType::where('name', 'Mineral')->first();
 $metal = MaterialType::where('name', 'Metal')->first();
 $arena = MaterialType::where('name', 'Arena')->first();
-//$elements = MaterialType::where('name', 'Elemento')->first();
 $madera = MaterialType::where('name', 'Madera')->first();
 $resina = MaterialType::where('name', 'Resina')->first();
 $organico = MaterialType::where('name', 'Orgánico')->first();
-//$compounds = MaterialType::where('name', 'Compuesto')->first();
-//$organico = MaterialType::where('name', 'Recurso Natural')->first();
+
 
 $pradera = Zone::where('name', 'Pradera')->first();
 $bosque = Zone::where('name', 'Bosque')->first();

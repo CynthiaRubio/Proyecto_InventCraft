@@ -52,7 +52,7 @@
                     </div>
 
                     <div class="accordion-body text-center">
-                        <a href="{{ route('inventions.create.withType', $type) }}" class="btn btn-warning mt-3">Crear un invento de este tipo</a>
+                        <a href="{{ route('createInvention', $type) }}" class="btn btn-warning mt-3">Crear un invento de este tipo</a>
                     </div>
                 </div>
             </div>

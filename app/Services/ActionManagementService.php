@@ -134,9 +134,11 @@ class ActionManagementService
      * Recupera el ActionZone creado con los datos de la acción
      */
     public function getActionZone($action){
+
         $action_zone = ActionZone::where('action_id', $action->_id)
                         ->where('zone_id' , $action->actionable_id)
                         ->first();
+
         return $action_zone;
     }
 
