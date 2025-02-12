@@ -34,6 +34,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'password_confirm' => 'required',
         ]);
 
         /* Crear el usuario */
@@ -83,7 +84,7 @@ class AuthController extends Controller
         }
 
         /* Redirige a la página de inicio confirmando el registro */
-        return redirect()->route('login')->with('success', "$user->name Te has registrado correctamente");
+        return redirect()->route('login')->with('success', "$user->name, te has registrado correctamente");
     }
 
 
@@ -113,7 +114,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
 
             $user = auth()->user();
-            return redirect()->route('users.show')->with('success', "$user->name has iniciado sessión correctamente");
+            return redirect()->route('users.show')->with('success', "$user->name, has iniciado sesión correctamente");
         }
 
         /* Si la autenticación no es correcta */
@@ -126,7 +127,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-        return redirect()->route('login')->with('success', 'Has cerrado sessión correctamente');
+        return redirect()->route('login')->with('success', 'Has cerrado sessión correctamente. ¡No tardes en volver!');
     }
 
 

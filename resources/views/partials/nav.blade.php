@@ -26,7 +26,10 @@
                     <a class="nav-link {{ Request::routeIs('inventionTypes.*') ? 'active' : '' }}" href="{{ route('inventionTypes.index') }}">Tipos de Inventos</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::routeIs('events.*') ? 'active' : '' }}" href="{{ route('events.index') }}">Events</a>
+                    <a class="nav-link {{ Request::routeIs('events.*') ? 'active' : '' }}" href="{{ route('events.index') }}">Eventos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.show' , auth()->id()) }}">Mi perfil</a>
                 </li>
             </ul>
 

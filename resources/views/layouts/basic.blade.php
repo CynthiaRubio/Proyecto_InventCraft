@@ -60,16 +60,6 @@
     </div>
     @endif
 
-    @if(session('data_inventions'))
-    <div class="alert alert-success">
-        <ul>
-            @foreach (session('data_inventions') as $invention)
-                <li>Has creado {{$invention->name}} con {{ $invention->efficiency }} puntos de eficiencia</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
 
     <div class="container mt-5">
         @yield('content')

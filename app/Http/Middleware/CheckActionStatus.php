@@ -70,8 +70,8 @@ class CheckActionStatus
                     $invention = Invention::where('inventory_id', $inventory_id)
                             ->where('available', false)
                             ->update(['available' => true]);
-                    /* TODO Revisar porque este mensaje no está saliendo por pantalla */
-                    session()->flash('data_invention', $invention);
+                    
+                    session()->flash('success', "Has terminado la creación de tu invento.");
                     break;
 
                 case 'Recolectar':

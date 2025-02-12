@@ -16,13 +16,26 @@ class UserControllerTest extends TestCase
     /** @test */
     public function test_ranking(): void
     {
+        /* Rellenamos la base de datos */
+        Artisan::call('migrate:refresh --seed');
         
-        $user = User::factory()->create();
+        $user = User::create([
+            'email' => 'user@prueba.com',
+            'level' => 15,
+            'experience' => 250,
+        ]);
 
         $this->actingAs($user);
 
-        $user1 = User::factory()->create(['level' => 10, 'experience' => 100]);
-        $user2 = User::factory()->create(['level' => 5, 'experience' => 50]);
+        $user1 = User::create([
+            'email' => 'user1@prueba.com',
+            'level' => 10, 
+            'experience' => 100
+        ]);
+        $user2 = User::create([
+            'email' => 'user2@prueba.com',
+            'level' => 5, 
+            'experience' => 50]);
 
         $response = $this->get(route('users.ranking'));
 
@@ -36,7 +49,11 @@ class UserControllerTest extends TestCase
     /** @test */
     public function test_change_avatar()
     {
-        $user = User::factory()->create();
+        $user = User::create([
+            'level' => 15,
+            'experience' => 250,
+        ]);
+
         $this->actingAs($user);
 
         $response = $this->post(route('users.avatar.update', $user->_id), [
@@ -62,11 +79,11 @@ class UserControllerTest extends TestCase
     /** @test */
     public function test_assigns_points_correctly()
     {
-        $user = User::factory()->create(['unasigned_points' => 20]);
+        $user = User::create(['unasigned_points' => 20]);
         $this->actingAs($user);
 
-        $stat1 = UserStat::factory()->create(['user_id' => $user->_id, 'stat_id' => 1, 'value' => 5]);
-        $stat2 = UserStat::factory()->create(['user_id' => $user->_id, 'stat_id' => 2, 'value' => 3]);
+        $stat1 = UserStat::create(['user_id' => $user->_id, 'stat_id' => 1, 'value' => 5]);
+        $stat2 = UserStat::create(['user_id' => $user->_id, 'stat_id' => 2, 'value' => 3]);
 
         $response = $this->post(route('users.addStats'), [
             'user_id' => $user->_id,

@@ -6,6 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use App\Models\Inventory;
+use App\Models\ActionType;
+use App\Models\Zone;
+use App\Models\Action;
+use App\Models\Stat;
+use App\Models\UserStat;
 
 class AuthController extends Controller
 {
@@ -27,8 +33,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string|min:4,confirm',
-            'password_confirm' => 'required',
+            'password' => 'required|string|min:4,confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -47,6 +52,36 @@ class AuthController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        //Crear el inventario del usuario
+        Inventory::create([
+            'user_id' => $user->_id,
+        ]);
+    
+        //Asignar una zona de inicio aleatoria creando una acción "Mover"
+        $action_type_id = ActionType::where('name', 'Mover')->first()->id;
+        $zones = Zone::all();
+        $zone = $zones->random(); // Seleccionar una zona aleatoria
+        
+        Action::create([
+            'user_id' => $user->_id,
+            'action_type_id' => $action_type_id,
+            'actionable_id' => $zone->_id,
+            'actionable_type' => Zone::class,
+            'time' => now(),
+            'finished' => true,
+            'notificacion' => false,
+        ]);
+        
+        //Crear estadísticas base para el usuario
+        $stats = Stat::all();
+        foreach ($stats as $stat) {
+            UserStat::create([
+                'user_id' => $user->_id,
+                'stat_id' => $stat->_id,
+                'value' => 0,
+            ]);
+        }
 
         return response()->json([
             'message' => 'Usuario registrado con exito!',
