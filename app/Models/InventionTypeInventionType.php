@@ -1,18 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-//use Illuminate\Database\Eloquent\Model;
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
-
+/**
+ * Modelo InventionTypeInventionType
+ * 
+ * Modelo pivote que representa la relación reflexiva entre tipos de inventos.
+ * Define qué tipos de inventos y en qué cantidad se necesitan para crear otro tipo de invento.
+ * 
+ * @property int $id
+ * @property int $invention_type_id ID del tipo de invento que se quiere crear
+ * @property int $invention_type_need_id ID del tipo de invento que se necesita
+ * @property int $quantity Cantidad de inventos del tipo necesario requeridos
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class InventionTypeInventionType extends Model
 {
     use HasFactory;
-
-    protected $connection = 'mongodb';
-    protected $collection = 'invention_type_invention_types';
 
     protected $fillable = [
         'invention_type_id',
@@ -22,12 +32,20 @@ class InventionTypeInventionType extends Model
 
     /* RELACIÓN REFLEXIVA InventionType N:M InventionTypes */
 
-    /* Relación con el invento principal */
+    /**
+     * Obtiene el tipo de invento que se quiere crear
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function inventionType(){
         return $this->belongsTo(InventionType::class , 'invention_type_id');
     }
 
-    /* Relación con el invento que se necesita */
+    /**
+     * Obtiene el tipo de invento que se necesita para crear el invento principal
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function inventionTypeNeed(){
         return $this->belongsTo(InventionType::class , 'invention_type_need_id');
     }

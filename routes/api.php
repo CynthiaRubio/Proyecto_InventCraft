@@ -1,10 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\ZoneController;
+use App\Http\Controllers\Api\BuildingController;
+use App\Http\Controllers\Api\InventoryController;
+use App\Http\Controllers\Api\ActionController;
+use App\Http\Controllers\Api\InventionController;
+use App\Http\Controllers\Api\InventionTypeController;
+use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\MaterialTypeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,4 +68,61 @@ Route::prefix('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('me', [AuthController::class, 'me']);
+});
+
+/* Rutas protegidas con autenticación */
+Route::middleware('auth:api')->group(function () {
+    /* Rutas para la API de zonas */
+    Route::prefix('zones')->group(function () {
+        Route::get('/', [ZoneController::class, 'index']); // Listar todas las zonas
+        Route::get('/{id}', [ZoneController::class, 'show']); // Ver una zona específica
+    });
+
+    /* Rutas para la API de edificios */
+    Route::prefix('buildings')->group(function () {
+        Route::get('/', [BuildingController::class, 'index']); // Listar todos los edificios
+        Route::get('/{id}', [BuildingController::class, 'show']); // Ver un edificio específico
+        Route::get('/victory/check', [BuildingController::class, 'victory']); // Verificar victoria
+    });
+
+    /* Rutas para la API de inventarios */
+    Route::prefix('inventories')->group(function () {
+        Route::get('/', [InventoryController::class, 'index']); // Ver inventario completo del usuario
+        Route::get('/{id}', [InventoryController::class, 'show']); // Ver inventos de un tipo específico
+    });
+
+    /* Rutas para la API de acciones */
+    Route::prefix('actions')->group(function () {
+        Route::post('/move-zone', [ActionController::class, 'moveZone']); // Mover a otra zona
+        Route::post('/farm-zone', [ActionController::class, 'farmZone']); // Explorar una zona
+        Route::get('/buildings/{id}/create', [ActionController::class, 'createBuilding']); // Info para construir edificio
+        Route::post('/buildings', [ActionController::class, 'storeBuilding']); // Construir edificio
+        Route::get('/inventions/{id}/create', [ActionController::class, 'createInvention']); // Info para crear invento
+        Route::post('/inventions', [ActionController::class, 'storeInvention']); // Crear invento
+    });
+
+    /* Rutas para la API de inventos */
+    Route::prefix('inventions')->group(function () {
+        Route::get('/', [InventionController::class, 'index']); // Listar todos los inventos
+        Route::get('/{id}', [InventionController::class, 'show']); // Ver un invento específico
+        Route::delete('/{id}', [InventionController::class, 'destroy']); // Eliminar un invento
+    });
+
+    /* Rutas para la API de tipos de inventos */
+    Route::prefix('invention-types')->group(function () {
+        Route::get('/', [InventionTypeController::class, 'index']); // Listar todos los tipos de inventos
+        Route::get('/{id}', [InventionTypeController::class, 'show']); // Ver un tipo de invento específico
+    });
+
+    /* Rutas para la API de materiales */
+    Route::prefix('materials')->group(function () {
+        Route::get('/', [MaterialController::class, 'index']); // Listar todos los materiales
+        Route::get('/{id}', [MaterialController::class, 'show']); // Ver un material específico
+    });
+
+    /* Rutas para la API de tipos de materiales */
+    Route::prefix('material-types')->group(function () {
+        Route::get('/', [MaterialTypeController::class, 'index']); // Listar todos los tipos de materiales
+        Route::get('/{id}', [MaterialTypeController::class, 'show']); // Ver un tipo de material específico
+    });
 });

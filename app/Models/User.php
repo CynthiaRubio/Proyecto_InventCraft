@@ -1,25 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use MongoDB\Laravel\Eloquent\Model;
 
-use MongoDB\Laravel\Auth\User as Authenticatable;
-
+/**
+ * Modelo User
+ * 
+ * Representa un usuario/jugador del juego.
+ * Almacena información del perfil, nivel, experiencia y puntos sin asignar.
+ * 
+ * @property int $id
+ * @property string $name Nombre del usuario
+ * @property string $email Email del usuario (usado para autenticación)
+ * @property string $password Contraseña hasheada
+ * @property int $level Nivel actual del jugador
+ * @property int $experience Experiencia acumulada del jugador
+ * @property int $unasigned_points Puntos de estadística sin asignar
+ * @property string|null $avatar Nombre del avatar seleccionado
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens;
     use HasFactory;
     use Notifiable;
-
-    protected $connection = 'mongodb';
-    protected $collection = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -75,17 +90,60 @@ class User extends Authenticatable implements JWTSubject
 
     /* RELACIONES */
 
-    /* Stat N:M User */
-    public function stats(){
+    /**
+     * Obtiene las estadísticas del usuario (a través del modelo pivote)
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userStats()
+    {
         return $this->hasMany(UserStat::class , 'user_id');
     }
 
-    /* Inventory 1:1 User */
+    /**
+     * Obtiene las estadísticas del usuario
+     * Relación N:M directa usando la tabla pivote user_stats
+     * Incluye el valor de cada estadística en el pivot
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function stats()
+    {
+        return $this->belongsToMany(Stat::class, 'user_stats')
+                    ->withPivot(['value'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Obtiene el inventario del usuario
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function inventory(){
         return $this->hasOne(Inventory::class , 'user_id');
     }
 
-    /* Action N:1 User */
+    /**
+     * Obtiene los inventos creados por el usuario a través de su inventario
+     * Relación hasManyThrough: User -> Inventory -> Invention
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function inventions()
+    {
+        return $this->hasManyThrough(
+            Invention::class,
+            Inventory::class,
+            'user_id',      // Foreign key en Inventory
+            'inventory_id'  // Foreign key en Invention
+        );
+    }
+
+    /**
+     * Obtiene todas las acciones realizadas por el usuario
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function actions(){
         return $this->hasMany(Action::class , 'user_id');
     }

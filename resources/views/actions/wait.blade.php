@@ -24,13 +24,3 @@
 </div>
 
 @endsection
-
-<style>
-    .text-hover-dark:hover {
-        color: #000 !important; /* Cambiar el texto a negro al hacer hover */
-        background-color: #f39c12 !important; /* Fondo amarillo */
-        border-color: #f39c12 !important; /* Borde amarillo */
-    }
-</style>
-
-

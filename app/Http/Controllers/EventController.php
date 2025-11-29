@@ -1,15 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Zone;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 
 class EventController extends Controller
 {
     /**
      * Muestra la lista de eventos.
+     * 
+     * @return \Illuminate\View\View Vista con la lista de eventos
      */
     public function index()
     {
@@ -19,8 +24,11 @@ class EventController extends Controller
 
     /**
      * Muestra un evento en detalle.
+     * 
+     * @param string $id ID del evento
+     * @return \Illuminate\View\View Vista con los detalles del evento
      */
-    public function show($id)
+    public function show(string $id)
     {
         $event = Event::with('zone')->findOrFail($id);
         return view('events.show', compact('event'));
@@ -28,6 +36,8 @@ class EventController extends Controller
 
     /**
      * Muestra el formulario para crear un nuevo evento.
+     * 
+     * @return \Illuminate\View\View Vista con el formulario de creación
      */
     public function create()
     {
@@ -37,24 +47,24 @@ class EventController extends Controller
 
     /**
      * Guarda un nuevo evento en la base de datos.
+     * 
+     * @param StoreEventRequest $request Solicitud validada con los datos del evento
+     * @return \Illuminate\Http\RedirectResponse Redirección a la lista de eventos con mensaje de éxito
      */
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $request->validate([
-            'zone_id' => 'required|exists:zones,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        Event::create($request->all());
+        Event::create($request->validated());
 
         return redirect()->route('events.index')->with('success', 'Evento creado correctamente.');
     }
 
     /**
      * Muestra el formulario para editar un evento existente.
+     * 
+     * @param string $id ID del evento a editar
+     * @return \Illuminate\View\View Vista con el formulario de edición
      */
-    public function edit($id)
+    public function edit(string $id)
     {
         $event = Event::findOrFail($id);
         $zones = Zone::all();
@@ -63,25 +73,26 @@ class EventController extends Controller
 
     /**
      * Actualiza un evento en la base de datos.
+     * 
+     * @param UpdateEventRequest $request Solicitud validada con los datos actualizados
+     * @param string $id ID del evento a actualizar
+     * @return \Illuminate\Http\RedirectResponse Redirección a la lista de eventos con mensaje de éxito
      */
-    public function update(Request $request, $id)
+    public function update(UpdateEventRequest $request, string $id)
     {
-        $request->validate([
-            'zone_id' => 'required|exists:zones,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
         $event = Event::findOrFail($id);
-        $event->update($request->all());
+        $event->update($request->validated());
 
         return redirect()->route('events.index')->with('success', 'Evento actualizado correctamente.');
     }
 
     /**
-     * Elimina un evento.
+     * Elimina un evento de la base de datos.
+     * 
+     * @param string $id ID del evento a eliminar
+     * @return \Illuminate\Http\RedirectResponse Redirección a la lista de eventos con mensaje de éxito
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $event = Event::findOrFail($id);
         $event->delete();

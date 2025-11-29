@@ -13,8 +13,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp(); // Asegurar que Laravel se inicializa correctamente
 
-        // Vaciar la base de datos MongoDB antes de cada test
-        DB::connection('mongodb')->getMongoClient()
-            ->dropDatabase(config('database.connections.mongodb.database'));
+        // Migrar la base de datos antes de cada test
+        $this->artisan('migrate:fresh');
     }
 }

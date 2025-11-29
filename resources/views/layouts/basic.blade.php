@@ -8,70 +8,29 @@
     <script src="https://cdn.jsdelivr.net/npm/easytimer.js@4.4.0/dist/easytimer.min.js"></script>
     <title>@yield('title', 'Juego individual')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body>
-    @include('partials.header')
+    <div class="main-content-wrapper pb-5">
+    @unless(Request::routeIs('home') || Request::routeIs('login') || Request::routeIs('register'))
+        @include('partials.header-nav')
+    @endunless
 
     @yield('nav')
 
-    @yield('timer')
-
-    @if(session('error'))
-    <div class="container mt-4">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <h4 class="alert-heading">¡Error!</h4>
-            <p>{{ session('error') }}</p>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
+    @if(isset($time_left) && $time_left > 0)
+        <x-floating-timer :timeLeft="$time_left" />
     @endif
 
-    @if ($errors->any())
-    <div class="container mt-4">
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading">¡Error!</h4>
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-    @endif
+    <x-validation-errors />
+    <x-flash-messages />
 
-    @if(session('success'))
-    <div class="container mt-4">
-        <div class="alert alert-success" role="alert">
-            <h4 class="alert-heading">¡Felicidades!</h4>
-            <p>{{ session('success') }}</p>
-        </div>
-    </div>
-    @endif
-    
-    @if(session('data'))
-    <div class="alert alert-success">
-        <ul>
-            @foreach (session('data') as $resource)
-                @if(is_array($resource))
-                    @foreach ($resource as $name => $quantity)
-                        <li>Has recolectado {{$name}}: {{ $quantity }}</li>
-                    @endforeach
-                @else
-                <li>Has recolectado {{$resource}}</li>
-                @endif
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
-
-    <div class="container mt-5">
-        @yield('content')
+    @yield('content')
     </div>
 
     @include('partials.footer')
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

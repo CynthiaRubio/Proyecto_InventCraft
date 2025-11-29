@@ -1,36 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Contracts\InventionTypeServiceInterface;
 use App\Models\InventionType;
 use App\Models\InventionTypeInventionType;
+use Illuminate\Database\Eloquent\Collection;
 
-class InventionTypeService
+class InventionTypeService implements InventionTypeServiceInterface
 {
     /**
-     * Obtiene el tipo de invento por su id
+     * Obtiene el tipo de invento por su ID
+     * 
+     * @param string $id ID del tipo de invento
+     * @return InventionType|null Tipo de invento o null si no existe
      */
-    public function getInventionType(string $id)
+    public function getInventionType(string $id): ?InventionType
     {
         $invention_type = InventionType::find($id);
         return $invention_type;
     }
 
     /**
-     * Obtiene el tipo de invento y su tipo de material por su id
+     * Obtiene el tipo de invento con su tipo de material precargado
+     * 
+     * @param string $id ID del tipo de invento
+     * @return InventionType|null Tipo de invento con relación materialType o null si no existe
      */
-    public function getInventionTypeWithRelations(string $id)
+    public function getInventionTypeWithRelations(string $id): ?InventionType
     {
         $invention_type = InventionType::with('materialType')->find($id);
         return $invention_type;
     }
 
     /**
-     * Determina el tipo de inventos necesarios para el id de un tipo de inventos
-     *
-     * @param $invention_type_id: Id del tipo de inventos padre
+     * Obtiene los tipos de inventos necesarios para crear un tipo de invento específico
+     * 
+     * @param string $invention_type_id ID del tipo de invento padre
+     * @return \Illuminate\Database\Eloquent\Collection Colección de tipos de inventos requeridos con sus cantidades
      */
-    public function getInventionsNeeded(string $invention_type_id)
+    public function getInventionsNeeded(string $invention_type_id): Collection
     {
         $invention_types_needed = InventionTypeInventionType::where('invention_type_id', $invention_type_id)
                     ->with('inventionTypeNeed')->get();
@@ -41,11 +52,13 @@ class InventionTypeService
 
 
     /**
-     * Determina el tipo de inventos necesarios para el id de un tipo de inventos
-     *
-     * @param $invention_type_id: Id del tipo de inventos padre
+     * Obtiene los tipos de inventos necesarios en formato de array asociativo
+     * Formato: [['nombre_tipo' => cantidad], ...]
+     * 
+     * @param string $invention_type_id ID del tipo de invento padre
+     * @return array|null Array de tipos de inventos requeridos o null si no hay requerimientos
      */
-    public function beforeGetInventionsNeeded(string $invention_type_id)
+    public function beforeGetInventionsNeeded(string $invention_type_id): ?array
     {
         $required_inventions = [];
 
@@ -67,5 +80,6 @@ class InventionTypeService
             return $required_inventions;
         }
 
+        return null;
     }
 }

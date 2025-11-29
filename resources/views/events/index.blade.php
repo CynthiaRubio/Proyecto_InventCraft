@@ -4,15 +4,19 @@
 
 @section('content')
 
+<x-page-title 
+    title="Lista de Eventos" 
+    gradient="linear-gradient(135deg, #dc3545 0%, #c82333 100%)"
+    borderColor="#dc3545"
+/>
 
-
-<div class="container mt-5">
-    <h2 class="text-center mb-4 fw-bold p-3 rounded-3" style="background: linear-gradient(to right,rgb(58, 132, 60), #8BC34A); color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
-        📅 Lista de Eventos
-    </h2>
-    
+<div class="container">
     <div class="text-center mb-3">
-        <a href="{{ route('events.create') }}" class="btn btn-success">➕ Crear Evento</a>
+        <x-action-button 
+            :href="route('events.create')" 
+            text="Crear Evento" 
+            variant="success"
+        />
     </div>
 
     @if ($events->isEmpty())
@@ -32,12 +36,22 @@
                         <td>{{ $event->name }}</td>
                         <td>{{ $event->zone->name }}</td>
                         <td class="text-center">
-                            <a href="{{ route('events.show', $event->_id) }}" class="btn btn-outline-info btn-sm">👀 Ver</a>
-                            <a href="{{ route('events.edit', $event->_id) }}" class="btn btn-outline-warning btn-sm">✏️ Editar</a>
-                            <form action="{{ route('events.destroy', $event->_id) }}" method="POST" style="display:inline;">
+                            <x-action-button 
+                                :href="route('events.show', $event->id)" 
+                                text="Ver" 
+                                variant="outline-info"
+                                size="sm"
+                            />
+                            <x-action-button 
+                                :href="route('events.edit', $event->id)" 
+                                text="Editar" 
+                                variant="outline-warning"
+                                size="sm"
+                            />
+                            <form action="{{ route('events.destroy', $event->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar evento?')">🗑️ Eliminar</button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar evento?')">Eliminar</button>
                             </form>
                         </td>
                     </tr>

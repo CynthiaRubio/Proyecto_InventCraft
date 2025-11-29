@@ -28,9 +28,9 @@ class UserSeeder extends Seeder
          * Reproduccimos los pasos de un registro
          */
         $user = new User();
-        $user->name = 'Cynthia';
-        $user->email = 'cynrusan@gmail.com';
-        $user->password = bcrypt('juego_servidor');
+        $user->name = 'Test';
+        $user->email = 'test@test.com';
+        $user->password = bcrypt('password');
         $user->remember_token = Str::random(10);
         $user->level = 1;
         $user->experience = 0;
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
         $user->save();
 
         $inventory = Inventory::create([
-                        'user_id' => $user->_id,
+                        'user_id' => $user->id,
                     ]);
 
         $action_type = ActionType::where('name', 'Mover')->first();
@@ -47,13 +47,13 @@ class UserSeeder extends Seeder
         $zone = $zones->random();
 
         Action::create([
-            'user_id' => $user->_id,
-            'action_type_id' => $action_type->_id,
-            'actionable_id' => $zone->_id,
+            'user_id' => $user->id,
+            'action_type_id' => $action_type->id,
+            'actionable_id' => $zone->id,
             'actionable_type' => Zone::class,
-            'time' => now(),
+            'time' => now(), // Acción ya finalizada, timestamp actual
             'finished' => true,
-            'notificacion' => true,
+            'notification' => true,
             'updated' => true,
         ]);
 
@@ -74,10 +74,9 @@ class UserSeeder extends Seeder
         $materials = Material::all();
         foreach ($materials as $material) {
             InventoryMaterial::create([
-                'inventory_id' => $inventory->_id,
-                'material_id' => $material->_id,
+                'inventory_id' => $inventory->id,
+                'material_id' => $material->id,
                 'quantity' => 10,
-                'quantity_na' => 0,
             ]);
         }
 
@@ -87,12 +86,10 @@ class UserSeeder extends Seeder
             for($i=0; $i<10; $i++){
                 $material = $materials->random();
                 Invention::create([
-                    'invention_type_id' => $type->_id,
-                    'material_id' => $material->_id,
-                    'inventory_id' =>  $inventory->_id,
-                    'action_building_id' => null,
-                    'invention_used_id' => null,
-                    'name' => fake()->name(),
+                    'invention_type_id' => $type->id,
+                    'material_id' => $material->id,
+                    'inventory_id' =>  $inventory->id,
+                    'name' => $type->name . ' ' . fake()->word() . ' ' . ($i + 1),
                     'efficiency' => $material->efficiency,
                     'available' => true,
                 ]);

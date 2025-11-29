@@ -11,7 +11,7 @@
     <div class="row justify-content-center">
         
         <div class="col-md-6">
-            <form action="{{ route('events.update', $event->_id) }}" method="POST">
+            <form action="{{ route('events.update', $event->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -29,11 +29,18 @@
                     <label for="zone_id" class="form-label">Zona:</label>
                     <select id="zone_id" name="zone_id" class="form-control" required>
                         @foreach($zones as $zone)
-                            <option value="{{ $zone->_id }}" {{ $event->zone_id == $zone->_id ? 'selected' : '' }}>
+                            <option value="{{ $zone->id }}" {{ $event->zone_id == $zone->id ? 'selected' : '' }}>
                                 {{ $zone->name }}
                             </option>
                         @endforeach
                     </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="loss_percent" class="form-label">Porcentaje de Pérdida (%):</label>
+                    <input type="number" id="loss_percent" name="loss_percent" class="form-control" 
+                           value="{{ old('loss_percent', $event->loss_percent) }}" min="0" max="100" step="0.01" required>
+                    <small class="form-text text-muted">Porcentaje de pérdida de materiales (0-100)</small>
                 </div>
 
                 <!-- Botones alineados uno debajo del otro -->

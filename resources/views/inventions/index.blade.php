@@ -1,31 +1,43 @@
 @extends('layouts.full')
 
-@section('title', 'Invento')
+@section('title', 'Inventos')
 
 @section('content')
+    <x-page-title 
+        title="Mis Inventos" 
+        gradient="linear-gradient(to right, #FF9800, #FFC107)"
+        borderColor="#FFC107"
+    />
 
-<h2 class="text-center mb-4" style="background: linear-gradient(to right, #FF9800, #FFC107); color: white; padding: 10px; border-radius: 8px;">
-    Todos los inventos del juego
-</h2>
-
-<table class="table table-bordered table-striped" style="max-width: 60%; margin: 0 auto;">
-    <thead class="table-light">
-        <tr>
-            <th class="text-center">Nombre del Invento</th>
-            <th class="text-center">Acción</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($inventions as $invention)
-            <tr>
-                <td>{{ $invention->name }}</td>
-                <td class="text-center">
-                    <a href="{{ route('inventions.show', $invention->id) }}" class="btn btn-warning btn-sm">Ver Invento</a>
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
-
-
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped shadow-sm" style="max-width: 60%; margin: 0 auto;">
+                <thead class="table-warning">
+                    <tr>
+                        <th class="text-center">Nombre del Invento</th>
+                        <th class="text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($inventions as $invention)
+                        <tr>
+                            <td class="fw-bold">{{ $invention->name }}</td>
+                            <td class="text-center">
+                                <x-action-button 
+                                    :href="route('inventions.show', $invention->id)" 
+                                    text="Ver Invento" 
+                                    variant="warning"
+                                    size="sm"
+                                />
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">No hay inventos disponibles</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection

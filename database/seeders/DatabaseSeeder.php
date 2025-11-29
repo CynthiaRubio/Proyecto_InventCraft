@@ -30,19 +30,6 @@ class DatabaseSeeder extends Seeder
             */
             UserSeeder::class,
         ]);
-
-        /*
-        Si queremos crear usuarios con valores específicos en los campos
-        User::factory()->create([
-            'name' => 'Cynthia',
-            'email' => 'cynrusan@gmail.com',
-            'password' => bcrypt('juego_servidor'),
-            'remember_token' => Str::random(10),
-            'level' => 1,
-            'experience' => 0,
-            'unasigned_points' => 15,
-            'avatar' => 1,
-        ]);
-        */
+        
     }
 }

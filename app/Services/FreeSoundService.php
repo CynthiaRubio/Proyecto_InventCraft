@@ -1,10 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Contracts\FreeSoundServiceInterface;
+use App\Models\Zone;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Session;
 
-class FreesoundService
+class FreesoundService implements FreeSoundServiceInterface
 {
     private $client;
 
@@ -17,9 +22,14 @@ class FreesoundService
     }
 
     /**
-     * Función que devuelve el sonido de la zona
+     * Obtiene la URL del sonido asociado a una zona
+     * Utiliza la sesión para cachear el sonido y evitar múltiples llamadas a la API
+     * 
+     * @param Zone $zone Zona de la que obtener el sonido
+     * @return string|null URL del sonido o null si no se encontró
      */
-    public function getSound($zone){
+    public function getSound(Zone $zone): ?string
+    {
 
         $zoneSounds = [
             'Pradera' => 'meadow birds',
@@ -51,9 +61,13 @@ class FreesoundService
     
     
     /**
-     * Función que se conecta para obtener un sonido
+     * Se conecta a la API de Freesound para obtener un sonido según la consulta
+     * Busca sonidos, selecciona uno aleatorio y devuelve su URL de preview
+     * 
+     * @param string $query Término de búsqueda para el sonido
+     * @return string|null URL del preview del sonido (alta calidad preferida) o null si no hay resultados
      */
-    public function getSoundUrl($query)
+    public function getSoundUrl(string $query): ?string
     {
 
         /* Hacemos la solicitud GET a la API de Freesound */
@@ -65,7 +79,7 @@ class FreesoundService
         ]);
 
         /* Guardamos el resultado de la solicitud */
-        $sounds = json_decode($response->getBody(), true);
+        $sounds = json_decode((string) $response->getBody(), true);
 
         /* Si no hay resultados, devolvemos null */
         if (!isset($sounds['results']) || empty($sounds['results'])) {
@@ -81,7 +95,7 @@ class FreesoundService
         ]);
 
         /* Guardamos los detalles */
-        $soundDetails = json_decode($response->getBody(), true);
+        $soundDetails = json_decode((string) $response->getBody(), true);
 
         /* Devolvemos la URL del sonido en alta calidad (o baja si no está disponible) */
         return $soundDetails['previews']['preview-hq-mp3'] ?? $soundDetails['previews']['preview-lq-mp3'] ?? null;

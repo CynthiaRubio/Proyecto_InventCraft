@@ -15,12 +15,15 @@ class UserUnitTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function test_user_id_is_valid_mongo_objectid()
+    public function test_user_id_is_valid_integer()
     {
-        $user = User::create();
+        $user = User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+        ]);
         $this->assertNotNull($user->id);
-        $this->assertIsString($user->id);
-        $this->assertMatchesRegularExpression('/^[0-9a-fA-F]{24}$/', $user->id);
+        $this->assertIsInt($user->id);
     }
 
     public function test_user_name_is_not_empty()

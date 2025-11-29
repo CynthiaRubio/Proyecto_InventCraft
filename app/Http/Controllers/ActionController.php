@@ -1,44 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\InventionType;
-use App\Services\ActionManagementService;
-use App\Services\ResourceManagementService;
-use App\Services\ZoneManagementService;
-use App\Services\InventionService;
-use App\Services\UserManagementService;
-use App\Services\BuildingManagementService;
-use App\Services\InventionTypeService;
+use App\Contracts\ActionServiceInterface;
+use App\Contracts\ResourceServiceInterface;
+use App\Contracts\ZoneServiceInterface;
+use App\Contracts\InventionServiceInterface;
+use App\Contracts\UserServiceInterface;
+use App\Contracts\BuildingServiceInterface;
+use App\Contracts\InventionTypeServiceInterface;
+use App\Http\Requests\StoreBuildingRequest;
+use App\Http\Requests\StoreInventionRequest;
+use App\Http\Requests\MoveZoneRequest;
+use App\Http\Requests\FarmZoneRequest;
+use App\ViewModels\BuildingCreateViewModel;
 
 class ActionController extends Controller
 {
+    /**
+     * Constructor del controlador.
+     * 
+     * @param ActionServiceInterface $actionService Servicio de acciones
+     * @param ResourceServiceInterface $resourceService Servicio de recursos
+     * @param ZoneServiceInterface $zoneService Servicio de zonas
+     * @param InventionServiceInterface $inventionService Servicio de inventos
+     * @param UserServiceInterface $userService Servicio de usuarios
+     * @param BuildingServiceInterface $buildingService Servicio de edificios
+     * @param InventionTypeServiceInterface $inventionTypeService Servicio de tipos de inventos
+     */
     public function __construct(
-        private ActionManagementService $action_service,
-        private ResourceManagementService $resource_service,
-        private ZoneManagementService $zone_service,
-        private InventionService $invention_service,
-        private UserManagementService $user_service,
-        private BuildingManagementService $building_service,
-        private InventionTypeService $inventionType_service,
+        private ActionServiceInterface $actionService,
+        private ResourceServiceInterface $resourceService,
+        private ZoneServiceInterface $zoneService,
+        private InventionServiceInterface $inventionService,
+        private UserServiceInterface $userService,
+        private BuildingServiceInterface $buildingService,
+        private InventionTypeServiceInterface $inventionTypeService,
     ) {
     }
 
     /**
-     * Realiza la acción de desplazarse a otra zona
-    */
-    public function moveZone(Request $request)
+     * Realiza la acción de desplazarse a otra zona.
+     * 
+     * @param MoveZoneRequest $request Solicitud validada con el ID de la zona
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse Vista de espera o redirección con error
+     */
+    public function moveZone(MoveZoneRequest $request)
     {
-        $moveTime = $this->zone_service->calculateMoveTime($request->zone_id);
-        
-        $moveTime = 8;
+        $moveTime = $this->zoneService->calculateMoveTime($request->zone_id);
 
-        $action = $this->action_service->createAction('Mover', $request->zone_id, 'Zone', $moveTime);
+        $action = $this->actionService->createAction('Mover', $request->zone_id, 'Zone', $moveTime);
 
         if ($action) {
-            $user = $this->user_service->getUser();
-            $zone_name = $this->zone_service->getZone($request->zone_id)->name;
+            $user = $this->userService->getUser();
+            $zone_name = $this->zoneService->getZone($request->zone_id)->name;
             return view('actions.wait', compact('zone_name', 'moveTime'));
         } else {
             return redirect()->route('zones.index')->with('error', "Las carreteras están cortadas. No puedes viajar a esta zona.");
@@ -46,18 +64,24 @@ class ActionController extends Controller
     }
 
     /**
-     * Realiza la acción de explorar y recolectar recursos
+     * Realiza la acción de explorar y recolectar recursos en una zona.
+     * 
+     * Los recursos encontrados se calculan inmediatamente pero no estarán disponibles
+     * hasta que finalice la acción de recolección.
+     * 
+     * @param FarmZoneRequest $request Solicitud validada con el ID de la zona y tiempo de exploración
+     * @return \Illuminate\Http\RedirectResponse Redirección al mapa con mensaje de éxito o error
      */
-    public function farmZone(Request $request)
+    public function farmZone(FarmZoneRequest $request)
     {
-        /* Harcodeamos el tiempo para el video */
-        $action = $this->action_service->createAction('Recolectar', $request->zone_id, 'Zone', 5);//$request->farmTime);
+        $farmTime = (int) $request->farmTime;
+
+        $action = $this->actionService->createAction('Recolectar', $request->zone_id, 'Zone', $farmTime);
 
         if ($action) {
-            $user = $this->user_service->getUser();
-            $zone_name = $this->zone_service->getZone($request->zone_id)->name;
-            /* Se calculan los recursos encontrados aunque no estén disponibles hasta que termine la acción de recolectar */
-            $this->resource_service->calculateFarm($request->zone_id, $request->farmTime, $action);
+            $user = $this->userService->getUser();
+            $zone_name = $this->zoneService->getZone($request->zone_id)->name;
+            $this->resourceService->calculateFarm($request->zone_id, $farmTime, $action);
             return redirect()->route('zones.index')->with('success', "$user->name estarás explorando $zone_name durante $request->farmTime minutos.");
         } else {
             return redirect()->route('zones.index')->with('error', "Ha ocurrido algo inesperado. No puedes explorar esta zona.");
@@ -65,212 +89,176 @@ class ActionController extends Controller
     }
 
     /**
-     * Redirige al formulario para construir un edificio
+     * Muestra el formulario para construir un edificio.
+     * 
+     * Verifica los requisitos para construir el edificio, incluyendo:
+     * - Si es la Estación Espacial, verifica que todos los demás edificios tengan eficiencia 100%
+     * - Verifica que el edificio no tenga ya eficiencia máxima (100%)
+     * - Comprueba que el jugador tiene los inventos necesarios
+     * 
+     * @param string $id ID del edificio a construir
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse Vista del formulario o redirección con error
      */
     public function createBuilding(string $id)
     {
-        /* Obtenemos los datos del edificio que queremos construir */
-        $building = $this->building_service->getBuilding($id);
+        $building = $this->buildingService->getBuilding($id);
 
-        /* Y el nivel actual del edificio */
-        $actual_building_level = $this->building_service->getActualLevel($id);
+        $canBuildSpaceStation = null;
+        if ($building->name === 'Estación Espacial') {
+            $canBuildSpaceStation = $this->buildingService->canBuildSpaceStation();
+            if (!$canBuildSpaceStation['can_build']) {
+                return redirect()->route('buildings.show', $id)
+                    ->with('error', $canBuildSpaceStation['reason'])
+                    ->with('buildings_status', $canBuildSpaceStation['buildings_status']);
+            }
+        }
 
-        /* Calculamos el próximo nivel para saber el número de inventos que necesita */
+        $actual_building_level = $this->buildingService->getActualLevel($id);
+        
+        $actual_efficiency = $this->buildingService->getEfficiency($id);
+        if ($actual_efficiency >= 100 && $actual_building_level > 0) {
+            return redirect()->route('buildings.show', $id)
+                ->with('error', "Este edificio ya tiene eficiencia máxima (100%). No se puede mejorar más.");
+        }
+
         $building_next_level = $actual_building_level + 1;
+        $invention_types_needed = $this->buildingService->getInventionTypesNeededForBuilding($id);
+        $user_inventions_by_type = $this->resourceService->getUserInventionsByType();
 
-        /* Obtenemos los tipos de inventos que el edificio necesita para ser construido */
-        $invention_types_needed = InventionType::where('building_id', $id)->get();
+        $this->resourceService->checkInventionsToConstruct($invention_types_needed, $building_next_level, $user_inventions_by_type);
 
-        /* Agrupamos los inventos del inventario por tipo */
-        $user_inventions_by_type = $this->resource_service->getUserInventionsByType();
+        $viewModel = new BuildingCreateViewModel(
+            building: $building,
+            buildingNextLevel: $building_next_level,
+            userInventionsByType: $user_inventions_by_type,
+            inventionTypesNeeded: $invention_types_needed,
+            canBuildSpaceStation: $canBuildSpaceStation,
+        );
 
-        /* Comprobamos que el jugador tiene el número de inventos necesarios */
-        /* No es necesario recoger la respuesta porque si es false, se redirige */
-        $this->resource_service->checkInventionsToConstruct($invention_types_needed, $building_next_level, $user_inventions_by_type);
-
-        return view('buildings.create', compact('building', 'building_next_level', 'user_inventions_by_type', 'invention_types_needed'));
+        return view('buildings.create', compact('viewModel', 'building', 'building_next_level', 'user_inventions_by_type', 'invention_types_needed', 'canBuildSpaceStation'));
 
 
     }
 
     /**
-     * Realiza la acción de construir un edificio
+     * Realiza la acción de construir un edificio.
+     * 
+     * Valida los inventos seleccionados y construye el edificio creando una acción,
+     * calculando la eficiencia, creando el registro ActionBuilding y eliminando los inventos usados.
+     * 
+     * @param StoreBuildingRequest $request Solicitud validada con los datos de construcción
+     * @return \Illuminate\Http\RedirectResponse Redirección a los detalles del edificio o con error
      */
-    public function storeBuilding(Request $request)
+    public function storeBuilding(StoreBuildingRequest $request)
     {
+        $invention_types_needed = $this->buildingService->getInventionTypesNeededForBuilding($request->building_id);
+        
+        $validation = $this->resourceService->validateSelectedInventionsForBuilding(
+            $request->input('inventions', []),
+            $invention_types_needed,
+            (int) $request->building_level
+        );
 
-        /* Declaramos las reglas de validación de los campos del formulario */
-        $rules = [
-            'building_id' => 'required|exists:buildings,id',
-            'inventions' => 'required|array',
-        ];
-
-        foreach ($request->input('inventions') as $type_id => $inventions_selected) {
-            $rules["inventions.$type_id"] = "required|array|size:$request->building_level|exists:inventions,id";
+        if (!$validation['valid']) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $validation['error']);
         }
 
-        /* Establecemos los mensajes de error del formulario */
-        $validated = $request->validate($rules, [
-            'building_id.required' => 'Por favor, selecciona un edificio válido.',
-            'building_id.exists' => 'El edificio seleccionado no existe en la base de datos.',
-            'inventions.*.required' => 'Debes seleccionar al menos un invento para cada tipo.',
-            "inventions.*.size" => "Debes seleccionar exactamente $request->building_level inventos para cada tipo.",
-        ]);
+        $time = (int) $this->buildingService->getConstructTime((int) $request->building_level);
 
-        $constructTime = $this->building_service->getConstructTime($request->building_level);
+        $result = $this->buildingService->constructBuilding(
+            $request->building_id,
+            (int) $request->building_level,
+            $request->input('inventions'),
+            $time
+        );
 
-        /* Harcodeamos el tiempo para el video */
-        $action = $this->action_service->createAction('Construir', $request->building_id, 'Building', 10);//$constructTime);
+        if (isset($result['error'])) {
+            $buildingsStatus = $result['buildings_status'] ?? [];
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $result['error'])
+                ->with('buildings_status', $buildingsStatus);
+        }
 
-        /* Ahora se crea el edificio aunque no esté disponible y se borran los inventos usados para ello */
-
-        $building_efficiency = $this->building_service->calculateEfficiencyBuilding($request->building_id, $request->building_level, $request->input('inventions'));
-
-        $action_building = $this->action_service->createActionBuilding($action, $request->building_id, $building_efficiency);
-
-        $this->invention_service->eliminateInventionsUsed($request->input('inventions'), $action_building->_id, 'Building');
-
-        if ($action) {
-            $user = $this->user_service->getUser();
-            $building = $this->building_service->getBuilding($request->building_id);
-            return redirect()->route('buildings.show', $building->_id)
-            ->with('success', "$user->name la construcción de $building->name durará $constructTime minutos.");
+        if ($result['action']) {
+            $user = $this->userService->getUser();
+            $building = $this->buildingService->getBuilding($request->building_id);
+            return redirect()->route('buildings.show', $building->id)
+                ->with('success', "$user->name la construcción de $building->name durará {$result['construct_time']} minutos.");
         } else {
             return redirect()->route('buildings.index')
-                         ->with('error', "No se ha podido construir el edificio.");
+                ->with('error', "No se ha podido construir el edificio.");
         }
     }
 
     /**
-     * Redirige al formulario para la acción de crear un invento
+     * Muestra el formulario para crear un invento.
+     * 
+     * Verifica que el usuario tiene los materiales e inventos necesarios
+     * para crear el tipo de invento solicitado.
+     * 
+     * @param string $id ID del tipo de invento a crear
+     * @return \Illuminate\View\View Vista del formulario de creación
      */
     public function createInvention(string $id)
     {
+        $invention_type = $this->inventionTypeService->getInventionTypeWithRelations($id);
+        $invention_types_needed = $this->inventionTypeService->getInventionsNeeded($id);
+        $user_materials = $this->resourceService->getUserMaterialsByType((string) $invention_type->material_type_id);
+        $user_inventions_by_type = $this->resourceService->getUserInventionsByType();
 
-        /* Obtenemos los datos del tipo de invento con la relacion con tipos de material */
-        $invention_type = $this->inventionType_service->getInventionTypeWithRelations($id);
+        $materialsCheck = $this->resourceService->checkMaterials($user_materials, $invention_type->materialType->name);
+        if ($materialsCheck instanceof \Illuminate\Http\RedirectResponse) {
+            return $materialsCheck;
+        }
 
-        /* Obtenemos los tipos de inventos (y la cantidad) que necesita el invento */
-        $invention_types_needed = $this->inventionType_service->getInventionsNeeded($id);
-
-        /* Recuperamos los materiales  que tiene el usuario */
-        $user_materials = $this->resource_service->getUserMaterialsByType($invention_type->material_type_id);
-
-        /* Recuperamos los inventos  que tiene el usuario */
-        $user_inventions_by_type = $this->resource_service->getUserInventionsByType();
-
-        /* Comprobamos que el usuario tiene los materiales necesarios para crear este invento y los recuperamos */
-        $this->resource_service->checkMaterials($user_materials, $invention_type->materialType->name);
-
-        /* Comprobamos que el usuario tiene los inventos necesarios para crear este invento */
-        $this->resource_service->checkInventionsToCreate($invention_types_needed, $user_inventions_by_type);
+        $inventionsCheck = $this->resourceService->checkInventionsToCreate($invention_types_needed, $user_inventions_by_type);
+        if ($inventionsCheck instanceof \Illuminate\Http\RedirectResponse) {
+            return $inventionsCheck;
+        }
 
         return view('inventions.create', compact('invention_type', 'user_materials', 'user_inventions_by_type', 'invention_types_needed'));
     }
 
 
     /**
-     * Guarda los datos del formulario de creación del invento
+     * Guarda los datos del formulario de creación del invento y crea la acción.
+     * 
+     * Valida los inventos seleccionados y crea el invento completo: crea el invento,
+     * crea la acción, decrementa los materiales y elimina los inventos usados.
+     * 
+     * @param StoreInventionRequest $request Solicitud validada con los datos del invento
+     * @return \Illuminate\Http\RedirectResponse Redirección a la lista de tipos de inventos con mensaje de éxito
      */
-    public function storeInvention(Request $request)
+    public function storeInvention(StoreInventionRequest $request)
     {
+        $invention_types_needed = $this->inventionTypeService->getInventionsNeeded($request->invention_type_id);
 
-        /* Establecemos las reglas de los datos de material del formulario */
-        $rules = [
-            'material_id' => 'required|exists:materials,id',
-        ];
+        $validation = $this->resourceService->validateSelectedInventionsForInvention(
+            $request->input('inventions', []),
+            $invention_types_needed
+        );
 
-        /* Validamos que se selecciona un material */
-        $validated = $request->validate($rules, [
-            'material.required' => 'Debes seleccionar un material',
-        ]);
-
-        /* Obtenemos los tipos de inventos necesarios para su creación */
-        $invention_types_needed = $this->inventionType_service->getInventionsNeeded($request->input('invention_type_id'));
-
-        /* Validamos el número de inventos seleccionados en el formulario */
-        foreach ($invention_types_needed as $needed) {
-            $selected_inventions = $request->input('inventions.' . $needed->invention_type_need_id, []);
-            if (count($selected_inventions) !== $needed->quantity) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Debes seleccionar exactamente ' . $needed->quantity . ' invento(s) del tipo ' . $needed->inventionTypeNeed->name);
-            }
+        if (!$validation['valid']) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $validation['error']);
         }
 
-        /* Se debe crear el invento antes de crear la acción porque necesitamos el id del invento */
-        $new_invention = $this->invention_service->createInvention($request->invention_type_id, $request->material_id, $request->time);
-
-        /* Se realiza la acción de crear invento */
-        /* Harcodeamos el tiempo para el video */
-        $action = $this->action_service->createAction('Crear', $new_invention->id, 'Invention', 5);//$request->time);
-
-        /* Se eliminan los recursos utilizados para la creación del invento */
-        $this->resource_service->decrementMaterial($request->material_id);
-        if($request->has('inventions')){
-            $this->invention_service->eliminateInventionsUsed($request->input('inventions'), $new_invention->_id, 'Invention');
-        }
+        $time = (int) $request->time;
+        $inventions_used = $request->has('inventions') ? $request->input('inventions') : null;
+        
+        $result = $this->inventionService->createInventionWithAction(
+            $request->invention_type_id,
+            $request->material_id,
+            $time,
+            $inventions_used
+        );
 
         return redirect()->route('inventionTypes.index')
-             ->with('success', "Invento $new_invention->name en creación.");
-
-    }
-
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            ->with('success', "Invento {$result['invention']->name} en creación.");
     }
 
 }

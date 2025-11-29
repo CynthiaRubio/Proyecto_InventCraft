@@ -6,34 +6,33 @@
 
 @section('content')
 <div class="container mt-5">
-    <h2 class="text-center mb-4 fw-bold p-3 rounded-3" style="background-color: #2196F3; color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">
-        📋 Inventario de {{$inventory->user->name}} 📋
-    </h2>
+    <x-page-title 
+        :title="'📋 Inventario de ' . $viewModel->userName() . ' 📋'" 
+        gradient="linear-gradient(45deg, #2196F3, #64B5F6)"
+        borderColor="#2196F3"
+        size="2rem"
+    />
 <div class="row">
     <div class="col-md-6">
-        <h3 class="d-flex justify-content-center align-items-center fs-4 alert alert-info text-center fw-bold">🛠️ Inventos: {{$total_inventions}} 🛠️</h3>
+        <h3 class="d-flex justify-content-center align-items-center fs-4 alert alert-info text-center fw-bold">🛠️ Inventos: {{ $viewModel->totalInventions }} 🛠️</h3>
         
         <div class="accordion">
-            @forelse($inventionsByType as $type => $inventions)
-                <div class="accordion-item border-light">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed bg-light text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target=".collapseInvention{{ $loop->index }}">
-                            <strong>{{ $type }}</strong>  ({{ $inventions->count() }})
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse collapseInvention{{ $loop->index }}">
-                        <div class="accordion-body">
-                            <ul class="list-group">
-                                @foreach($inventions as $invention)
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold text-dark">{{ $invention->name }}</span>
-                                        <a href="{{ route('inventions.show', $invention->_id) }}" class="btn btn-warning btn-sm">Ver Invento</a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+            @forelse($viewModel->inventionsByType as $type => $inventions)
+                <x-accordion-item 
+                    :title="$type" 
+                    :count="$inventions->count()" 
+                    :index="$loop->index"
+                    type="invention"
+                >
+                    <ul class="list-group">
+                        @foreach($inventions as $invention)
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">{{ $invention->name }}</span>
+                                <a href="{{ route('inventions.show', $invention->id) }}" class="btn btn-warning btn-sm">Ver Invento</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-accordion-item>
             @empty
                 <p class="text-center text-danger">No hay inventos disponibles.</p>
             @endforelse
@@ -41,29 +40,24 @@
     </div>
 
     <div class="col-md-6">
-        <h3 class="d-flex justify-content-center align-items-center fs-4 alert alert-info text-center fw-bold">🪵 Materiales: {{$total_materials}} 🪵</h3>
+        <h3 class="d-flex justify-content-center align-items-center fs-4 alert alert-info text-center fw-bold">🪵 Materiales: {{ $viewModel->totalMaterials }} 🪵</h3>
         
         <div class="accordion">
-            @forelse($materialsByType as $type => $materials)
-                <div class="accordion-item border-light">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed bg-light text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target=".collapseMaterial{{ $loop->index }}">
-                            <strong>{{ $type }}</strong>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse collapseMaterial{{ $loop->index }}">
-                        <div class="accordion-body">
-                            <ul class="list-group">
-                                @foreach($materials as $material)
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold text-dark">{{ $material->material->name }}: Cantidad ({{ $material->quantity }})</span>
-                                        <a href="{{ route('materials.show', $material->material) }}" class="btn btn-warning btn-sm">Ver Material</a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+            @forelse($viewModel->materialsByType as $type => $materials)
+                <x-accordion-item 
+                    :title="$type" 
+                    :index="$loop->index"
+                    type="material"
+                >
+                    <ul class="list-group">
+                        @foreach($materials as $material)
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">{{ $material->material->name }}: Cantidad ({{ $material->quantity }})</span>
+                                <a href="{{ route('materials.show', $material->material) }}" class="btn btn-warning btn-sm">Ver Material</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-accordion-item>
             @empty
                 <p class="text-center text-danger">No hay materiales disponibles.</p>
             @endforelse
@@ -71,7 +65,39 @@
     </div>
 </div>
 
+<!-- Botones de Acción -->
+<div class="row mt-5 mb-4">
+    <div class="col-12">
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            @if($zone)
+                <x-action-button 
+                    :href="route('zones.show', $zone->id)" 
+                    :text="'🗺️ Explorar Zona: ' . $zone->name" 
+                    variant="outline-primary"
+                />
+            @else
+                <x-action-button 
+                    :href="route('zones.index')" 
+                    text="🗺️ Explorar Mapa" 
+                    variant="outline-primary"
+                />
+            @endif
+
+            <x-action-button 
+                :href="route('inventionTypes.index')" 
+                text="🛠️ Crear Inventos" 
+                variant="outline-warning"
+            />
+
+            <x-action-button 
+                :href="route('buildings.index')" 
+                text="🏗️ Construir Edificios" 
+                variant="outline-danger"
+            />
+        </div>
+    </div>
 </div>
 
+</div>
 
 @endsection

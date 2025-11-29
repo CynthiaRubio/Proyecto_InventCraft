@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.actions' => \App\Http\Middleware\CheckActionStatus::class,
         'check.experience' => \App\Http\Middleware\CheckExperienceStatus::class,
+        'check.victory' => \App\Http\Middleware\CheckVictory::class,
     ];
 }

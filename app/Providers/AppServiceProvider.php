@@ -3,13 +3,22 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\ActionManagementService;
-use App\Services\UserManagementService;
-use App\Services\ResourceManagementService;
-use App\Services\ZoneManagementService;
-use App\Services\BuildingManagementService;
+use App\Contracts\ActionServiceInterface;
+use App\Contracts\UserServiceInterface;
+use App\Contracts\ResourceServiceInterface;
+use App\Contracts\ZoneServiceInterface;
+use App\Contracts\BuildingServiceInterface;
+use App\Contracts\InventionServiceInterface;
+use App\Contracts\InventionTypeServiceInterface;
+use App\Contracts\FreeSoundServiceInterface;
+use App\Services\ActionService;
+use App\Services\UserService;
+use App\Services\ResourceService;
+use App\Services\ZoneService;
+use App\Services\BuildingService;
 use App\Services\InventionService;
-use App\Services\FreeSoundService;
+use App\Services\InventionTypeService;
+use App\Services\FreesoundService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,56 +27,61 @@ class AppServiceProvider extends ServiceProvider
     */
     public function register(): void
     {
-        $this->app->singleton(FreeSoundService::class, function ($app) {
-            return new FreeSoundService();
+        // Services sin dependencias (pueden ir en cualquier orden)
+        $this->app->singleton(FreeSoundServiceInterface::class, function ($app) {
+            return new FreesoundService();
         });
 
-        $this->app->singleton(InventionTypeService::class, function ($app) {
+        $this->app->singleton(InventionTypeServiceInterface::class, function ($app) {
             return new InventionTypeService();
         });
 
-
-        $this->app->singleton(UserManagementService::class, function ($app) {
-            return new UserManagementService();
+        // 1. Base: UserService (sin dependencias)
+        $this->app->singleton(UserServiceInterface::class, function ($app) {
+            return new UserService();
         });
 
+        // 2. ZoneService (depende de UserService)
+        $this->app->singleton(ZoneServiceInterface::class, function ($app) {
+            return new ZoneService(
+                $app->make(UserServiceInterface::class),
+            );
+        });
 
-        $this->app->singleton(InventionService::class, function ($app) {
+        // 3. ActionService (depende de UserService y ZoneService)
+        $this->app->singleton(ActionServiceInterface::class, function ($app) {
+            return new ActionService(
+                $app->make(UserServiceInterface::class),
+                $app->make(ZoneServiceInterface::class),
+            );
+        });
+
+        // 4. InventionService (depende de UserService y ActionService)
+        $this->app->singleton(InventionServiceInterface::class, function ($app) {
             return new InventionService(
-                $app->make(UserManagementService::class),
+                $app->make(UserServiceInterface::class),
+                $app->make(ActionServiceInterface::class),
             );
         });
 
-        $this->app->singleton(ZoneManagementService::class, function ($app) {
-            return new ZoneManagementService(
-                $app->make(UserManagementService::class),
+        // 5. BuildingService (depende de ActionService, UserService e InventionService)
+        $this->app->singleton(BuildingServiceInterface::class, function ($app) {
+            return new BuildingService(
+                $app->make(ActionServiceInterface::class),
+                $app->make(UserServiceInterface::class),
+                $app->make(InventionServiceInterface::class),
             );
         });
 
-        $this->app->singleton(ActionManagementService::class, function ($app) {
-            return new ActionManagementService(
-                $app->make(UserManagementService::class),
-                $app->make(ZoneManagementService::class),
+        // 6. ResourceService (depende de todos los anteriores)
+        $this->app->singleton(ResourceServiceInterface::class, function ($app) {
+            return new ResourceService(
+                $app->make(UserServiceInterface::class),
+                $app->make(ActionServiceInterface::class),
+                $app->make(InventionServiceInterface::class),
+                $app->make(ZoneServiceInterface::class),
             );
         });
-
-        $this->app->singleton(BuildingManagementService::class, function ($app) {
-            return new BuildingManagementService(
-                $app->make(ActionManagementService::class),
-                $app->make(UserManagementService::class),
-            );
-        });
-
-        $this->app->singleton(ResourceManagementService::class, function ($app) {
-            return new ResourceManagementService(
-                $app->make(UserManagementService::class),
-                $app->make(ActionManagementService::class),
-                $app->make(InventionService::class),
-                $app->make(ZoneManagementService::class),
-            );
-        });
-
-
     }
 
 

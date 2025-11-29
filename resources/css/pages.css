@@ -1,0 +1,280 @@
+/* ============================================
+   Página de Bienvenida (Home)
+   ============================================ */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+
+/* Efecto hover para cards de tipos de inventos */
+.invention-type-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.invention-type-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(255, 152, 0, 0.3) !important;
+    border-color: #FF9800;
+}
+
+/* ============================================
+   Vista de Victoria
+   ============================================ */
+@keyframes victoryPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.victory-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.victory-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+/* ============================================
+   Zonas
+   ============================================ */
+.floating-image {
+    animation: float 1.5s ease-in-out infinite;
+}
+
+.image-container {
+    position: relative;
+    overflow: hidden;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.image-container img {
+    width: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-container:hover img {
+    transform: translateY(-10px);
+}
+
+.text-overlay {
+    position: absolute;
+    font-weight: 600px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-container:hover .text-overlay {
+    opacity: 1;
+}
+
+/* ============================================
+   Acciones - Wait
+   ============================================ */
+.text-hover-dark:hover {
+    color: #000 !important;
+    background-color: #f39c12 !important;
+    border-color: #f39c12 !important;
+}
+
+/* ============================================
+   Usuarios - Avatar Selection
+   ============================================ */
+.avatar-option {
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+}
+
+.avatar-option:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+input[type="radio"]:checked + img {
+    border-color: gold !important;
+    box-shadow: 0 0 20px gold;
+    transform: scale(1.1);
+}
+
+/* ============================================
+   Timer Flotante
+   ============================================ */
+.fixed-timer {
+    position: fixed;
+    top: 120px;
+    right: 2rem;
+    background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 193, 7, 0.5);
+    z-index: 1050;
+    border: 3px solid #FFA000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 240px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.fixed-timer #timer-label {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.fixed-timer #countdown {
+    font-size: 1.3rem;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 193, 7, 0.4);
+    }
+    50% {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 193, 7, 0.6);
+    }
+}
+
+/* Hover para tabla de tipos de materiales - Solo color de fondo personalizado */
+.table.material-types-table tbody tr:hover {
+    background-color: #e3f2fd !important;
+}
+
+.table.material-types-table tbody tr:hover td {
+    background-color: transparent !important;
+    font-weight: bold;
+}
+
+.fixed-timer.completed {
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    color: white;
+    border-color: #1B5E20;
+    animation: none;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(76, 175, 80, 0.4);
+}
+
+/* ============================================
+   Header y Navegación Unificados
+   ============================================ */
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.3s ease, background-color 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin: 0 0.25rem;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+}
+
+.navbar-dark .navbar-brand,
+.navbar-dark .navbar-brand:hover {
+    color: #fff;
+}
+
+.navbar-dark .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.navbar-dark .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.8);
+    color: #fff;
+}
+
+/* ============================================
+   Layout - Footer siempre abajo
+   ============================================ */
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content-wrapper {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+

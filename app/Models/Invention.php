@@ -1,26 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-//use Illuminate\Database\Eloquent\Model;
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Modelo Invention
+ * 
+ * Representa un invento creado por un jugador en el juego.
+ * Los inventos pueden ser usados para crear otros inventos o construir edificios.
+ * 
+ * @property int $id
+ * @property int $invention_type_id ID del tipo de invento
+ * @property int $material_id ID del material usado para crear este invento
+ * @property int $inventory_id ID del inventario donde se almacena este invento
+ * @property string $name Nombre único del invento
+ * @property float $efficiency Eficiencia del invento (0-100)
+ * @property bool $available Indica si el invento está disponible para usar
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ */
 class Invention extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $connection = 'mongodb';
-    protected $collection = 'inventions';
-
     protected $fillable = [
         'invention_type_id',
         'material_id',
         'inventory_id',
-        'action_building_id',
-        'invention_created_id',
         'name',
         'efficiency',
         'available',
@@ -28,48 +41,53 @@ class Invention extends Model
 
     /* RELACIONES */
 
-    /* InventionType 1:N Inventions */
+    /**
+     * Obtiene el tipo de invento al que pertenece este invento
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function inventionType(){
         return $this->belongsTo(InventionType::class , 'invention_type_id');
     }
 
-    /* Material 1:N Inventions */
+    /**
+     * Obtiene el material usado para crear este invento
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function material(){
         return $this->belongsTo(Material::class , 'material_id');
     }
 
-    /* Inventory 1:N Inventions */
+    /**
+     * Obtiene el inventario donde se almacena este invento
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function inventory(){
         return $this->belongsTo(Inventory::class , 'inventory_id');
     }
 
-    /* ActionBuilding 1:N Inventions */
-    public function actionBuilding(){
-        return $this->belongsTo(ActionBuilding::class , 'action_building_id');
-    }
-
     /* RELACIONES CON ENTIDADES POLIMORFICAS */
 
-    /* Action (Polimórfica) 1:1 Inventions */
+    /**
+     * Obtiene la acción de creación asociada a este invento
+     * Relación polimórfica 1:1
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
     public function action(){
         return $this->morphOne(Action::class , 'actionable');
     }
 
-    /* Resources (Polimórfica) N:1 Invention */
+    /**
+     * Obtiene los recursos asociados a este invento
+     * Relación polimórfica N:1
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function resources(){ 
         return $this->morphMany(Resource::class , 'resourceable');
-    }
-
-    /* RELACIÓN REFLEXIVA */
-
-    /* Invention 1:N Inventions */
-    public function inventionUsed(){
-        return $this->belongsTo(Invention::class, 'invention_created_id');
-    }
-
-    /* Invention 1:N Inventions */
-    public function inventionCreated(){
-        return $this->hasMany(Invention::class , 'invention_id');
     }
 
 }

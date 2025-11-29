@@ -43,28 +43,6 @@ class ActionBuildingUnitTest extends TestCase
 
 
     /**
-     * Test para comprobar la relacion de ActionBuilding con Invento
-     */
-    public function test_action_building_has_inventions()
-    {
-        $this->buildingSetUp();
-
-        /* Creamos inventos asociándolos a la acción de construir */
-        $invention1 = Invention::create([
-            'action_building_id' => $this->actionBuilding->id, 
-            'name' => 'Invention 1'
-        ]);
-        $invention2 = Invention::create([
-            'action_building_id' => $this->actionBuilding->id, 
-            'name' => 'Invention 2'
-        ]);
-
-        /* Verificamos que el ActionBuilding tiene los inventos creados asociados */
-        $this->assertTrue($this->actionBuilding->inventions->contains($invention1));
-        $this->assertTrue($this->actionBuilding->inventions->contains($invention2));
-    }
-
-    /**
      * Test para comprobar la relación de ActionBuilding-Action
      */
     public function test_action_building_has_action()

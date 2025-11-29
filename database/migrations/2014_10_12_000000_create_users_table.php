@@ -18,10 +18,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->integer('level');
-            $table->integer('experience');
-            $table->integer('unasigned_points');
-            $table->integer('avatar')->nullable();
+            $table->unsignedInteger('level')->default(1);
+            $table->unsignedInteger('experience')->default(0);
+            $table->unsignedInteger('unasigned_points')->default(15);
+            $table->unsignedInteger('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

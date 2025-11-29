@@ -1,17 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-//use Illuminate\Database\Eloquent\Model;
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Modelo ActionType
+ * 
+ * Representa un tipo de acción que puede realizar un jugador.
+ * Ejemplos: Explorar, Crear (invento), Construir (edificio).
+ * 
+ * @property int $id
+ * @property string $name Nombre del tipo de acción
+ * @property string $description Descripción del tipo de acción
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class ActionType extends Model
 {
     use HasFactory;
-
-    protected $connection = 'mongodb';
-    protected $collection = 'action_types';
 
     protected $fillable = [
         'name',
@@ -20,7 +30,11 @@ class ActionType extends Model
 
     /* RELACIONES */
 
-    /* Actions N:1 ActionType */
+    /**
+     * Obtiene todas las acciones de este tipo
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function actions(){
         return $this->hasMany(Action::class , 'action_type_id');
     }

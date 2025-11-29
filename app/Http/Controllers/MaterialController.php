@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -12,7 +14,9 @@ use App\Models\Zone;
 class MaterialController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de todos los materiales.
+     * 
+     * @return \Illuminate\View\View Vista con la lista de materiales
      */
     public function index()
     {
@@ -20,52 +24,16 @@ class MaterialController extends Controller
     }
 
     /**
-    * Display the specified resource.
-    */
-    public function show($id)
+     * Muestra los detalles de un material específico.
+     * 
+     * @param string $id ID del material
+     * @return \Illuminate\View\View Vista con los detalles del material
+     */
+    public function show(string $id)
     {
         $material = Material::with(['materialType.inventionTypes', 'zone'])->find($id);
 
         return view('materials.show', compact('material')); 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

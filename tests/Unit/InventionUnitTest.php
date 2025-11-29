@@ -77,8 +77,6 @@ class InventionUnitTest extends TestCase
             'invention_type_id' => $this->inventionType->_id,
             'material_id' => $this->material->_id,
             'inventory_id' => $this->inventory->_id,
-            'action_building_id' => $this->actionBuilding->_id,
-            'invention_created_id' => null,
             'name' => 'Invento 1 prueba',
             'efficiency' => 34.70,
             'available' => true,
@@ -140,18 +138,6 @@ class InventionUnitTest extends TestCase
         $this->assertInstanceOf(Inventory::class, $this->invention->inventory);
     }
 
-    public function test_invention_belongs_to_action_building()
-    {
-
-        $this->inventionSetUp();
-
-        /* Verificamos que el invento tiene el ActionBuilding asociado */
-        $this->assertTrue($this->invention->actionBuilding->id === $this->actionBuilding->id);
-
-        /* Verificamos que el ActionBuilding asociado es una instancia de ActionBuilding */
-        $this->assertInstanceOf(ActionBuilding::class, $this->invention->actionBuilding);
-    }
-
     public function test_invention_has_one_action()
     {
         $this->inventionSetUp();
@@ -184,25 +170,6 @@ class InventionUnitTest extends TestCase
 
         /* Verificamos que los recursos son instancias de Resource */
         $this->assertInstanceOf(Resource::class, $this->invention->resources->first());
-    }
-
-
-    public function test_invention_has_reflexive_relationship()
-    {
-        $this->inventionSetUp();
-
-        $invention2 = Invention::create([
-            'invention_created_id' => $this->invention->id,
-            'name' => 'Invento 2',
-            'efficiency' => 87,
-            'available' => true,
-        ]);
-
-        /* Verificamos la relación reflexiva de inventos */
-        $this->assertTrue($invention2->inventionUsed->id === $this->invention->id);
-
-        /* Verificar que el invento usado es una instancia de Invention */
-        $this->assertInstanceOf(Invention::class, $invention2->inventionUsed);
     }
 
 }

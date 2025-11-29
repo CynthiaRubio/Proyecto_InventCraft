@@ -16,11 +16,9 @@ return new class extends Migration
             $table->foreignId('invention_type_id')->constrained('invention_types')->onDelete('cascade');
             $table->foreignId('material_id')->constrained('materials')->onDelete('cascade');
             $table->foreignId('inventory_id')->constrained('inventories')->onDelete('cascade');
-            $table->foreignId('action_building_id')->constrained('action_buildings')->onDelete('cascade')->nullable();
-            $table->foreignId('invention_created_id')->constrained('inventions')->onDelete('cascade')->nullable();
             $table->string('name');
-            $table->float('efficiency');
-            $table->boolean('available');
+            $table->float('efficiency'); // porcentaje 0-100
+            $table->boolean('available')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

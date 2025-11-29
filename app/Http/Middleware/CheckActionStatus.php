@@ -1,118 +1,124 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Session;
 
-use App\Models\Action;
-use App\Models\ActionBuilding;
-use App\Models\ActionType;
-use App\Models\ActionZone;
-use App\Models\Invention;
-use App\Models\Inventory;
-use App\Models\InventoryMaterial;
-use App\Models\Resource;
+use App\Contracts\ActionServiceInterface;
+use App\Contracts\UserServiceInterface;
+use App\Contracts\BuildingServiceInterface;
+use App\Contracts\ResourceServiceInterface;
+use App\Contracts\InventionServiceInterface;
 
-use App\Services\ResourceManagementService;
-use App\Services\BuildingManagementService;
-
-
+/**
+ * Middleware que verifica y procesa el estado de las acciones del usuario.
+ * 
+ * Este middleware se ejecuta en cada petición y realiza las siguientes tareas:
+ * - Verifica si hay acciones finalizadas pendientes de procesar
+ * - Calcula y añade la experiencia ganada por acciones completadas
+ * - Procesa la finalización de acciones según su tipo (Mover, Construir, Crear, Recolectar)
+ * - Verifica si el jugador ha ganado (construcción de Estación Espacial) y redirige a la vista de victoria
+ * - Previene que el usuario inicie nuevas acciones mientras tiene una en curso
+ * - Comparte el tiempo restante de la acción actual con las vistas
+ */
 class CheckActionStatus
 {
+    /**
+     * Constructor del middleware.
+     * 
+     * @param ActionServiceInterface $actionService Servicio de acciones
+     * @param UserServiceInterface $userService Servicio de usuarios
+     * @param BuildingServiceInterface $buildingService Servicio de edificios
+     * @param ResourceServiceInterface $resourceService Servicio de recursos
+     * @param InventionServiceInterface $inventionService Servicio de inventos
+     */
     public function __construct(
-        private ResourceManagementService $resource_service,
-        private BuildingManagementService $building_service,
+        private ActionServiceInterface $actionService,
+        private UserServiceInterface $userService,
+        private BuildingServiceInterface $buildingService,
+        private ResourceServiceInterface $resourceService,
+        private InventionServiceInterface $inventionService,
     ) {
     }
 
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Maneja una petición entrante.
+     * 
+     * Procesa las acciones finalizadas, calcula experiencia, verifica victoria
+     * y previene acciones simultáneas.
+     * 
+     * @param Request $request Petición HTTP entrante
+     * @param Closure $next Siguiente middleware en la cadena
+     * @return Response Respuesta HTTP
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth()->user();
 
-        /* Buscamos las acciones que ya han terminado */
-        $last_action = Action::where('user_id', $user->_id)
-                        ->where('finished', false)
-                        ->where('time', '<=', now())
-                        ->first();
+        if (!$user) {
+            return $next($request);
+        }
 
-        if ($last_action !== null) {
+        $finishedAction = $this->actionService->getFinishedPendingAction($user->id);
 
-            $time = $last_action->time->diffInSeconds($last_action->created_at);
-            $user_experience = $user->experience + round(3 * ($user->level+1) * ($time / 30));
-            $user->update(['experience' => $user_experience]);
+        if ($finishedAction !== null) {
+            $experienceGained = $this->actionService->calculateExperienceGained($finishedAction);
+            $this->userService->addExperience($user->id, $experienceGained);
 
-            /* Recuperamos el tipo de acción que es */
-            $action_type = ActionType::find($last_action->action_type_id);
+            $actionType = $this->actionService->getActionTypeById($finishedAction->action_type_id);
 
-            switch ($action_type->name) {
-
+            switch ($actionType->name) {
                 case 'Mover':
-                    session()->flash('success', "$user->name, has llegado a tu destino ¡Aumenta tu velocidad y serás más rápido en tus próximos trayectos!");
+                    Session::flash('success', "$user->name, has llegado a tu destino ¡Aumenta tu velocidad y serás más rápido en tus próximos trayectos!");
                     break;
 
                 case 'Construir':
-                    ActionBuilding::where('action_id' , $last_action->_id)
-                                    ->update(['available' => true]);
-                    $user_stat = $this->building_service->updateUserStats($last_action->actionable_id);
-                    session()->flash('success', "$user->name, terminaste la construcción de tu edificio. ¡Tus habilidades han mejorado!");
+                    $result = $this->buildingService->finishConstructionAction($finishedAction, $user->name);
+                    
+                    if (isset($result['victory']) && $result['victory']) {
+                        Session::put('victory_redirect', true);
+                        Session::flash('victory_message', $result['message']);
+                    }
                     break;
 
                 case 'Crear':
-                    $inventory_id = Inventory::where('user_id', $user->_id)->first()->id;
-                    
-                    $invention = Invention::where('inventory_id', $inventory_id)
-                            ->where('available', false)
-                            ->update(['available' => true]);
-                    
-                    session()->flash('success', "$user->name, has terminado la creación de tu invento gracias a tu ingenio.");
+                    $this->inventionService->finishCreationAction($finishedAction, $user->name);
                     break;
 
                 case 'Recolectar':
-
-                    $results = $this->resource_service->updateResources($last_action);
-                    
-                    /* TODO Falta sacar por pantalla la información sobre el evento ocurrido */
-                    if(! is_array($results)){
-                         $results = [$results];
-                    }
-                    session()->flash('data', $results);
+                    $this->resourceService->finishFarmAction($finishedAction, $user->name);
                     break;
             }
 
-            /* Se actualiza el estado de la acción terminada */
-            $last_action->update([
-                'finished' => true, 
-                'notification' => true , 
-                'updated' => true,
-            ]);
+            $this->actionService->finishAction($finishedAction);
         }
 
+        if (Session::has('victory_redirect')) {
+            Session::forget('victory_redirect');
+            return redirect()->route('buildings.victory');
+        }
 
-        /* Determinamos si hay alguna acción que no haya terminado */
-        $action = Action::where('user_id', $user->_id)
-            ->where('finished', false)
-            ->where('time', '>', now())
-            ->first();
+        $currentAction = $this->actionService->getCurrentAction($user->id);
 
-        /* Si existe acción en marcha */
-        if ($action) {
-            $time_left = $action->time->timestamp - now()->timestamp;
-            /* Se limita hacer otra acción */
+        if ($currentAction) {
+            $timeLeft = max(0, (int) ($currentAction->time->timestamp - now()->timestamp));
+            
             if ($request->is('moveZone') || $request->is('buildings/create/*') || $request->is('inventions/create/*') || $request->is('farm')) {
                 return redirect()->back()->with('error', '⚠️ No puedes hacer otra acción hasta que termine la actual.');
             }
-            /* Se envia el tiempo restante para terminar a la vista */
+            
             view()->share([
-                'time_left' => $time_left,
+                'time_left' => $timeLeft,
             ]);
-
+        } else {
+            view()->share([
+                'time_left' => 0,
+            ]);
         }
 
         return $next($request);

@@ -1,38 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-use App\Models\User;
+use App\Contracts\UserServiceInterface;
 
+/**
+ * Middleware que verifica y actualiza el nivel del usuario basado en su experiencia.
+ * 
+ * Este middleware se ejecuta en cada petición y verifica si el usuario tiene
+ * suficiente experiencia para subir de nivel. Si es así, actualiza el nivel
+ * y otorga puntos de estadísticas no asignados.
+ */
 class CheckExperienceStatus
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Constructor del middleware.
+     * 
+     * @param UserServiceInterface $userService Servicio de usuarios
+     */
+    public function __construct(
+        private UserServiceInterface $userService,
+    ) {
+    }
+
+    /**
+     * Maneja una petición entrante.
+     * 
+     * Verifica si el usuario tiene suficiente experiencia para subir de nivel
+     * y actualiza su nivel si es necesario.
+     * 
+     * @param Request $request Petición HTTP entrante
+     * @param Closure $next Siguiente middleware en la cadena
+     * @return Response Respuesta HTTP
      */
     public function handle(Request $request, Closure $next): Response
     {
-
-        /* Comprobamos la experiencia del jugador */
         $user = auth()->user();
 
-        $experience_by_level = ($user->level + 1) * 100;
-    
-        if($user->experience >= $experience_by_level){
-            $new_experience = $user->experience - $experience_by_level;
-            $new_level = $user->level + 1;
-            $new_unasigned_points = $user->unasigned_points + 15;
-            $user->update([
-                'experience' => $new_experience , 
-                'level' => $new_level,
-                'unasigned_points' => $new_unasigned_points,
-            ]);
+        if (!$user) {
+            return $next($request);
         }
+
+        $this->userService->checkAndUpdateLevel($user->id);
 
         return $next($request);
     }

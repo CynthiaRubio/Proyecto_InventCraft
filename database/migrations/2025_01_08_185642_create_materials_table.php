@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('zone_id')->constrained('zones')->onDelete('cascade');
             $table->string('name')->unique();
             $table->text('description');
-            $table->float('efficiency');
+            $table->float('efficiency'); // porcentaje de 0 a 100
             $table->timestamps();
         });
     }

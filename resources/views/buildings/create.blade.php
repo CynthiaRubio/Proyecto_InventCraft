@@ -1,16 +1,19 @@
-@extends('layouts.basic')
+@extends('layouts.full')
 
 @section('title', "Crea tu $building->name")
 
 @section('content')
 
-<h2 class="text-center mb-4" style="font-size: 3rem; font-weight: bold; color: #fff; background: linear-gradient(45deg,rgb(217, 101, 90), #ff9a8b); border-radius: 8px; padding: 10px 20px; border: 3px solid #ff6f61;">
-    {{ $building->name }}
-</h2>
+<x-page-title 
+    title="{{ $building->name }}" 
+    gradient="linear-gradient(135deg, rgb(217, 101, 90) 0%, #ff9a8b 100%)"
+    borderColor="#ff6f61"
+/>
 
-<div class="row justify-content-center">
+<div class="container">
+    <div class="row justify-content-center">
     <div class="col-md-5"> <!-- Hacemos la columna del formulario más estrecha (col-md-5) -->
-        <form action="{{ route('storeBuilding') }}" method="POST">
+        <form id="building-form" action="{{ route('storeBuilding') }}" method="POST">
             @csrf
             <input type="hidden" value="{{ $building->id }}" name="building_id">
             <input type="hidden" value="{{ $building_next_level }}" name="building_level">
@@ -32,10 +35,6 @@
                     </select>
                 </div>
             @endforeach
-
-            <div class="text-center mb-4">
-                <button type="submit" class="btn btn-danger btn-lg shadow-sm fw-bold text-white">Crear Edificio</button>
-            </div>
         </form>
     </div>
 
@@ -45,12 +44,23 @@
                 class="img-fluid rounded shadow" style="max-height: 600px; object-fit: contain;">
         </div>
     </div>
-</div>
+    </div>
 
-<div class="text-center mt-5">
-    <a href="{{ route('buildings.index') }}" class="btn btn-outline-warning btn-lg shadow-sm fw-bold">
-        Volver al listado de edificios
-    </a>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-11">
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <button type="submit" form="building-form" class="btn btn-danger shadow fw-bold">
+                    Crear Edificio
+                </button>
+                <x-action-button 
+                    :href="route('buildings.index')" 
+                    text="Volver al listado" 
+                    variant="outline-warning"
+                    size="md"
+                />
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection

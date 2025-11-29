@@ -1,93 +1,71 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Zone;
-use App\Models\Material;
-use App\Models\InventionType;
-use App\Services\ActionManagementService;
-use App\Services\ZoneManagementService;
-use App\Services\UserManagementService;
-use App\Services\FreeSoundService;
+use App\Contracts\ActionServiceInterface;
+use App\Contracts\ZoneServiceInterface;
+use App\Contracts\FreeSoundServiceInterface;
+use App\ViewModels\ZoneIndexViewModel;
+use App\ViewModels\ZoneShowViewModel;
 
 class ZoneController extends Controller
 {
+    /**
+     * Constructor del controlador.
+     * 
+     * @param ActionServiceInterface $actionService Servicio de acciones
+     * @param ZoneServiceInterface $zoneService Servicio de zonas
+     * @param FreeSoundServiceInterface $freeService Servicio de sonidos
+     */
     public function __construct(
-        private UserManagementService $user_service,
-        private ActionManagementService $action_service,
-        private ZoneManagementService $zone_service,
-        private FreeSoundService $free_service,
-    ) {}
+        private ActionServiceInterface $actionService,
+        private ZoneServiceInterface $zoneService,
+        private FreeSoundServiceInterface $freeService,
+    ) {
+    }
 
     /**
-     * Display a listing of the resource.
+     * Muestra el mapa con todas las zonas y la zona actual del usuario.
+     * 
+     * @return \Illuminate\View\View Vista del mapa de zonas
      */
     public function index()
     {
         $zones = Zone::all();
-
-        $zone_id_user = $this->action_service->getLastActionableByType('Mover');
-
+        $zone_id_user = $this->actionService->getLastActionableByType('Mover');
         $zone_user = Zone::find($zone_id_user);
 
-        return view('zones.index', ['zones' => $zones , 'zone' => $zone_user]);
+        $viewModel = new ZoneIndexViewModel(
+            zones: $zones,
+            currentZone: $zone_user,
+        );
+
+        return view('zones.index', compact('viewModel', 'zones', 'zone_user'));
     }
 
     /**
-     * Display the specified resource.
+     * Muestra los detalles de una zona específica.
+     * 
+     * @param string $id ID de la zona
+     * @return \Illuminate\View\View Vista con los detalles de la zona
      */
     public function show(string $id)
     {
-        $zone = Zone::with(['materials' , 'inventionTypes'])->find($id);
+        $zone = Zone::with(['materials', 'inventionTypes'])->find($id);
+        $sound_url = $this->freeService->getSound($zone);
+        $moveTime = $this->zoneService->calculateMoveTime($id);
 
-        $sound_url = $this->free_service->getSound($zone);
+        $viewModel = new ZoneShowViewModel(
+            zone: $zone,
+            moveTime: $moveTime,
+            soundUrl: $sound_url,
+        );
 
-        $moveTime = $this->zone_service->calculateMoveTime($id);
-
-        return view('zones.show', compact('zone' , 'moveTime', 'sound_url'));
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ZoneController $zoneController)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ZoneController $zoneController)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ZoneController $zoneController)
-    {
-        //
+        return view('zones.show', compact('viewModel', 'zone', 'moveTime', 'sound_url'));
     }
 
 }

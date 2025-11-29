@@ -1,19 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
-use App\Models\Zone;
 
 class EventController extends Controller
 {
     /**
      * Devuelve la lista de eventos en formato JSON.
+     * 
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con todos los eventos
      */
     public function index()
     {
@@ -22,9 +24,12 @@ class EventController extends Controller
     }
 
     /**
-     * Devuelve un evento específico en JSON.
+     * Devuelve un evento específico en formato JSON.
+     * 
+     * @param string $id ID del evento
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el evento o error 404
      */
-    public function show($id)
+    public function show(string $id)
     {
         $event = Event::with('zone')->find($id);
 
@@ -36,25 +41,26 @@ class EventController extends Controller
     }
 
     /**
-     * Guarda un nuevo evento y lo devuelve en JSON.
+     * Guarda un nuevo evento y lo devuelve en formato JSON.
+     * 
+     * @param StoreEventRequest $request Solicitud validada con los datos del evento
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el evento creado
      */
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $request->validate([
-            'zone_id' => 'required|exists:zones,_id', 
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        $event = Event::create($request->all());
+        $event = Event::create($request->validated());
 
         return response()->json(['message' => 'Evento creado correctamente', 'event' => $event], 201);
     }
 
     /**
-     * Actualiza un evento y devuelve la respuesta en JSON.
+     * Actualiza un evento y devuelve la respuesta en formato JSON.
+     * 
+     * @param UpdateEventRequest $request Solicitud validada con los datos del evento
+     * @param string $id ID del evento a actualizar
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el evento actualizado o error 404
      */
-    public function update(Request $request, $id)
+    public function update(UpdateEventRequest $request, string $id)
     {
         $event = Event::find($id);
 
@@ -62,21 +68,18 @@ class EventController extends Controller
             return response()->json(['error' => 'Evento no encontrado'], 404);
         }
 
-        $request->validate([
-            'zone_id' => 'required|exists:zones,_id', 
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        $event->update($request->all());
+        $event->update($request->validated());
 
         return response()->json(['message' => 'Evento actualizado correctamente', 'event' => $event], 200);
     }
 
     /**
-     * Elimina un evento y devuelve una confirmación en JSON.
+     * Elimina un evento y devuelve una confirmación en formato JSON.
+     * 
+     * @param string $id ID del evento a eliminar
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con confirmación o error 404
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $event = Event::find($id);
 

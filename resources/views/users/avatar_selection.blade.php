@@ -10,7 +10,7 @@
         <div class="card-body p-5" style="background: rgba(0,0,0,0.6); border-radius: 10px;">
             <h2 class="fw-bold">Selecciona tu Avatar</h2>
 
-            <form action="{{ route('users.avatar.update', $user->_id) }}" method="POST">
+            <form action="{{ route('users.avatar.update', $user->id) }}" method="POST">
                 @csrf
                 <div class="d-flex flex-column align-items-center gap-4 mt-4">
                     <div class="d-flex justify-content-center gap-5">
@@ -39,26 +39,9 @@
                 <button type="submit" class="btn btn-warning mt-4 fw-bold px-4 py-2">✅ Confirmar Avatar</button>
             </form>
 
-            <a href="{{ route('users.show', $user->_id) }}" class="btn btn-secondary mt-3 px-4 py-2">❌ Cancelar</a>
+            <a href="{{ route('users.show', $user->id) }}" class="btn btn-secondary mt-3 px-4 py-2">❌ Cancelar</a>
         </div>
     </div>
 </div>
 
-<style>
-    .avatar-option {
-        cursor: pointer;
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
-    }
-
-    .avatar-option:hover {
-        transform: scale(1.2);
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-    }
-
-    input[type="radio"]:checked + img {
-        border-color: gold !important;
-        box-shadow: 0 0 20px gold;
-        transform: scale(1.1);
-    }
-</style>
 @endsection

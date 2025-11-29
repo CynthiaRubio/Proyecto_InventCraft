@@ -2,14 +2,6 @@
 
 @section('title', 'Layout Completo')
 
-@section('nav') 
-    @include('partials.nav')
-@endsection
-
-@section('timer') 
-    @include('partials.timer')
-@endsection
-
 @section('content') 
     @yield('extra-content') 
 @endsection

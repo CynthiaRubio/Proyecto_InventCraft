@@ -3,42 +3,58 @@
 @section('title', 'Detalles del Evento')
 
 @section('content')
+    <x-page-title 
+        :title="'📌 ' . $event->name" 
+        gradient="linear-gradient(135deg, #4CAF50 0%, #81C784 100%)"
+        borderColor="#4CAF50"
+    />
 
+    <div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 350px);">
+        <div class="w-100">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <dt class="fw-bold">Descripción:</dt>
+                                <dd class="mt-1">{{ $event->description }}</dd>
+                            </div>
 
-<div class="container mt-5">
-    
-    <h2 class="text-center mb-4" style="background: linear-gradient(to right, #4CAF50, #81C784); color: white; padding: 10px; border-radius: 8px;">
-        📌 {{ $event->name }}
-    </h2>
+                            <div class="mb-3">
+                                <dt class="fw-bold">Zona:</dt>
+                                <dd class="mt-1">{{ $event->zone->name }}</dd>
+                            </div>
 
-    <div class="row align-items-center">
+                            <div class="mb-3">
+                                <dt class="fw-bold">Pérdida de Recursos:</dt>
+                                <dd class="mt-1">{{ number_format($event->loss_percent, 2) }}%</dd>
+                            </div>
+                        </div>
+                    </div>
 
-       
-        <div class="col-md-6">
-            <ul class="list-group">
-                <li class="list-group-item"><strong>Descripción:</strong> {{ $event->description }}</li>
-                <li class="list-group-item"><strong>Zona:</strong> {{ $event->zone->name }}</li>
-            </ul>
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                <x-action-button 
+                                    :href="route('events.index')" 
+                                    text="Volver" 
+                                    variant="outline-secondary"
+                                />
+                                <x-action-button 
+                                    :href="route('events.edit', $event->id)" 
+                                    text="Editar" 
+                                    variant="outline-warning"
+                                />
+                                <form action="{{ route('events.destroy', $event->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-outline-danger btn-lg shadow fw-bold" onclick="return confirm('¿Eliminar evento?')">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-       
-        <div class="col-md-6 text-center">
-            <div class="mb-3">
-                <a href="{{ route('events.index') }}" class="btn btn-outline-secondary btn-lg">⬅️ Volver</a>
-            </div>
-            <div class="mb-3">
-                <a href="{{ route('events.edit', $event->_id) }}" class="btn btn-outline-warning btn-lg">✏️ Editar</a>
-            </div>
-            <div>
-                <form action="{{ route('events.destroy', $event->_id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-outline-danger btn-lg" onclick="return confirm('¿Eliminar evento?')">🗑️ Eliminar</button>
-                </form>
-            </div>
-        </div>
-
     </div>
-</div>
-
 @endsection

@@ -1,158 +1,139 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Contracts\UserServiceInterface;
+use App\Contracts\ActionServiceInterface;
+use App\Contracts\ZoneServiceInterface;
+use App\Http\Requests\UpdateUserStatsRequest;
+use App\Http\Requests\ChangeAvatarRequest;
 use App\Models\User;
-use App\Models\Stat;
-use App\Models\UserStat;
-use App\Models\Action;
-use App\Models\ActionType;
-use App\Models\Zone;
-
-use App\Services\UserManagementService;
-use App\Services\ActionManagementService;
-use App\Services\ZoneManagementService;
+use App\ViewModels\UserShowViewModel;
 
 class UserController extends Controller
 {
+    /**
+     * Constructor del controlador.
+     * 
+     * @param UserServiceInterface $userService Servicio de usuarios
+     * @param ActionServiceInterface $actionService Servicio de acciones
+     * @param ZoneServiceInterface $zoneService Servicio de zonas
+     */
     public function __construct(
-        private UserManagementService $user_service,
-        private ActionManagementService $action_service,
-        private ZoneManagementService $zone_service,
-    ) {}
+        private UserServiceInterface $userService,
+        private ActionServiceInterface $actionService,
+        private ZoneServiceInterface $zoneService,
+    ) {
+    }
 
     /**
-     * Función para ordenar los puntos de los jugadores y llamar a la vista correspondiente
+     * Muestra el ranking de usuarios ordenado por nivel y experiencia.
+     * 
+     * @return \Illuminate\View\View Vista con el ranking de usuarios
      */
     public function ranking()
     {
-        $users = User::OrderByDesc('level')->orderByDesc('experience')->get();
+        $users = $this->userService->getRanking();
         
         return view('users.ranking', compact('users'));
     }
 
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de todos los usuarios.
+     * 
+     * @return \Illuminate\View\View Vista con la lista de usuarios
      */
     public function index()
     {
-        return view('users.index', ['users' => User::all()]);
+        return view('users.index', ['users' => $this->userService->getAllUsers()]);
     }
 
     /**
-     * Display the specified resource.
+     * Muestra el perfil del usuario autenticado.
+     * 
+     * @return \Illuminate\View\View Vista con el perfil del usuario
      */
     public function show()
     {
-        $user = auth()->user()->load('stats.stat',); 
+        $user = auth()->user()->load('userStats.stat'); 
 
-        $zone_id = $this->action_service->getLastActionableByType('Mover');
-        $zone = $this->zone_service->getZone($zone_id);
+        $zone_id = $this->actionService->getLastActionableByType('Mover');
+        $zone = $this->zoneService->getZone($zone_id);
+
+        $viewModel = new UserShowViewModel(
+            user: $user,
+            zone: $zone,
+        );
         
-        return view('users.show' , compact(['user' , 'zone' ]));
+        return view('users.show', compact('viewModel', 'user', 'zone'));
     }
 
     /**
-     * Función para llamar a la vista para asignar los puntos del jugador
+     * Muestra la vista para asignar puntos de estadísticas al usuario.
+     * 
+     * @param string $id ID del usuario
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse Vista de asignación de puntos o redirección si no tiene permisos
      */
     public function points(string $id)
     {
         $user = auth()->user();
 
-        if($user->_id === $id){
-            return view('users.points', compact('user'));
-        } else {
-            return view('login');
+        // Verificar que el usuario solo pueda acceder a sus propios puntos
+        if ((string) $user->id !== $id) {
+            return redirect()->route('users.show')
+                ->with('error', 'No tienes permiso para acceder a esta página.');
         }
+
+        // Cargar las estadísticas del usuario con la relación stat
+        $user->load('userStats.stat');
+
+        return view('users.points', compact('user'));
     }
 
     /**
-     * Función para guardar los puntos asignados por el jugador
+     * Guarda los puntos de estadísticas asignados por el usuario.
+     * 
+     * @param UpdateUserStatsRequest $request Solicitud validada con los puntos asignados
+     * @return \Illuminate\Http\RedirectResponse Redirección al perfil con mensaje de éxito
      */
-    public function addStats(Request $request)
+    public function addStats(UpdateUserStatsRequest $request)
     {
-        $user_id = $request->user_id;
-        $user = $this->user_service->getUser($user_id);
+        $userId = (int) $request->user_id;
+        $user = $this->userService->getUserById($userId);
 
-        $stats = $request->input('stats');
-        $totalAssigned = array_sum($request->input('stats', []));
-
-        //Declaramos las reglas de validación
-        foreach ($stats as $stat => $id) {
-            $rules["stats.$stat"] = "required|array|exists:stats,id";
-        }
-
-        foreach($stats as $id => $value){
-            $value_increment = $value;
-            $valueStat = UserStat::where('user_id', $user_id)->where('stat_id', $id)->first();
-            $new_value = $valueStat->value + $value;
-            $valueStat->update(['value' => $new_value]);
-        }
-
-        $user->unasigned_points -= $totalAssigned;
-        $user->save();
+        // Actualizar las stats del usuario
+        $this->userService->updateUserStats($userId, $request->input('stats'));
 
         return redirect()->route('users.show')
                          ->with('success', "$user->name has asignado todos los puntos satisfactoriamente.");
     }
 
+    /**
+     * Muestra la vista de selección de avatar para el usuario.
+     * 
+     * @param User $user Usuario para el que se selecciona el avatar
+     * @return \Illuminate\View\View Vista de selección de avatar
+     */
     public function showAvatarSelection(User $user)
     {
         return view('users.avatar_selection', compact('user'));
     }
 
-    public function changeAvatar(Request $request, User $user)
+    /**
+     * Actualiza el avatar del usuario.
+     * 
+     * @param ChangeAvatarRequest $request Solicitud validada con el avatar seleccionado
+     * @param User $user Usuario cuyo avatar se actualiza
+     * @return \Illuminate\Http\RedirectResponse Redirección al perfil con mensaje de éxito
+     */
+    public function changeAvatar(ChangeAvatarRequest $request, User $user)
     {
-        $request->validate([
-            'avatar' => 'required|integer|min:1|max:6', // Validamos que sea un número del 1 al 6
-        ]);
-
         $user->avatar = $request->avatar;
         $user->save();
 
-        return redirect()->route('users.show', $user->_id)->with('success', 'Avatar actualizado con éxito.');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('users.show')->with('success', 'Avatar actualizado con éxito.');
     }
 
 
