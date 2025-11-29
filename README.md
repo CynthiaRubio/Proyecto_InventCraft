@@ -2,9 +2,9 @@
 
 Esta guía te ayudará a desplegar InventCraft en tu entorno local o servidor.
 
-> 📖 **¿Buscas las instrucciones del juego?** Consulta el archivo [README_JUEGO.md](README_JUEGO.md) para conocer las reglas, mecánicas y objetivos del juego.
+> **¿Buscas las instrucciones del juego?** Consulta el archivo [README_JUEGO.md](README_JUEGO.md) para conocer las reglas, mecánicas y objetivos del juego.
 
-## 📋 Requisitos del Sistema
+## Requisitos del Sistema
 
 ### Opción 1: Instalación Local (sin Docker)
 
@@ -29,7 +29,7 @@ Esta guía te ayudará a desplegar InventCraft en tu entorno local o servidor.
 
 ---
 
-## 🐳 Despliegue con Docker (Recomendado)
+## Despliegue con Docker (Recomendado)
 
 Esta es la forma más sencilla de desplegar el proyecto.
 
@@ -100,7 +100,7 @@ El seeder crea un usuario de prueba:
 
 ---
 
-## 💻 Despliegue Local (sin Docker)
+## Despliegue Local (sin Docker)
 
 ### 1. Clonar el repositorio
 
@@ -198,7 +198,7 @@ La aplicación estará disponible en: http://localhost:8000
 
 ---
 
-## 🛠️ Comandos Útiles
+## Comandos Útiles
 
 ### Con Docker
 
@@ -264,7 +264,7 @@ php artisan migrate:fresh --seed
 
 ---
 
-## 🔧 Configuración Adicional
+## Configuración Adicional
 
 ### Cambiar puertos (Docker)
 
@@ -295,7 +295,7 @@ Sin esta clave, las zonas funcionarán normalmente pero sin sonidos.
 
 ---
 
-## 🐛 Solución de Problemas
+## Solución de Problemas
 
 ### Error: "Port already in use" (Docker)
 
@@ -355,7 +355,7 @@ php artisan cache:clear
 
 ---
 
-## 📝 Notas Importantes
+## Notas Importantes
 
 - **Datos de prueba**: El seeder crea un usuario de prueba (`test@test.com` / `password`)
 - **Base de datos**: Con Docker, los datos se persisten en un volumen. Si eliminas el volumen (`docker-compose down -v`), perderás todos los datos.
@@ -368,7 +368,7 @@ php artisan cache:clear
 
 ---
 
-## 📚 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 InventCraft_mejorado/
@@ -396,7 +396,7 @@ InventCraft_mejorado/
 
 ---
 
-## ✅ Verificación del Despliegue
+## Verificación del Despliegue
 
 Después de desplegar, verifica que todo funcione:
 
@@ -413,7 +413,7 @@ Si todo funciona correctamente, ¡el despliegue ha sido exitoso! 🎉
 
 ---
 
-## 📞 Soporte
+## Soporte
 
 Si encuentras problemas durante el despliegue, revisa:
 1. Los logs: `docker-compose logs -f` (Docker) o `storage/logs/laravel.log` (local)
@@ -422,5 +422,5 @@ Si encuentras problemas durante el despliegue, revisa:
 
 ---
 
-**¡Disfruta jugando InventCraft!** 🎮
+**¡Disfruta jugando InventCraft!** 
 
