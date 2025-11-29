@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Building;
 use App\Contracts\BuildingServiceInterface;
+use App\Contracts\ActionServiceInterface;
 
 class BuildingController extends Controller
 {
@@ -15,9 +16,11 @@ class BuildingController extends Controller
      * Constructor del controlador.
      * 
      * @param BuildingServiceInterface $buildingService Servicio de edificios
+     * @param ActionServiceInterface $actionService Servicio de acciones
      */
     public function __construct(
         private BuildingServiceInterface $buildingService,
+        private ActionServiceInterface $actionService,
     ) {
     }
 
@@ -29,7 +32,12 @@ class BuildingController extends Controller
     public function index()
     {
         $buildings = Building::all();
-        return response()->json(['buildings' => $buildings], 200);
+        $canBuildSpaceStation = $this->buildingService->canBuildSpaceStation();
+        
+        return response()->json([
+            'buildings' => $buildings,
+            'can_build_space_station' => $canBuildSpaceStation,
+        ], 200);
     }
 
     /**
@@ -50,11 +58,32 @@ class BuildingController extends Controller
             $canBuildSpaceStation = $this->buildingService->canBuildSpaceStation();
         }
 
+        // Verificar si hay una construcción en curso para este edificio
+        $isUnderConstruction = false;
+        $user = auth()->user();
+        if ($user) {
+            $currentAction = $this->actionService->getCurrentAction($user->id);
+            if ($currentAction) {
+                $actionType = $this->actionService->getActionTypeById($currentAction->action_type_id);
+                // Comparar el tipo de acción y el tipo de modelo
+                if ($actionType->name === 'Construir' && 
+                    $currentAction->actionable_type === Building::class) {
+                    // Comparar IDs convirtiendo ambos a string para evitar problemas de tipo
+                    $buildingId = (string) $building->id;
+                    $actionableId = (string) $currentAction->actionable_id;
+                    if ($actionableId === $buildingId) {
+                        $isUnderConstruction = true;
+                    }
+                }
+            }
+        }
+
         return response()->json([
             'building' => $building,
             'actual_level' => $actual_level,
             'efficiency' => $efficiency,
             'can_build_space_station' => $canBuildSpaceStation,
+            'is_under_construction' => $isUnderConstruction,
         ], 200);
     }
 

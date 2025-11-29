@@ -41,15 +41,25 @@ class InventionController extends Controller
     /**
      * Elimina un invento y devuelve confirmación en formato JSON.
      * 
+     * Solo permite eliminar inventos que pertenecen al usuario autenticado.
+     * 
      * @param string $id ID del invento a eliminar
-     * @return \Illuminate\Http\JsonResponse Respuesta JSON con confirmación o error 404
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con confirmación o error 404/403
      */
     public function destroy(string $id)
     {
-        $invention = Invention::find($id);
+        $user = auth()->user();
+        $invention = Invention::with('inventory')->find($id);
 
         if (!$invention) {
             return response()->json(['error' => 'Invento no encontrado'], 404);
+        }
+
+        // Verificar que el invento pertenece al usuario autenticado
+        if ($invention->inventory->user_id !== $user->id) {
+            return response()->json([
+                'error' => 'No tienes permiso para eliminar este invento.'
+            ], 403);
         }
 
         $invention_name = $invention->name;

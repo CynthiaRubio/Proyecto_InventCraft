@@ -73,9 +73,15 @@ class InventoryController extends Controller
     public function show(string $id)
     {
         $user = auth()->user();
-        $inventory_id = Inventory::where('user_id', $user->id)->first()->id;
-        $inventions = Invention::where('inventory_id', $inventory_id)
-                                ->where('invention_type_id', $id)
+        $inventory = Inventory::where('user_id', $user->id)->first();
+
+        if (!$inventory) {
+            return redirect()->route('inventories.index')
+                ->with('error', 'Inventario no encontrado.');
+        }
+
+        $inventions = Invention::where('inventory_id', $inventory->id)
+                                ->where('invention_type_id', (int) $id)
                                 ->with('inventionType')
                                 ->get();
 

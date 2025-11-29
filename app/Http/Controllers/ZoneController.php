@@ -55,7 +55,7 @@ class ZoneController extends Controller
      */
     public function show(string $id)
     {
-        $zone = Zone::with(['materials', 'inventionTypes'])->find($id);
+        $zone = Zone::with(['materials', 'inventionTypes'])->findOrFail($id);
         $sound_url = $this->freeService->getSound($zone);
         $moveTime = $this->zoneService->calculateMoveTime($id);
 

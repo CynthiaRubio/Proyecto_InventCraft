@@ -28,7 +28,7 @@ class MaterialTypeController extends Controller
      */
     public function show(string $id)
     {
-        $materialType = MaterialType::with('materials')->findOrFail($id);
+        $materialType = MaterialType::with(['materials', 'inventionTypes'])->findOrFail($id);
 
         return view('materialTypes.show', compact('materialType'));    
     }

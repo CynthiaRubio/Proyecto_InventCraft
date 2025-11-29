@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\UpdateUserStatsRequest;
+use App\Http\Requests\ChangeAvatarRequest;
 use App\Contracts\UserServiceInterface;
 use App\Contracts\ActionServiceInterface;
 use App\Contracts\ZoneServiceInterface;
@@ -47,7 +49,7 @@ class UserController extends Controller
      */
     public function show()
     {
-        $user = Auth::user()->load('stats.stat');
+        $user = Auth::user()->load('userStats.stat');
         $zone_id = $this->actionService->getLastActionableByType('Mover');
         $zone = $zone_id ? $this->zoneService->getZone($zone_id) : null;
     
@@ -71,48 +73,52 @@ class UserController extends Controller
     /**
      * Devuelve los puntos sin asignar del usuario autenticado.
      * 
-     * @return \Illuminate\Http\JsonResponse Respuesta JSON con los puntos sin asignar
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con los puntos sin asignar y estadísticas
      */
     public function points()
     {
-        $user = Auth::user();
-        return response()->json(['unasigned_points' => $user->unasigned_points], 200);
+        $user = Auth::user()->load('userStats.stat');
+        return response()->json([
+            'unasigned_points' => $user->unasigned_points,
+            'user_stats' => $user->userStats,
+        ], 200);
     }
 
     /**
      * Permite asignar puntos a las estadísticas del usuario autenticado.
      * 
-     * @param Request $request Solicitud con los puntos a asignar
+     * @param UpdateUserStatsRequest $request Solicitud validada con los puntos a asignar
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con confirmación de asignación
      */
-    public function addStats(Request $request)
+    public function addStats(UpdateUserStatsRequest $request)
     {
-        $request->validate([
-            'stats' => 'required|array',
-        ]);
-
         $user = Auth::user();
-        $totalAssigned = $this->userService->updateUserStats($user->id, $request->input('stats'));
+        
+        // En API, el user_id viene del usuario autenticado, pero validamos que coincida
+        $userId = (int) $request->user_id;
+        if ($userId !== $user->id) {
+            return response()->json([
+                'error' => 'No tienes permiso para asignar puntos a otro usuario.'
+            ], 403);
+        }
+
+        $totalAssigned = $this->userService->updateUserStats($userId, $request->input('stats'));
 
         return response()->json([
             'message' => 'Puntos asignados correctamente',
             'total_assigned' => $totalAssigned,
-            'user' => $user->fresh(),
+            'user' => $user->fresh()->load('userStats.stat'),
         ], 200);
     }
 
     /**
      * Actualiza el avatar del usuario autenticado.
      * 
-     * @param Request $request Solicitud con el ID del avatar seleccionado
+     * @param ChangeAvatarRequest $request Solicitud validada con el ID del avatar seleccionado
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con confirmación de actualización
      */
-    public function changeAvatar(Request $request)
+    public function changeAvatar(ChangeAvatarRequest $request)
     {
-        $request->validate([
-            'avatar' => 'required|integer|min:1|max:6',
-        ]);
-
         $user = Auth::user();
         $user->avatar = $request->avatar;
         $user->save();

@@ -40,7 +40,7 @@ class InventionTypeController extends Controller
      */
     public function show(string $id)
     {
-        $invention_type = InventionType::with(['zone', 'building', 'inventionTypes', 'inventionTypesNeed'])->find($id);
+        $invention_type = InventionType::with(['zone', 'building', 'materialType', 'inventionTypes', 'inventionTypesNeed'])->find($id);
 
         if (!$invention_type) {
             return response()->json(['error' => 'Tipo de invento no encontrado'], 404);

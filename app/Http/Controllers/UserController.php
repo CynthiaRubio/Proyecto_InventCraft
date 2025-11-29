@@ -96,11 +96,19 @@ class UserController extends Controller
      * Guarda los puntos de estadísticas asignados por el usuario.
      * 
      * @param UpdateUserStatsRequest $request Solicitud validada con los puntos asignados
-     * @return \Illuminate\Http\RedirectResponse Redirección al perfil con mensaje de éxito
+     * @return \Illuminate\Http\RedirectResponse Redirección al perfil con mensaje de éxito o error
      */
     public function addStats(UpdateUserStatsRequest $request)
     {
+        $user = auth()->user();
         $userId = (int) $request->user_id;
+
+        // Validar que el usuario solo pueda asignar puntos a su propio perfil
+        if ($userId !== $user->id) {
+            return redirect()->route('users.show')
+                ->with('error', 'No tienes permiso para asignar puntos a otro usuario.');
+        }
+
         $user = $this->userService->getUserById($userId);
 
         // Actualizar las stats del usuario

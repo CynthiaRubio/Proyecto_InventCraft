@@ -29,7 +29,7 @@ class MaterialTypeController extends Controller
      */
     public function show(string $id)
     {
-        $materialType = MaterialType::with('materials')->find($id);
+        $materialType = MaterialType::with(['materials', 'inventionTypes'])->find($id);
 
         if (!$materialType) {
             return response()->json(['error' => 'Tipo de material no encontrado'], 404);

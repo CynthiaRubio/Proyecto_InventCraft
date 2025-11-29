@@ -67,17 +67,17 @@ class ActionController extends Controller
      */
     public function farmZone(FarmZoneRequest $request)
     {
-        $farmTimeSeconds = (int) $request->farmTime * 60; // Convertir minutos a segundos
-        $action = $this->actionService->createAction('Recolectar', $request->zone_id, 'Zone', $farmTimeSeconds);
+        $farmTime = (int) $request->farmTime; // Tiempo en minutos
+        $action = $this->actionService->createAction('Recolectar', $request->zone_id, 'Zone', $farmTime);
 
         if ($action) {
             $user = $this->userService->getUser();
             $zone = $this->zoneService->getZone($request->zone_id);
             
-            $this->resourceService->calculateFarm($request->zone_id, $farmTimeSeconds, $action);
+            $this->resourceService->calculateFarm($request->zone_id, $farmTime, $action);
 
             return response()->json([
-                'message' => "{$user->name} estarás explorando {$zone->name} durante {$request->farmTime} minutos.",
+                'message' => "{$user->name} estarás explorando {$zone->name} durante {$farmTime} minutos.",
                 'action' => $action,
                 'zone' => $zone,
             ], 201);

@@ -82,7 +82,7 @@ class ActionController extends Controller
             $user = $this->userService->getUser();
             $zone_name = $this->zoneService->getZone($request->zone_id)->name;
             $this->resourceService->calculateFarm($request->zone_id, $farmTime, $action);
-            return redirect()->route('zones.index')->with('success', "$user->name estarás explorando $zone_name durante $request->farmTime minutos.");
+            return redirect()->route('zones.index')->with('success', "$user->name estarás explorando $zone_name durante $farmTime minutos.");
         } else {
             return redirect()->route('zones.index')->with('error', "Ha ocurrido algo inesperado. No puedes explorar esta zona.");
         }

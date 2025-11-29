@@ -44,7 +44,7 @@ class AuthController extends Controller
         $zones = Zone::all();
         $initialZone = $zones->random();
         
-        $user = $this->userService->registerUser($request->validated(), $initialZone);
+        $user = $this->userService->registerUser($validator->validated(), $initialZone);
 
         return response()->json([
             'message' => 'Usuario registrado con éxito!',

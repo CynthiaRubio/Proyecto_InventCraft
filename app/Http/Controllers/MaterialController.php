@@ -31,7 +31,7 @@ class MaterialController extends Controller
      */
     public function show(string $id)
     {
-        $material = Material::with(['materialType.inventionTypes', 'zone'])->find($id);
+        $material = Material::with(['materialType.inventionTypes', 'zone'])->findOrFail($id);
 
         return view('materials.show', compact('material')); 
     }
