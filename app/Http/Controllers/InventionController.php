@@ -32,9 +32,7 @@ class InventionController extends Controller
     }
 
     /**
-     * Elimina un invento del sistema.
-     * 
-     * Solo permite eliminar inventos que pertenecen al usuario autenticado.
+     * Elimina un invento que pertenece al usuario autenticado del sistema.
      * 
      * @param string $id ID del invento a eliminar
      * @return \Illuminate\Http\RedirectResponse Redirección a la lista de inventos con mensaje de éxito o error
@@ -44,7 +42,6 @@ class InventionController extends Controller
         $user = auth()->user();
         $invention = Invention::with('inventory')->findOrFail($id);
 
-        // Verificar que el invento pertenece al usuario autenticado
         if ($invention->inventory->user_id !== $user->id) {
             return redirect()->route('inventions.index')
                 ->with('error', 'No tienes permiso para eliminar este invento.');

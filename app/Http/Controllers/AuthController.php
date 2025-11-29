@@ -39,7 +39,10 @@ class AuthController extends Controller
         /* Registrar el usuario completo: usuario, inventario, acción inicial y stats */
         $user = $this->userService->registerUser($request->validated(), $initialZone);
 
-        /* Redirige a la página de inicio confirmando el registro */
+        /* Autenticar automáticamente al usuario después del registro */
+        Auth::login($user);
+
+        /* Redirige directamente al perfil del usuario confirmando el registro */
         return redirect()->route('users.show')->with('success', "$user->name, te has registrado correctamente");
     }
 
