@@ -38,7 +38,7 @@ services:
     container_name: inventcraft_db
     restart: unless-stopped
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
       MYSQL_DATABASE: inventcraft
       MYSQL_ROOT_PASSWORD: root

@@ -6,7 +6,12 @@ Esta guía te ayudará a desplegar InventCraft en tu entorno local o servidor.
 
 ## Requisitos del Sistema
 
-### Opción 1: Instalación Local (sin Docker)
+### Opción 1: Con Docker (Recomendado)
+
+- **Docker Desktop**: Última versión
+- **Docker Compose**: Incluido en Docker Desktop
+
+### Opción 2: Instalación Local (sin Docker)
 
 - **PHP**: 8.1 o superior
 - **Composer**: Última versión
@@ -22,11 +27,6 @@ Esta guía te ayudará a desplegar InventCraft en tu entorno local o servidor.
   - `gd`
   - `zip`
 
-### Opción 2: Con Docker (Recomendado)
-
-- **Docker Desktop**: Última versión
-- **Docker Compose**: Incluido en Docker Desktop
-
 ---
 
 ## Despliegue con Docker (Recomendado)
@@ -36,14 +36,14 @@ Esta es la forma más sencilla de desplegar el proyecto.
 ### 1. Clonar el repositorio
 
 ```bash
-git clone [URL_DEL_REPOSITORIO]
-cd InventCraft_mejorado
+git clone https://github.com/CynthiaRubio/Proyecto_InventCraft.git
+cd Proyecto_InventCraft
 ```
 
 ### 2. Construir y levantar los contenedores
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 Este comando creará y levantará tres contenedores:
@@ -68,9 +68,9 @@ Este script automáticamente:
 - Ejecuta los seeders para poblar la base de datos
 - Limpia las cachés
 
-### 4. Configurar variables de entorno (opcional)
+### 4. Configurar variables de entorno
 
-Si necesitas configurar variables adicionales, edita el archivo `.env`:
+El script de inicialización crea automáticamente el archivo `.env` desde `.env.example` y genera la clave de aplicación. Si necesitas configurar variables adicionales, edita el archivo `.env`:
 
 ```env
 DB_CONNECTION=mysql
@@ -87,7 +87,7 @@ FREESOUND_API_KEY=tu_api_key_aqui
 ### 5. Acceder a la aplicación
 
 - **Aplicación web**: http://localhost:8080
-- **Base de datos**: localhost:3307
+- **Base de datos**: localhost:3306
   - Usuario: `inventcraft`
   - Contraseña: `inventcraft`
   - Base de datos: `inventcraft`
@@ -105,8 +105,8 @@ El seeder crea un usuario de prueba:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone [URL_DEL_REPOSITORIO]
-cd InventCraft_mejorado
+git clone https://github.com/CynthiaRubio/Proyecto_InventCraft.git
+cd Proyecto_InventCraft
 ```
 
 ### 2. Instalar dependencias de PHP
@@ -268,7 +268,7 @@ php artisan migrate:fresh --seed
 
 ### Cambiar puertos (Docker)
 
-Si los puertos 8080 o 3307 están ocupados, edita `docker-compose.yml`:
+Si los puertos 8080 o 3306 están ocupados, edita `docker-compose.yml`:
 
 ```yaml
 nginx:
@@ -277,7 +277,7 @@ nginx:
 
 db:
   ports:
-    - "3308:3306"  # Cambia 3307 por 3308
+    - "3307:3306"  # Cambia 3306 por 3307
 ```
 
 ### API Key de Freesound (Opcional)
