@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Contracts\FreeSoundServiceInterface;
 use App\Models\Zone;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Session;
 
 class FreesoundService implements FreeSoundServiceInterface
@@ -65,39 +66,54 @@ class FreesoundService implements FreeSoundServiceInterface
      * Busca sonidos, selecciona uno aleatorio y devuelve su URL de preview
      * 
      * @param string $query Término de búsqueda para el sonido
-     * @return string|null URL del preview del sonido (alta calidad preferida) o null si no hay resultados
+     * @return string|null URL del preview del sonido (alta calidad preferida) o null si no hay resultados o API key
      */
     public function getSoundUrl(string $query): ?string
     {
-
-        /* Hacemos la solicitud GET a la API de Freesound */
-        $response = $this->client->get('search/text/', [
-            'query' => [
-                'query' => $query,
-                'token' => env('FREESOUND_API_KEY')
-            ]
-        ]);
-
-        /* Guardamos el resultado de la solicitud */
-        $sounds = json_decode((string) $response->getBody(), true);
-
-        /* Si no hay resultados, devolvemos null */
-        if (!isset($sounds['results']) || empty($sounds['results'])) {
+        // Verificar si existe la API key antes de hacer la petición
+        $apiKey = env('FREESOUND_API_KEY');
+        if (empty($apiKey)) {
+            // Si no hay API key, devolvemos null sin hacer la petición
             return null;
         }
 
-        /* Elegimos un sonido aleatorio de los resultados */
-        $randomSound = $sounds['results'][array_rand($sounds['results'])];
+        try {
+            /* Hacemos la solicitud GET a la API de Freesound */
+            $response = $this->client->get('search/text/', [
+                'query' => [
+                    'query' => $query,
+                    'token' => $apiKey
+                ]
+            ]);
 
-        /* Pedimos los detalles del sonido seleccionado */
-        $response = $this->client->get("sounds/{$randomSound['id']}/", [
-            'query' => ['token' => env('FREESOUND_API_KEY')]
-        ]);
+            /* Guardamos el resultado de la solicitud */
+            $sounds = json_decode((string) $response->getBody(), true);
 
-        /* Guardamos los detalles */
-        $soundDetails = json_decode((string) $response->getBody(), true);
+            /* Si no hay resultados, devolvemos null */
+            if (!isset($sounds['results']) || empty($sounds['results'])) {
+                return null;
+            }
 
-        /* Devolvemos la URL del sonido en alta calidad (o baja si no está disponible) */
-        return $soundDetails['previews']['preview-hq-mp3'] ?? $soundDetails['previews']['preview-lq-mp3'] ?? null;
+            /* Elegimos un sonido aleatorio de los resultados */
+            $randomSound = $sounds['results'][array_rand($sounds['results'])];
+
+            /* Pedimos los detalles del sonido seleccionado */
+            $response = $this->client->get("sounds/{$randomSound['id']}/", [
+                'query' => ['token' => $apiKey]
+            ]);
+
+            /* Guardamos los detalles */
+            $soundDetails = json_decode((string) $response->getBody(), true);
+
+            /* Devolvemos la URL del sonido en alta calidad (o baja si no está disponible) */
+            return $soundDetails['previews']['preview-hq-mp3'] ?? $soundDetails['previews']['preview-lq-mp3'] ?? null;
+        } catch (ClientException $e) {
+            // Si hay un error de autenticación u otro error del cliente, devolvemos null
+            // Esto permite que la aplicación funcione sin sonidos si no hay API key o hay problemas
+            return null;
+        } catch (\Exception $e) {
+            // Cualquier otro error también devuelve null para no romper la aplicación
+            return null;
+        }
     }
 }

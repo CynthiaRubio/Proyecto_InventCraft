@@ -60,17 +60,23 @@ Ejecuta el script de inicialización:
 ```
 
 Este script automáticamente:
-- Instala las dependencias de Composer
+- Instala las dependencias de Composer (maneja automáticamente problemas con dependencias obsoletas)
 - Instala las dependencias de NPM
 - Compila los assets (CSS/JS)
+- Crea el archivo `.env` desde `.env.example` si no existe
+- Configura las variables de base de datos para Docker
 - Genera la clave de la aplicación
-- Ejecuta las migraciones
-- Ejecuta los seeders para poblar la base de datos
+- Ejecuta las migraciones y seeders para poblar la base de datos
 - Limpia las cachés
 
-### 4. Configurar variables de entorno
+### 4. Configurar variables de entorno (Opcional)
 
-El script de inicialización crea automáticamente el archivo `.env` desde `.env.example` y genera la clave de aplicación. Si necesitas configurar variables adicionales, edita el archivo `.env`:
+El script de inicialización configura automáticamente:
+- Crea el archivo `.env` desde `.env.example` si no existe
+- Configura las variables de base de datos para Docker (`DB_HOST=db`, `DB_PORT=3306`, etc.)
+- Genera la clave de aplicación (`APP_KEY`)
+
+Si necesitas configurar variables adicionales, edita el archivo `.env` después de ejecutar el script:
 
 ```env
 DB_CONNECTION=mysql
@@ -277,21 +283,29 @@ nginx:
 
 db:
   ports:
-    - "3307:3306"  # Cambia 3306 por 3307
+    - "3307:3306"  # Cambia 3306 por 3307 (si el puerto 3306 está ocupado)
 ```
 
-### API Key de Freesound (Opcional)
+### API Key de Freesound (Opcional pero recomendado)
 
-Para habilitar los sonidos de las zonas, necesitas una API key de Freesound:
+Para habilitar los sonidos ambientales de las zonas, necesitas obtener una API key de Freesound:
 
-1. Regístrate en https://freesound.org
-2. Crea una aplicación para obtener tu API key
-3. Agrega la clave en tu archivo `.env`:
+**Pasos para obtener tu API key:**
+
+1. Regístrate o inicia sesión en https://freesound.org
+2. Ve a tu perfil y accede a "API" o "Applications"
+3. Crea una nueva aplicación para obtener tu API key
+4. Copia la API key generada
+5. Agrega la clave en tu archivo `.env`:
+
    ```env
    FREESOUND_API_KEY=tu_api_key_aqui
    ```
 
-Sin esta clave, las zonas funcionarán normalmente pero sin sonidos.
+**Nota importante:**
+- Sin esta clave, las zonas funcionarán normalmente pero **sin sonidos ambientales**
+- La aplicación **no fallará** si no tienes la API key, simplemente no habrá sonidos
+- La API key es gratuita y solo requiere registro en Freesound
 
 ---
 
@@ -311,7 +325,23 @@ chmod -R 775 storage bootstrap/cache
 ### Error: "Class not found" o problemas de autoload
 
 ```bash
+# Con Docker
+docker exec inventcraft_app composer dump-autoload
+
+# Sin Docker
 composer dump-autoload
+```
+
+### Error: Problemas con composer.lock o dependencias obsoletas
+
+El script `init.sh` maneja automáticamente estos problemas:
+- Si detecta problemas con `composer.lock` (como dependencias obsoletas o incompatibles), actualiza automáticamente las dependencias
+- Ignora requisitos de extensiones no necesarias (como MongoDB)
+- Verifica que las dependencias se instalaron correctamente antes de continuar
+
+Si el script falla, puedes forzar una actualización manual:
+```bash
+docker exec inventcraft_app composer update --ignore-platform-req=ext-mongodb
 ```
 
 ### Error: "Database connection refused"
