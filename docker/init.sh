@@ -13,13 +13,35 @@ echo "✅ MySQL está listo"
 # Instalar dependencias de Composer
 echo "📦 Instalando dependencias de Composer..."
 
-# Si existe composer.lock, instalar desde lock. Si no, actualizar y generar lock.
+# Si existe composer.lock, intentar instalar desde lock. Si falla, actualizar.
 if [ -f composer.lock ]; then
-    docker exec inventcraft_app composer install --no-interaction
+    echo "Instalando desde composer.lock (ignorando requisitos de MongoDB)..."
+    docker exec inventcraft_app composer install --no-interaction --ignore-platform-req=ext-mongodb
+    COMPOSER_EXIT_CODE=$?
+    
+    # Verificar si realmente se instalaron las dependencias
+    if [ $COMPOSER_EXIT_CODE -eq 0 ] && [ -f vendor/autoload.php ]; then
+        echo "✅ Dependencias instaladas correctamente"
+    else
+        echo "⚠️  Problemas con composer.lock, actualizando dependencias..."
+        docker exec inventcraft_app composer update --no-interaction --ignore-platform-req=ext-mongodb
+    fi
 else
     echo "⚠️  No se encontró composer.lock, generando uno nuevo..."
-    docker exec inventcraft_app composer update --no-interaction
+    docker exec inventcraft_app composer update --no-interaction --ignore-platform-req=ext-mongodb
 fi
+
+# Verificar que vendor/autoload.php existe antes de continuar
+if [ ! -f vendor/autoload.php ]; then
+    echo "❌ Error crítico: No se pudo instalar las dependencias de Composer"
+    echo "Forzando actualización completa de dependencias..."
+    docker exec inventcraft_app composer update --no-interaction --ignore-platform-req=ext-mongodb
+    if [ ! -f vendor/autoload.php ]; then
+        echo "❌ Error fatal: No se puede continuar sin las dependencias de Composer"
+        exit 1
+    fi
+fi
+echo "✅ Verificado: vendor/autoload.php existe"
 
 # Instalar dependencias de NPM
 echo "📦 Instalando dependencias de NPM..."
